@@ -11,14 +11,15 @@ License: GPL2 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests:
-    testthat
-    data.tree
-    reticulate
-    seqinr
-    stringr
-    keras
+    testthat,
+    data.tree,
+    reticulate,
+    seqinr,
+    stringr,
+    keras,
+    dplyr
 Depends:
-    abind
-    purrr
+    abind,
+    purrr,
     rstackdeque
-    
+RoxygenNote: 6.1.1
