@@ -7,7 +7,7 @@ Author: Shawn T. O'neil
 Maintainer: Shawn T. O'Neil <oneilsh@gmail.com>
 Description: Provides functions for working with tensors (vectors, matrices, 
     or multidimensional arrays) as hierarchical data structures. 
-License: GPL2 + file LICENSE
+License: GPL-2 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests:
@@ -18,7 +18,7 @@ Suggests:
     stringr,
     keras,
     dplyr
-Depends:
+Imports:
     abind,
     purrr,
     rstackdeque

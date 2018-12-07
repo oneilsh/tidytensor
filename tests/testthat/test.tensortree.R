@@ -1,3 +1,5 @@
+context("as.tensortree")
+
 test_that("as.tensortree() works properly", {
   x <- c(1, 2, 3)
   tx <- as.tensortree(x)
