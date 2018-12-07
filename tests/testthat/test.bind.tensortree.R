@@ -1,3 +1,4 @@
+library(tensortree)
 context("testing bind")
 
 test_that("basic bind works properly", {

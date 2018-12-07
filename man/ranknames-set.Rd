@@ -9,9 +9,9 @@ ranknames(x, ...) <- value
 \arguments{
 \item{x}{input tensortree to set ranknames on.}
 
-\item{...}{additional arguments to be passed to or from methods (ignored).}
-
 \item{value}{what to store in ranknames(x).}
+
+\item{...}{additional arguments to be passed to or from methods (ignored).}
 }
 \description{
 A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)

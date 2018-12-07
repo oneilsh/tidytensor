@@ -38,6 +38,7 @@
 
 
 # method:
+#' @export
 `ranknames<-.tensortree` <- function(x, value, ...) {
   # we're going to work with the names() of the dimnames(), so we need to have some dimnames there.
   # this just sets them all to NA if there aren't any already
@@ -94,9 +95,10 @@
 #' print(ranknames(t))
 #'
 `ranknames` <- function(x, ...) {UseMethod("ranknames", x)}
-
+setGeneric("ranknames")
 
 # method:
+#' @export
 `ranknames.tensortree` <- function(x, ...) {
     if(is.null(attr(x, "dimnames"))) {
       return(NULL)
@@ -137,6 +139,7 @@
 `set_ranknames` <- function(x, newnames, ...) {UseMethod("set_ranknames", x)}
 
 # method
+#' @export
 `set_ranknames.tensortree` <- function(x, newnames, ...) {
   ranknames(x) <- newnames
   return(x)
@@ -147,6 +150,7 @@
 ### dimnames(t) <-
 ##############################################
 # just a method, the generic already exists in base R
+#' @export
 `dimnames<-.tensortree` <- function(x, value, ...) {
   # setting dimnames() directly erases previous ranknames, because those were stored as names(dimnames())
   # save and restore strategy...
@@ -187,6 +191,7 @@
 `set_dimnames` <- function(x, newnames, ...) {UseMethod("set_dimnames", x)}
 
 # method
+#' @export
 `set_dimnames.tensortree` <- function(x, newnames, ...) {
   dimnames(x) <- newnames
   return(x)

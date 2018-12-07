@@ -9,7 +9,8 @@
 #' newly created dimension; if ranknames were prevously unset lower ranknames are set to NA. If the input ranknames
 #' conflict, only those of the first input tensortree will be used, and a warning will be generated.
 #'
-#' @param ... a number of tensortrees of the same shape, or a single list of them.
+#' @param x a tensortree of the same shape, or a single list of them.
+#' @param ... a number of additional tensortrees to bind with
 #' @param new_rank_name a name (length-1 character vector) for the newly created rank.
 #' @return a new tensortree.
 #' @seealso \code{\link{ranknames}}, \code{\link{c.tensortree}}
@@ -25,11 +26,14 @@
 #' t4 <- bind(t1, t2, t3, new_rank_name = "batch")
 #' summary(t4)
 `bind` <- function(..., new_rank_name = NULL) {UseMethod("bind", list(...)[[1]])}
+setGeneric("bind")
 
 # I wrote the original to be agnostic over a list of tensortree or just a bunch of them, so I'll just dispatch list to that
-`bind.list` <- function(...) {return(bind.tensortree(...))}
+#' @export
+`bind.list` <- function(..., new_rank_name = NULL) {return(bind.tensortree(..., new_rank_name = new_rank_name))}
 
 # method
+#' @export
 `bind.tensortree` <- function(..., new_rank_name = NULL) {
   # damnit; I need to get the first element of ..., whether its separate arguments or a single list,
   # so that I can get the ranknames() of that thing.

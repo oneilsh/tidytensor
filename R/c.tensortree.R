@@ -22,12 +22,10 @@
 
 #' t4 <- c(t1, t2, t3)
 #' summary(t4)
-
-# method
 `c.tensortree` <- function(...) {
   ranknames_list <- lapply(list(...), ranknames)
   if(length(unique(ranknames_list)) > 1) {
-    warning("Conflicting ranknames during c(). Only the first will be used.")
+   warning("Conflicting ranknames during c(). Only the first will be used.")
   }
 
   concatted <- as.tensortree(abind::abind(..., along = 1))
