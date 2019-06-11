@@ -30,12 +30,12 @@ package also provides a specialized dimnames() which preserves ranknames when se
 \examples{
 t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 t <- set_ranknames(t, c("sample", "row", "col"))
-summary(t)
+print(t)
 
 # If given a single rankname, will repeat the rankname for all ranks
 t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 t <- set_ranknames(t, "generic")
-summary(t)
+print(t)
 
 }
 \seealso{

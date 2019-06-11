@@ -4,14 +4,12 @@
 \alias{ranknames<-}
 \title{Assign ranknames to a tensortree.}
 \usage{
-ranknames(x, ...) <- value
+ranknames(x) <- value
 }
 \arguments{
 \item{x}{input tensortree to set ranknames on.}
 
 \item{value}{what to store in ranknames(x).}
-
-\item{...}{additional arguments to be passed to or from methods (ignored).}
 }
 \description{
 A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
@@ -27,19 +25,14 @@ package also provides a specialized dimnames() which preserves ranknames when se
 \examples{
 t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 ranknames(t) <- c("sample", "row", "col")
-summary(t)
-
-# If given a single rankname, will repeat the rankname for all ranks
-t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
-ranknames(t) <- "generic"
-summary(t)
+print(t)
 
 # works like names():
 t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 ranknames(t) <- c("sample", "row", "col")
 print(ranknames(t))
 ranknames(t)[3] <- "pixel"
-summary(t)
+print(t)
 }
 \seealso{
 \code{\link{set_ranknames}}, \code{\link{dimnames<-}}

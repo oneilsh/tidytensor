@@ -9,8 +9,7 @@
 #' newly created dimension; if ranknames were prevously unset lower ranknames are set to NA. If the input ranknames
 #' conflict, only those of the first input tensortree will be used, and a warning will be generated.
 #'
-#' @param x a tensortree of the same shape, or a single list of them.
-#' @param ... a number of additional tensortrees to bind with
+#' @param ... one or more tensortrees, or a single list of them, to bind
 #' @param new_rank_name a name (length-1 character vector) for the newly created rank.
 #' @return a new tensortree.
 #' @seealso \code{\link{ranknames}}, \code{\link{c.tensortree}}
@@ -24,7 +23,7 @@
 #' ranknames(t3) <- c("sample", "row", "col")
 
 #' t4 <- bind(t1, t2, t3, new_rank_name = "batch")
-#' summary(t4)
+#' print(t4)
 `bind` <- function(..., new_rank_name = NULL) {UseMethod("bind", list(...)[[1]])}
 setGeneric("bind")
 

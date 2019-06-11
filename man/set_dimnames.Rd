@@ -25,12 +25,12 @@ Setting dimnames with set_dimnames() preserves any ranknames present.
 }
 \examples{
 t <- as.tensortree(array(1:(3 * 2), dim = c(3, 2)))
-t <- set_dimnames(t, list(c("sample1", "sample2", "sample3"), c("valset1", "valset2"))
-summary(t)
+t <- set_dimnames(t, list(c("sample1", "sample2", "sample3"), c("valset1", "valset2")))
+print(t)
 
 # We can also assign ranknames:
 ranknames(t) <- c("sample", "valset")
-summary(t)
+print(t)
 
 }
 \seealso{

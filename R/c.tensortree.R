@@ -21,7 +21,7 @@
 #' ranknames(t3) <- c("sample", "row", "col")
 
 #' t4 <- c(t1, t2, t3)
-#' summary(t4)
+#' print(t4)
 `c.tensortree` <- function(...) {
   ranknames_list <- lapply(list(...), ranknames)
   if(length(unique(ranknames_list)) > 1) {

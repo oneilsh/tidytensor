@@ -30,7 +30,7 @@ ranknames(t1) <- c("sample", "row", "col")
 ranknames(t2) <- c("sample", "row", "col")
 ranknames(t3) <- c("sample", "row", "col")
 t4 <- c(t1, t2, t3)
-summary(t4)
+print(t4)
 }
 \seealso{
 \code{\link{bind}}

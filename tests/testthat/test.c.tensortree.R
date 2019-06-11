@@ -11,6 +11,8 @@ test_that("basic c works properly", {
   t4 <- c(t1, t2, t3)
   expect_equal(ranknames(t4), c("sample", "row", "col"))
   expect_equal(dim(t4), c(9, 4, 5))
+  t5 <- c(t1, NULL)
+  expect_equal(t1, t5)
 
 })
 
@@ -45,3 +47,6 @@ test_that("error trying to c() with different shapes", {
 
   expect_error(t4 <- c(t1, t2, t3))
 })
+
+
+

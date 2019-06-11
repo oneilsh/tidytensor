@@ -15,31 +15,26 @@
 #' package also provides a specialized dimnames() which preserves ranknames when setting dimnames().
 #'
 #' @param x input tensortree to set ranknames on.
-#' @param ... additional arguments to be passed to or from methods (ignored).
 #' @param value what to store in ranknames(x).
 #' @seealso \code{\link{set_ranknames}}, \code{\link{dimnames<-}}
 #' @examples
 #' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' ranknames(t) <- c("sample", "row", "col")
-#' summary(t)
-#'
-#' # If given a single rankname, will repeat the rankname for all ranks
-#' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
-#' ranknames(t) <- "generic"
-#' summary(t)
+#' print(t)
 #'
 #' # works like names():
 #' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(ranknames(t))
 #' ranknames(t)[3] <- "pixel"
-#' summary(t)
-`ranknames<-` <- function(x, value, ...) {UseMethod("ranknames<-", x)}
+#' print(t)
+`ranknames<-` <- function(x, value) {UseMethod("ranknames<-", x)}
 
 
 # method:
 #' @export
-`ranknames<-.tensortree` <- function(x, value, ...) {
+`ranknames<-.tensortree` <- function(x, value) {
+  if(is.null(x)) {return(NULL)}
   # we're going to work with the names() of the dimnames(), so we need to have some dimnames there.
   # this just sets them all to NA if there aren't any already
   if(is.null(attr(x, "dimnames"))) {
@@ -54,8 +49,8 @@
 
   # otherwise, if the number of names and number of ranks don't match, then no go
   if(any(length(value) != length(dim(x)))) {
-    stop(paste0("Mismatched rank. Dimensions of tensor: ",
-                paste0(dim(x), collapse = ", "),
+    stop(paste0("Mismatched rank. Shape of tensor: ",
+                paste0("(", paste0(dim(x), collapse = ", "), ")"),
                 "; attempted names: ",
                 paste0(value, collapse = ", "),
                 "\n\n"
@@ -94,12 +89,16 @@
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(ranknames(t))
 #'
-`ranknames` <- function(x, ...) {UseMethod("ranknames", x)}
+`ranknames` <- function(x, ...) {
+  if(is.null(x)) {return(NULL)}
+  UseMethod("ranknames", x)
+}
 setGeneric("ranknames")
 
 # method:
 #' @export
 `ranknames.tensortree` <- function(x, ...) {
+    if(is.null(x)) {return(NULL)}
     if(is.null(attr(x, "dimnames"))) {
       return(NULL)
     }
@@ -129,14 +128,17 @@ setGeneric("ranknames")
 #' @examples
 #' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' t <- set_ranknames(t, c("sample", "row", "col"))
-#' summary(t)
+#' print(t)
 #'
 #' # If given a single rankname, will repeat the rankname for all ranks
 #' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' t <- set_ranknames(t, "generic")
-#' summary(t)
+#' print(t)
 #'
-`set_ranknames` <- function(x, newnames, ...) {UseMethod("set_ranknames", x)}
+`set_ranknames` <- function(x, newnames, ...) {
+  if(is.null(x)) {return(NULL)}
+  UseMethod("set_ranknames", x)
+}
 
 # method
 #' @export
@@ -151,7 +153,9 @@ setGeneric("ranknames")
 ##############################################
 # just a method, the generic already exists in base R
 #' @export
-`dimnames<-.tensortree` <- function(x, value, ...) {
+`dimnames<-.tensortree` <- function(x, value) {
+  if(is.null(x)) {return(NULL)}
+
   # setting dimnames() directly erases previous ranknames, because those were stored as names(dimnames())
   # save and restore strategy...
 
@@ -181,18 +185,22 @@ setGeneric("ranknames")
 #' @seealso \code{\link{ranknames<-}}, \code{\link{dimnames}}
 #' @examples
 #' t <- as.tensortree(array(1:(3 * 2), dim = c(3, 2)))
-#' t <- set_dimnames(t, list(c("sample1", "sample2", "sample3"), c("valset1", "valset2"))
-#' summary(t)
+#' t <- set_dimnames(t, list(c("sample1", "sample2", "sample3"), c("valset1", "valset2")))
+#' print(t)
 #'
 #' # We can also assign ranknames:
 #' ranknames(t) <- c("sample", "valset")
-#' summary(t)
+#' print(t)
 #'
-`set_dimnames` <- function(x, newnames, ...) {UseMethod("set_dimnames", x)}
+`set_dimnames` <- function(x, newnames, ...) {
+  if(is.null(x)) {return(NULL)}
+  UseMethod("set_dimnames", x)
+}
 
 # method
 #' @export
 `set_dimnames.tensortree` <- function(x, newnames, ...) {
+  if(is.null(x)) {return(NULL)}
   dimnames(x) <- newnames
   return(x)
 }

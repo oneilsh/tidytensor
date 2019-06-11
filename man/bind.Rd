@@ -7,11 +7,9 @@
 bind(..., new_rank_name = NULL)
 }
 \arguments{
-\item{...}{a number of additional tensortrees to bind with}
+\item{...}{one or more tensortrees, or a single list of them, to bind}
 
 \item{new_rank_name}{a name (length-1 character vector) for the newly created rank.}
-
-\item{x}{a tensortree of the same shape, or a single list of them.}
 }
 \value{
 a new tensortree.
@@ -35,7 +33,7 @@ ranknames(t1) <- c("sample", "row", "col")
 ranknames(t2) <- c("sample", "row", "col")
 ranknames(t3) <- c("sample", "row", "col")
 t4 <- bind(t1, t2, t3, new_rank_name = "batch")
-summary(t4)
+print(t4)
 }
 \seealso{
 \code{\link{ranknames}}, \code{\link{c.tensortree}}
