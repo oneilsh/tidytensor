@@ -178,7 +178,7 @@ setGeneric("ranknames")
 #'
 #' @details Setting dimnames with set_dimnames() preserves any ranknames present.
 #'
-#' @param x input tensortree to set ranknames on.
+#' @param x input tensortree to set dimnames on.
 #' @param newnames list of dimnames to assign.
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @return a tensortree with dimnames set.
@@ -204,3 +204,52 @@ setGeneric("ranknames")
   dimnames(x) <- newnames
   return(x)
 }
+
+
+
+
+#' @export
+#' @title Set dimnames() via a standard function call, for a particular rank.
+#'
+#' @description Sets the dimensions names for a particular rank, without requiring dimnames for the other ranks.
+#'
+#' @details If all dimnames are unset, they will be set to NA for the other ranks, otherwise they will be left alone.
+#'
+#' @param x input tensortree to set dimnames on.
+#' @param rank rank to set the dimnames on.
+#' @param newnames vector dimnames to assign.
+#' @param ... additional arguments to be passed to or from methods (ignored).
+#' @return a tensortree with dimnames set.
+#' @seealso \code{\link{ranknames<-}}, \code{\link{dimnames}}, \code{\link{set_dimnames}}
+#' @examples
+#' t <- as.tensortree(array(1:(3 * 2), dim = c(3, 2)))
+#' t <- set_dimnames_for_rank(t, 2, c("valset1", "valset2"))
+#' print(t)
+#'
+#' # We can also assign ranknames:
+#' ranknames(t) <- c("sample", "valset")
+#' print(t)
+#'
+`set_dimnames_for_rank` <- function(x, rank, newnames, ...) {
+  if(is.null(x)) {return(NULL)}
+  UseMethod("set_dimnames_for_rank", x)
+}
+
+# method
+#' @export
+`set_dimnames_for_rank.tensortree` <- function(x, rank, newnames, ...) {
+  rank_index <- rank_to_index(x, rank)
+  if(is.null(dimnames(x))) {
+    # fill with NAs
+    dimnames(x) <- lapply(dim(x), function(count) {return(rep(NA, count))} )
+    dimnames(x)[[rank_index]] <- newnames
+  } else {
+    dimnames(x)[[rank_index]] <- newnames
+  }
+
+  return(x)
+}
+
+
+
+
