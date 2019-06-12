@@ -29,7 +29,7 @@ permute <- function(tensor, rank, ...) {UseMethod("permute", tensor)}
 permute.tensortree <- function(tensor, rank = TRUE) {
   permute_vec <- rank_to_index(tensor, rank)
 
-  # TODO: create a version tt_index that can subset multiple dimensions, dropping others, so that we can permute and select
+  # TODO: create a version tt_index that can subset multiple dimensions, dropping others, so that we can permute AND select
   if(length(permute_vec) != length(dim(tensor))) {
     stop("Error in permute: permutation vector must be same size as rank of tensor.")
   }

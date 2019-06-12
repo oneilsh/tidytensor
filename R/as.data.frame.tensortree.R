@@ -58,27 +58,19 @@ as.data.frame.tensortree <- function(tensor, allow_huge = FALSE) {
   if(is.null(dimnames_list)) {
     dimsizes <- dim(tensor)
     dimnames_list <- lapply(dimsizes, function(size) {return(seq(1, size))})
+  } else { # there are dimnames, but they might be a mess
+    for(rank_index in 1:length(dimnames_list)) {
+      rank_dimnames <- dimnames_list[[rank_index]]
+      if(any(!is.na(rank_dimnames))) { # if there are any already set, we'll assume its a factor/categorical
+        rank_dimnames[is.na(rank_dimnames)] <- seq(1, length(rank_dimnames))[is.na(rank_dimnames)]
+        dimnames_list[[rank_index]] <- factor(rank_dimnames, levels = unique(rank_dimnames))
+      } else { # otherwise it's just indices
+        rank_dimnames <- seq(1, length(rank_dimnames))
+      }
+      dimnames_list[[rank_index]] <- rank_dimnames
+    }
   }
 
-  # if there are dimnames, but any that are NA (which will be the case if ranknames are set but not dimnames),
-  # we replace NA entries with the index that would go there
-  if(any(!is.na(unlist(dimnames_list)))) {
-    dimnames_list <- lapply(dimnames_list, function(rank_dimnames) {
-      rank_dimnames[is.na(rank_dimnames)] <- seq(1, length(rank_dimnames))[is.na(rank_dimnames)]
-      return(rank_dimnames)
-    })
-
-    # we prolly want entries to be factors - wait, no we don't
-    dimnames_list <- lapply(dimnames_list, function(rank_dimnames) {
-      return(factor(rank_dimnames))
-    })
-  } else { # if they were all NA, we're gonna use integer indices
-    # TODO: we prolly want to make this determination on a per-rank basis
-    dimnames_list <- lapply(dimnames_list, function(rank_dimnames) {
-      rank_dimnames <- seq(1, length(rank_dimnames))[is.na(rank_dimnames)]
-      return(rank_dimnames)
-    })
-  }
 
   # we're going to pre-generate a dataframe of the right size, containing factors with the right levels.
   # first we use lapply() to generate a list of columns, with the first entry repeated as necessary

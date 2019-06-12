@@ -3,14 +3,16 @@
 #'
 #' @description Prints a summary of a tensortree as a nested hierarchy of tensors of lower rank.
 #'
-#' @details
+#' @details The \code{bottom} argument specifies whether the lowest ranks of the tensor should be shown as 2d matrices, 3d matrices, or 1d arrays; \code{"auto"} will
+#' select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image and a "channels-first" convention) or if there are only two ranks,
+#' and otherwise will default to "1d".
 #'
 #' @param x a tensortree to summarize.
 #' @param max_per_level only show this many sub-tensors per level.
 #' @param signif_digits number of significant digits to print for numeric tensors.
 #' @param end_n limit the base-level prints to include this many dimensions of each rank.
 #' @param show_names show the dimension names, if present, or dimension indices if not in base-level prints.
-#' @param bottom either "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.
+#' @param bottom either "auto", "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @seealso \code{\link{print.tensortree}}
 #' @examples
@@ -22,7 +24,20 @@
 #' ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
 #' print(t, n = c(6, 6, 3), bottom = "3d")
 #'
-`print.tensortree` <- function(x, max_per_level = 2, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE, bottom = "1d", ...) {
+`print.tensortree` <- function(x, max_per_level = 2, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE, bottom = "auto", ...) {
+    if(bottom == "auto") {
+      bottom = "1d"
+      if(length(dim(x)) > 2) { # could be 3d
+        if(dim(x)[length(dim(x))] %in% c(3, 1) | dim(x)[length(dim(x))-2] %in% c(3, 1)) {
+          bottom = "3d"
+        }
+
+      } else if(length(dim(x)) == 2) {
+        bottom = "2d"
+      }
+    }
+
+
     cat("Rank ", length(dim(x)), " tensor, shape: ", sep = "")
     cat("(", paste0(dim(x), collapse = ", "), ")", sep = "")
     if(!is.null(ranknames(x))) {
@@ -122,6 +137,17 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
   }
 
   saved_dimnames <- dimnames(mat)
+  # replace missing dimnames or any NAs with proper dimnames
+  # if(is.null(saved_dimnames)) {
+  #   saved_dimnames <- lapply(dim(mat), function(d) {return(1:d)})
+  # }
+  #
+  # for(i in 1:length(saved_dimnames)) {
+  #   dimnames_i <- saved_dimnames[[i]]
+  #   dimnames_i[is.na(dimnames_i)] <- seq(1, length(dimnames_i))[is.na(dimnames_i)]
+  #   saved_dimnames[[i]] <- dimnames_i
+  # }
+
   saved_ranknames <- ranknames(mat)
   if(is.numeric(mat)) {
     mat <- signif(mat, signif_digits)
@@ -153,6 +179,7 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
   #if(is3d) { cat(paste0("Rank 3 tensor (", paste(dim(mat2), collapse = ", "), ")"))}
   #else { cat(paste0("Rank 2 tensor (", paste(dim(mat2), collapse = ", "), ")"))}
 
+  needs_newline = FALSE
 
   if(!is.null(saved_ranknames)) {
     #res <- paste('"', saved_ranknames, '"', sep = "")
@@ -161,7 +188,7 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
     #))
     cat(paste0(rep(" ", indent)), sep = "")
     cat("#", paste(saved_ranknames, collapse = ", "))
-    cat("\n")
+    needs_newline = TRUE
   }
 
 
@@ -207,6 +234,7 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
           cat(paste0('  ("', saved_ranknames[3] ,'" Dimension names: [',
                      paste(res, collapse = ", "), "])"
           ))
+          needs_newline = TRUE
         }
       }
     }
@@ -224,8 +252,8 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
       mat <- rbind(c("", col_names), mat) # this is
 
     } else if(!set_rownames) {
-      if(is3d) {row_names <- paste("[", 1:nrow(mat), ",,]", sep = "")}
-      else {row_names <- paste("[", 1:nrow(mat), ",]", sep = "")}
+      if(is3d) {row_names <- paste("[", 0:nrow(mat), ",,]", sep = "")}
+      else {row_names <- paste("[", 0:nrow(mat), ",]", sep = "")}
       mat <- cbind(row_names, mat)
       mat[1, 1] <- ""
     } else if(!set_colnames) {
@@ -237,19 +265,21 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
   }
 
 
+  if(needs_newline) {cat("\n")}
+
+
   mat[is.na(mat)] <- "NA"
 
-  # TODO: the if-statement itself needs to consider whether names were added (ie it's showing ... even if n=6 and the number of rows is 6)
-  if(nrow(mat) > end_n[1]) {
-    adder <- 0
-    if(show_names) {adder <- 1}
+  adder <- 0
+  if(show_names) {adder <- 1}
+  if(nrow(mat) > end_n[1] + adder) {
     mat <- mat[1:(end_n[1] + adder), ]
     mat <- rbind(mat, rep("... ", ncol(mat)))
   }
 
-  if(ncol(mat) > end_n[2]) {
-    adder <- 0
-    if(show_names) {adder <- 1}
+  adder <- 0
+  if(show_names) {adder <- 1}
+  if(ncol(mat) > end_n[2] + adder) {
     mat <- mat[, 1:(end_n[2] + adder)]
     mat <- cbind(mat, rep("... ", nrow(mat)))
   }

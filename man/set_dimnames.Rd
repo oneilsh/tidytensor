@@ -7,7 +7,7 @@
 set_dimnames(x, newnames, ...)
 }
 \arguments{
-\item{x}{input tensortree to set ranknames on.}
+\item{x}{input tensortree to set dimnames on.}
 
 \item{newnames}{list of dimnames to assign.}
 

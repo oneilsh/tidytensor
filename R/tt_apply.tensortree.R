@@ -103,8 +103,6 @@ tt_apply.tensortree <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
 
 
   # if they want collapsed output, collapse it down - must reverse due to R array reshaping
-  # TODO: test this more thoroughly to ensure child nodes at level n aren't shuffled across parents at n - 1
-  # TODO: I think function_ret_shape is correct here; double check (I was using dim_non_margin, which isn't right)
   if(flatten == TRUE) {
     reversed <- aperm(result, rev(1:length(dim(result))))
     result <- array(reversed, dim = c(prod(dim_margin), function_ret_shape))

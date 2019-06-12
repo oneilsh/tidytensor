@@ -5,7 +5,7 @@
 \title{Print a tensortree.}
 \usage{
 \method{print}{tensortree}(x, max_per_level = 2, signif_digits = 4,
-  end_n = c(6, 6, 3), show_names = FALSE, bottom = "1d", ...)
+  end_n = c(6, 6, 3), show_names = FALSE, bottom = "auto", ...)
 }
 \arguments{
 \item{x}{a tensortree to summarize.}
@@ -18,7 +18,7 @@
 
 \item{show_names}{show the dimension names, if present, or dimension indices if not in base-level prints.}
 
-\item{bottom}{either "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.}
+\item{bottom}{either "auto", "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
@@ -26,7 +26,9 @@
 Prints a summary of a tensortree as a nested hierarchy of tensors of lower rank.
 }
 \details{
-
+The \code{bottom} argument specifies whether the lowest ranks of the tensor should be shown as 2d matrices, 3d matrices, or 1d arrays; \code{"auto"} will
+select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image and a "channels-first" convention) or if there are only two ranks,
+and otherwise will default to "1d".
 }
 \seealso{
 \code{\link{print.tensortree}}
