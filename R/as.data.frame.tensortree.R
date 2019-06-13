@@ -58,16 +58,17 @@ as.data.frame.tensortree <- function(tensor, allow_huge = FALSE) {
   if(is.null(dimnames_list)) {
     dimsizes <- dim(tensor)
     dimnames_list <- lapply(dimsizes, function(size) {return(seq(1, size))})
-  } else { # there are dimnames, but they might be a mess
-    for(rank_index in 1:length(dimnames_list)) {
-      rank_dimnames <- dimnames_list[[rank_index]]
-      if(any(!is.na(rank_dimnames))) { # if there are any already set, we'll assume its a factor/categorical
-        rank_dimnames[is.na(rank_dimnames)] <- seq(1, length(rank_dimnames))[is.na(rank_dimnames)]
-        dimnames_list[[rank_index]] <- factor(rank_dimnames, levels = unique(rank_dimnames))
-      } else { # otherwise it's just indices
-        rank_dimnames <- seq(1, length(rank_dimnames))
-      }
-      dimnames_list[[rank_index]] <- rank_dimnames
+  }
+  # there may already be dimnames, but they might be a mess
+  for(rank_index in 1:length(dimnames_list)) {
+    rank_dimnames <- dimnames_list[[rank_index]]
+    # make it not null in case it is, filling with nums
+    if(is.null(rank_dimnames)) { rank_dimnames <- seq(1, dim(tensor)[rank_index]) }
+    if(is.character(rank_dimnames)) { # if there are any already set, we'll assume its a factor/categorical
+      rank_dimnames[is.na(rank_dimnames)] <- seq(1, length(rank_dimnames))[is.na(rank_dimnames)]
+      dimnames_list[[rank_index]] <- factor(rank_dimnames, levels = unique(rank_dimnames))
+    } else { # otherwise it's just indices
+      dimnames_list[[rank_index]] <- seq(1, length(rank_dimnames))
     }
   }
 
