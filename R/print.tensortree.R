@@ -129,7 +129,8 @@ print_list <- function(xl, indent = 0, max_per_level = 2, signif_digits = 4, end
   }
 }
 
-
+# TODO: the output here is weird for e.g. tensors of shape (1, 1000)
+# TODO: also weirdness with an e.g. (512, 14, 14) tensor? Missing dots on the right...
 # Base functions for printing 1, 2 and 3d tensors, not for external use, big mess of code too...
 tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE) {
   if( !length(end_n) %in% c(2, 3) | mode(end_n) != "numeric") {

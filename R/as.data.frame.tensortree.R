@@ -64,7 +64,7 @@ as.data.frame.tensortree <- function(tensor, allow_huge = FALSE) {
     rank_dimnames <- dimnames_list[[rank_index]]
     # make it not null in case it is, filling with nums
     if(is.null(rank_dimnames)) { rank_dimnames <- seq(1, dim(tensor)[rank_index]) }
-    if(is.character(rank_dimnames)) { # if there are any already set, we'll assume its a factor/categorical
+    if(is.character(rank_dimnames) & !all(is.na(rank_dimnames))) { # if there are any already set (that are not NA), we'll assume its a factor/categorical
       rank_dimnames[is.na(rank_dimnames)] <- seq(1, length(rank_dimnames))[is.na(rank_dimnames)]
       dimnames_list[[rank_index]] <- factor(rank_dimnames, levels = unique(rank_dimnames))
     } else { # otherwise it's just indices
@@ -85,7 +85,7 @@ as.data.frame.tensortree <- function(tensor, allow_huge = FALSE) {
   # for each rank index, fill it according to R's array deconstructing rules
   subfill <- dimnames_list[[1]]
   big_df[, 1] <- rep_len(subfill, nrows)
-  if(length(dim(tensor)) > 2) {
+  if(length(dim(tensor)) >= 2) {
     for(i in seq(2,length(dim(tensor)))) {
       dimnames_i <- dimnames_list[[i]]
       last_subfill <- subfill
