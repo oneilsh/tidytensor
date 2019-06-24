@@ -32,7 +32,8 @@
           bottom = "3d"
         }
 
-      } else if(length(dim(x)) == 2) {
+      }
+      if(length(dim(x)) == 2 | (dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1])) { # 2d if there's exactly 2 dims, OR if the last two are equal in size (like a square photo...)
         bottom = "2d"
       }
     }
@@ -55,6 +56,7 @@
       }
     }
 
+
     # reduce size of last 3 ranks
     last_ranks <- (max(length(orig_dims) - 2, 1)):(length(orig_dims))
 
@@ -65,6 +67,7 @@
       end_n_counter <- end_n_counter + 1
     }
 
+
     if(bottom == "1d") {
       # don't listify if we don't need to; we'll just hit the base case in print_list immediately
       if(length(dim(x)) == 1) {x_list <- x}
@@ -72,7 +75,9 @@
     } else if(bottom == "2d") {
       if(length(orig_dims) < 2) {stop("Cannot print rank 1 tensor with bottom = '2d'.")}
       if(length(dim(x)) == 2) {x_list <- x}
-      else {x_list <- as.list(x, rank = max(length(orig_dims) - 2, 0))}
+      else {
+        x_list <- as.list(x, rank = max(length(orig_dims) - 2, 0))
+        }
     } else if(bottom == "3d") {
       if(length(orig_dims) < 3) {stop("Cannot print rank 1 or rank 2 tensor with bottom = '3d'.")}
       if(length(dim(x)) == 3) {x_list <- x}
@@ -88,7 +93,6 @@ print_list <- function(xl, indent = 0, max_per_level = 2, signif_digits = 4, end
   if(is.null(state)) {
     state <- rep("", length(orig_dims))
   }
-
 
   ident <- paste(rep(" ", indent), collapse = "")
   if(!is.list(xl)) {  # base case, not a nested list
@@ -106,7 +110,6 @@ print_list <- function(xl, indent = 0, max_per_level = 2, signif_digits = 4, end
       index_string <- paste0(c("[", paste(state, collapse = ", "), "]"), collapse = "")
 
       cat(ident)
-      #cat("#", names(xl)[[i]])  #TODO: this part needs rewriting...
       cat("# ")
       if(!is.null(orig_ranks)) {cat(orig_ranks[1])}
       else {cat("tensor")}
@@ -129,8 +132,6 @@ print_list <- function(xl, indent = 0, max_per_level = 2, signif_digits = 4, end
   }
 }
 
-# TODO: the output here is weird for e.g. tensors of shape (1, 1000)
-# TODO: also weirdness with an e.g. (512, 14, 14) tensor? Missing dots on the right...
 # Base functions for printing 1, 2 and 3d tensors, not for external use, big mess of code too...
 tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE) {
   if( !length(end_n) %in% c(2, 3) | mode(end_n) != "numeric") {
@@ -165,8 +166,8 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
   if(length(dim(mat)) == 3) {
     mat2 <- tt_apply(mat2, 2, function(channels) {
       channels <- as.character(channels)
-      if(length(channels) > end_n[3]) {
-        channels <- c(channels[1:end_n[3]], "...") # BEWARE: tt_apply always gets an array (tensortree), even if 1d, so c() here is using c.tensortree, NOT c.character, unless we explictly cast it as a character array. ugh.
+      if(length(channels) > end_n[length(end_n)]) {
+        channels <- c(channels[1:end_n[length(end_n)]], "...") # BEWARE: tt_apply always gets an array (tensortree), even if 1d, so c() here is using c.tensortree, NOT c.character, unless we explictly cast it as a character array. ugh.
       }
       res1 <- paste0("[", paste(channels, collapse = ", "), "]")
       res <- as.tensortree(res1)
@@ -273,23 +274,25 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
 
   adder <- 0
   if(show_names) {adder <- 1}
-  if(nrow(mat) > end_n[1] + adder) {
-    mat <- mat[1:(end_n[1] + adder), ]
+  if(nrow(mat) > end_n[2] + adder) {
+    mat <- mat[1:(end_n[2] + adder), ,drop = FALSE]
     mat <- rbind(mat, rep("... ", ncol(mat)))
   }
 
+
   adder <- 0
   if(show_names) {adder <- 1}
-  if(ncol(mat) > end_n[2] + adder) {
-    mat <- mat[, 1:(end_n[2] + adder)]
+  if(ncol(mat) > end_n[3] + adder) {
+    mat <- mat[, 1:(end_n[3] + adder), drop = FALSE]
     mat <- cbind(mat, rep("... ", nrow(mat)))
   }
+
 
 
   wd <- max(nchar(mat)) + 1
   sp <- wd - nchar(mat)
   sp[,1] <- max(nchar(mat[,1])) + 1 - nchar(mat[,1]) # seperate indenting for the first col, we don't need to space according to the rest of the data
-  sp[,ncol(mat)] <- max(nchar(mat[,ncol(mat)])) + 1 - nchar(mat[,ncol(mat)]) # seperate indenting for the first col, we don't need to space according to the rest of the data
+  sp[,ncol(mat)] <- max(nchar(mat[,ncol(mat),drop=FALSE])) + 1 - nchar(mat[,ncol(mat),drop=FALSE]) # seperate indenting for the first col, we don't need to space according to the rest of the data
   build <- rstackdeque::rstack()
   for (i in 1:nrow(mat)) {
     build <- rstackdeque::insert_top(build, paste0(rep(" ", indent), collapse = "")) # why even the -2? there's an extra two coming here somehow
