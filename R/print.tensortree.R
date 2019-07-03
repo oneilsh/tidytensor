@@ -28,12 +28,12 @@
     if(bottom == "auto") {
       bottom = "1d"
       if(length(dim(x)) > 2) { # could be 3d
-        if(dim(x)[length(dim(x))] %in% c(3, 1) | dim(x)[length(dim(x))-2] %in% c(3, 1)) {
+        if(dim(x)[length(dim(x))] %in% c(3, 1)) {
           bottom = "3d"
         }
 
       }
-      if(length(dim(x)) == 2 | (dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1])) { # 2d if there's exactly 2 dims, OR if the last two are equal in size (like a square photo...)
+      if(length(dim(x)) == 2 | (dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) | dim(x)[length(dim(x))-2] %in% c(3, 1)) { # 2d if there's exactly 2 dims, OR if the last two are equal in size (like a square photo...), OR if the third from last is 3 or 1 (channels-first representation)
         bottom = "2d"
       }
     }
