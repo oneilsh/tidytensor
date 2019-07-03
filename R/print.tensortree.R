@@ -26,10 +26,10 @@
 #'
 `print.tensortree` <- function(x, max_per_level = 2, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE, bottom = "auto", ...) {
     if(length(end_n) == 2) { # if they only specify the last two for end_n, pad it out so it works
-      end_n <- c(1, end_n)
+      end_n <- c(6, end_n)
       bottom <- "2d"
     } else if(length(end_n) == 1) {
-      end_n <- c(1, 1, end_n)
+      end_n <- c(6, 6, end_n)
       bottom = "1d"
     }
 
