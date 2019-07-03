@@ -33,7 +33,7 @@
         }
 
       }
-      if(length(dim(x)) == 2 | (dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) | dim(x)[length(dim(x))-2] %in% c(3, 1)) { # 2d if there's exactly 2 dims, OR if the last two are equal in size (like a square photo...), OR if the third from last is 3 or 1 (channels-first representation)
+      if(length(dim(x)) == 2 | (dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) | (length(dim(x)) > 2 & dim(x)[length(dim(x))-2] %in% c(3, 1))) { # 2d if there's exactly 2 dims, OR if the last two are equal in size (like a square photo...), OR if the third from last is 3 or 1 (channels-first representation)
         bottom = "2d"
       }
     }
