@@ -24,30 +24,36 @@
 #' ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
 #' print(t, n = c(6, 6, 3), bottom = "3d")
 #'
-`print.tensortree` <- function(x, max_per_level = 2, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE, bottom = "auto", ...) {
-    if(length(end_n) == 2) { # if they only specify the last two for end_n, pad it out so it works
-      end_n <- c(6, end_n)
-      bottom <- "2d"
-    } else if(length(end_n) == 1) {
-      end_n <- c(6, 6, end_n)
-      bottom = "1d"
-    }
-
+`print.tensortree` <- function(x, max_per_level = 2, signif_digits = 4, end_n = NULL, show_names = FALSE, bottom = "auto", ...) {
     if(bottom == "auto") {
       bottom = "1d"
       if(length(dim(x)) > 2) { # could be 3d
-        if(dim(x)[length(dim(x))] %in% c(3, 1)) {
+        if(dim(x)[length(dim(x))] %in% c(3, 1)) {          # looks like channels-first...
           bottom = "3d"
-        } else if(dim(x)[length(dim(x))-2] %in% c(3, 1)) { # looks like channels-first...
+        } else if(dim(x)[length(dim(x))-2] %in% c(3, 1)) { # looks like channels-first... OR the lst two dimensions are exactly equal
           bottom = "2d"
         }
-
       }
-      if(length(dim(x)) == 2 | (dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) ) { # 2d if there's exactly 2 dims, OR if the last two are equal in size (like a square photo...), OR if the third from last is 3 or 1 (channels-first representation)
-        bottom = "2d"
+      if(length(dim(x)) >= 2) {
+        if((dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) & dim(x)[length(dim(x))] > 3) { # if the last two are exactly equal, and greader than 3
+          bottom = "2d"
+        }
       }
     }
 
+    # make sure end_n is set to something reasonable...
+    if(is.null(end_n)) {
+      if(bottom == "1d") {end_n = c(6)}
+      if(bottom == "2d") {end_n = c(6, 6)}
+      if(bottom == "3d") {end_n = c(6, 6, 3)}
+    } else {
+      if(length(end_n) == 0) {end_n = 6}
+      if(bottom == "1d" & length(end_n) > 1) {end_n = tail(end_n, n = 1)}
+      if(bottom == "2d" & length(end_n) < 2) {end_n = c(rep(end_n[1], 2 - length(end_n)), end_n)}
+      if(bottom == "2d" & length(end_n) > 2) {end_n = tail(end_n, n = 2)}
+      if(bottom == "3d" & length(end_n) < 3) {end_n = c(rep(end_n[1], 3 - length(end_n)), end_n)}
+      if(bottom == "3d" & length(end_n) > 3) {end_n = tail(end_n, n = 3)}
+    }
 
     cat("Rank ", length(dim(x)), " tensor, shape: ", sep = "")
     cat("(", paste0(dim(x), collapse = ", "), ")", sep = "")
@@ -59,17 +65,17 @@
     orig_dims <- dim(x)
     orig_ranks <- ranknames(x)
 
-    # reduce size of top ranks (above 3d)
-    if(length(orig_dims) > 3) {
-      for(i in 1:(length(orig_dims) - 3)) {
+    num_bottom_ranks <- length(end_n)
+    # reduce size of top ranks (above the bottom ones)
+    if(length(orig_dims) > num_bottom_ranks) {
+      for(i in 1:(length(orig_dims) - num_bottom_ranks)) {
         x <- tt_index(x, 1:min(max_per_level, orig_dims[i]), i, drop = FALSE)
       }
     }
 
 
-    # reduce size of last 3 ranks
-    last_ranks <- (max(length(orig_dims) - 2, 1)):(length(orig_dims))
-
+    # reduce size of last bottom ones
+    last_ranks <- (max(length(orig_dims) - (num_bottom_ranks - 1), 1)):(length(orig_dims)) # indices of last ranks
     end_n_counter <- 1
     for(i in last_ranks) {
       # the +1 is to include one more than asked for, which will then be truncated with ... to indicate more data available
@@ -143,9 +149,14 @@ print_list <- function(xl, indent = 0, max_per_level = 2, signif_digits = 4, end
 }
 
 # Base functions for printing 1, 2 and 3d tensors, not for external use, big mess of code too...
-tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE) {
-  if( !length(end_n) %in% c(2, 3) | mode(end_n) != "numeric") {
-    stop("n parameter must be a length-2 or 3 numeric vector, representing the max number of rows/cols or max number of rows/columns/cell entries to print, it's length should also match the rank of the tensor. n was: ", end_n)
+tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = NULL, show_names = FALSE) {
+  #if( !length(end_n) %in% c(2, 3) | mode(end_n) != "numeric") {
+  #  stop("n parameter must be a length-2 or 3 numeric vector, representing the max number of rows/cols or max number of rows/columns/cell entries to print, it's length should also match the rank of the tensor. n was: ", end_n)
+  #}
+
+  if(is.null(end_n)) {
+    if(length(dim(mat)) == 2) {end_n = c(6, 6)}
+    if(length(dim(mat)) == 3) {end_n = c(6, 6, 3)}
   }
 
   saved_dimnames <- dimnames(mat)
@@ -284,16 +295,16 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
 
   adder <- 0
   if(show_names) {adder <- 1}
-  if(nrow(mat) > end_n[2] + adder) {
-    mat <- mat[1:(end_n[2] + adder), ,drop = FALSE]
+  if(nrow(mat) > end_n[1] + adder) {
+    mat <- mat[1:(end_n[1] + adder), ,drop = FALSE]
     mat <- rbind(mat, rep("... ", ncol(mat)))
   }
 
 
   adder <- 0
   if(show_names) {adder <- 1}
-  if(ncol(mat) > end_n[3] + adder) {
-    mat <- mat[, 1:(end_n[3] + adder), drop = FALSE]
+  if(ncol(mat) > end_n[2] + adder) {
+    mat <- mat[, 1:(end_n[2] + adder), drop = FALSE]
     mat <- cbind(mat, rep("... ", nrow(mat)))
   }
 
@@ -318,7 +329,8 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = c(6, 6, 3)
 }
 
 
-tt_print_1d <- function(mat, indent = 0, signif_digits = 4, end_n = 6, show_names = FALSE) {
+tt_print_1d <- function(mat, indent = 0, signif_digits = 4, end_n = NULL, show_names = FALSE) {
+  if(is.null(end_n)) {end_n <- c(6)}
   saved_ranknames <- ranknames(mat)
   saved_dimnames <- dimnames(mat)
 
