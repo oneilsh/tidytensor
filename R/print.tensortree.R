@@ -25,6 +25,11 @@
 #' print(t, n = c(6, 6, 3), bottom = "3d")
 #'
 `print.tensortree` <- function(x, max_per_level = 2, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE, bottom = "auto", ...) {
+    if(length(end_n) < 3) { # if they only specify the last two for end_n, pad it out so it works
+      pad <- 3 - length(end_n)
+      end_n <- c(rep(1, pad), end_n)
+    }
+
     if(bottom == "auto") {
       bottom = "1d"
       if(length(dim(x)) > 2) { # could be 3d
