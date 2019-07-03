@@ -30,10 +30,12 @@
       if(length(dim(x)) > 2) { # could be 3d
         if(dim(x)[length(dim(x))] %in% c(3, 1)) {
           bottom = "3d"
+        } else if(dim(x)[length(dim(x))-2] %in% c(3, 1)) { # looks like channels-first...
+          bottom = "2d"
         }
 
       }
-      if(length(dim(x)) == 2 | (dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) | (length(dim(x)) > 2 & dim(x)[length(dim(x))-2] %in% c(3, 1))) { # 2d if there's exactly 2 dims, OR if the last two are equal in size (like a square photo...), OR if the third from last is 3 or 1 (channels-first representation)
+      if(length(dim(x)) == 2 | (dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) ) { # 2d if there's exactly 2 dims, OR if the last two are equal in size (like a square photo...), OR if the third from last is 3 or 1 (channels-first representation)
         bottom = "2d"
       }
     }
