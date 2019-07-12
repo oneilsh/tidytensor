@@ -6,7 +6,7 @@
 #' accepts letters "A", "C", "G", "T", and "N" only (with "N" encoded with \code{0, 0, 0, 0}).
 #'
 #' @details If \code{seqnames} is given, only these are grabbed from the FASTA file for inclusion in the tensor (a warning will be produced
-#' if any requested sequence IDs are not present in the file). If \code{seqnames} isn't given, \code{start} and \end{end} are used, defaulting
+#' if any requested sequence IDs are not present in the file). If \code{seqnames} isn't given, \code{start} and \code{end} are used, defaulting
 #' to grabbing all sequences in the file. (Warning: the resulting tensor and processing time may be large.)
 #'
 #' The \code{alphabet} parameter specifies how each letter in sequences should be encoded, as a named list.
