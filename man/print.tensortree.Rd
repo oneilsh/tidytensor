@@ -5,7 +5,7 @@
 \title{Print a tensortree.}
 \usage{
 \method{print}{tensortree}(x, max_per_level = 2, signif_digits = 4,
-  end_n = c(6, 6, 3), show_names = FALSE, bottom = "auto", ...)
+  end_n = NULL, show_names = FALSE, bottom = "auto", ...)
 }
 \arguments{
 \item{x}{a tensortree to summarize.}
