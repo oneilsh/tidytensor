@@ -299,10 +299,26 @@ fasta_to_targets_df <- function(fasta_file) {
 }
 
 
-# given a vector of fasta files, return a combined data.frame
-# of results from fasta_to_targets_df
-# (for internal use)
-fastas_to_targets_df <- function(fasta_files) {
+
+#' @export
+#' @title Generate a dataframe containing IDs and file-based target labels from a list of fasta-encoded filenames.
+#'
+#' @description Given a vector of FASTA filenames, returns a dataframe with columns for "filename", "seqid", and "class", where class is derived from the filename.
+#' Useful in conjunction with \code{\link{flow_sequences_from_fasta_df}}.
+#' #'
+#' @param fasta_files vector of fasta file names.
+#' @param directory directory to look for fasta files, in; if NULL, use current working directory.
+#' @param ... additional arguments to be passed to or from methods (ignored).
+#' @return a data.frame.
+#' @seealso \code{\link{flow_sequences_from_fasta_df}}.
+#' @examples
+#' df <- fastas_to_targets_df(c("seqs1.fasta", "seqs2.fasta"))
+#'
+#' gen <- flow_sequences_from_fasta_df(df)
+fastas_to_targets_df <- function(fasta_files, directory = NULL) {
+  if(!is.null(directory)) {
+    fasta_files <- paste(directory, fasta_files, sep = "/")
+  }
   resdfs <- lapply(fasta_files, fasta_to_targets_df)
   return(do.call(rbind, resdfs))
 }
