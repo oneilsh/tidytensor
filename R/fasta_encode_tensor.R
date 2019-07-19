@@ -28,7 +28,9 @@
 #'
 fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, alphabet = "nucleotide", trim_to = NULL, ...  ) {
   # TODO: taking a trim_to parameter for use by other calls, BUT, if trim_to is NULL we should still trim to the shortest in the batch specified so we can create a well-formed tensor
+  scan_as <- ""
   if(all(alphabet == "nucleotide")) {
+    scan_as <- "DNAStringSet"
     alphabet <- list("A" = c(1, 0, 0, 0),
                      "C" = c(0, 1, 0, 0),
                      "G" = c(0, 0, 1, 0),
@@ -45,6 +47,7 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
                      "V" = c(1, 1, 1, 0),
                      "N" = c(0, 0, 0, 0))
   } else if(all(alphabet == "protein")) {
+    scan_as <- "AAStringSet"
     letters <- c("A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V")
     alphabet <- list()
     for(i in 1:length(letters)) {
@@ -82,9 +85,9 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
 
   if(!is.null(ids)) {
     indices <- match(ids, as.character(GenomicRanges::seqnames(idx))) # figure out what indices we want...
-    seqs <- Rsamtools::scanFa(fasta_file, idx[indices])
+    seqs <- Rsamtools::scanFa(fasta_file, idx[indices], as = scan_as)
   } else {
-    seqs <- Rsamtools::scanFa(fasta_file, idx[start:end])
+    seqs <- Rsamtools::scanFa(fasta_file, idx[start:end], as = scan_as)
   }
 
   seqsch <- as.character(seqs)
