@@ -4,23 +4,22 @@
 \alias{fasta_train_batch}
 \title{Parse entries from a FASTA file into a tensortree with target data to predict.}
 \usage{
-fasta_train_batch(fasta_file, ids, targets,
-  keras_categorical_targets = FALSE, keras_format = TRUE,
-  alphabet = list(A = c(1, 0, 0, 0), C = c(0, 1, 0, 0), G = c(0, 0, 1,
-  0), T = c(0, 0, 0, 1), N = c(0, 0, 0, 0)), ...)
+fasta_train_batch(ids_targets_df, fasta_file, class_mode = "categorical",
+  alphabet = "nucleotide", ids_col = "seqid", targets_col = "class",
+  ...)
 }
 \arguments{
+\item{ids_targets_df}{data.frame with IDs and target values of sequences to include in the tensor.}
+
 \item{fasta_file}{input filename to convert to a tensortree.}
 
-\item{ids}{IDs of sequences to include in the tensor.}
+\item{class_mode}{equivalent to \code{\link{keras::flow_images_from_dataframe}} class_mode parameter. Additionally supports 'identity' for regression.}
 
-\item{targets}{training targets for ids.}
+\item{alphabet}{either "nucleotide", "protein", or a named list that specifies the encoding, per base.}
 
-\item{keras_categorical_targets}{convert targets with \code{keras::to_categorical}.}
+\item{ids_col}{column name to use for sequence ids.}
 
-\item{keras_format}{format the tensor using Keras/Python-style ordering (row-major), otherwise use default array ordering.}
-
-\item{alphabet}{a list that specifies the one-hot encoding, per base.}
+\item{targets_col}{column name to use for target values.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
@@ -28,24 +27,35 @@ fasta_train_batch(fasta_file, ids, targets,
 a new tensortree.
 }
 \description{
-Given a FASTA filename, a list of sequence IDs, and a list of target values, generates a list with two elements: the first
-being the tensor encoding the relavent sequences, and the second being a tensor encoding the targets. If the desired targets are categorical,
-\code{keras_categorical_targets = TRUE} uses Keras' \code{to_categorical} function to encode them as one-hot vectors as well.
+Given a FASTA filename, a data.frame of sequence IDs and target values, generates a list with two elements: the first
+being the tensor encoding the relavent sequences, and the second being a tensor encoding the targets.
+The \code{class_mode} parameter takes the same values as  \code{\link{keras::flow_images_from_dataframe}} class_mode parameter,
+with the addition of an "identity" option to support regression (no transformation of targets).
 }
 \details{
-For options \code{fasta_file}, \code{keras_format}, and \code{alphabet}, see \code{\link{fasta_encode_tensor}}. The \code{ids} and
-\code{targets} vectors must be identical in length; if any \code{ids} are specified that are not contained in the FASTA file a warning
+For options \code{fasta_file}, and \code{alphabet}, see \code{\link{fasta_encode_tensor}}. If any IDs are specified that are not contained in the fasta_file a warning
 will be produced, and the corresponding targets will be removed from the returned targets tensor.
 
-If \code{keras_categorical_targets = TRUE}, the targets are first integer-encoded with integers \code{1} through \code{length(unique(targets))} (using \code{as.integer(factor(targets))}, so generally
+If \code{class_mode = "categorical"}, the targets are first integer-encoded with integers \code{1} through \code{length(unique(targets))} (using \code{as.integer(factor(targets))}, so generally
 integer targets will be assigned in increasing target order), since \code{keras::to_categorical} can only accept integer labels. \code{dimnames()} of
-of the target tensor will be set to preserve the original target labels. If \code{targets} is a factor, factor ordering will be used in target assignment.
+of the target tensor will be set to preserve the original target labels. If \code{targets} is a factor, factor ordering will be used in determining one-hot encoding order.
 }
 \examples{
-t <- fasta_train_batch("seqs.fasta", c("GL15X3", "AGP4", "CATB"), c(1.2, -4.5, 6.7))
+df <- data.frame(seqid = c("EP680779", "EP433799", "EP619387", "EP637315"),
+                 class = c("A", "B", "C", "B"))
+
+t <- fasta_train_batch(df)
 print(t, bottom = "2d", end_n = c(6, 4))
 
-t <- fasta_train_batch("seqs.fasta", c("GL15X3", "AGP4", "CATB"), c("positive", "negative", "positive"), keras_categorical_targets = TRUE)
+df <- data.frame(seqid = c("EP680779", "EP433799", "EP619387", "EP637315"),
+                 class = c("yes", "no", "yes", "yes"))
+
+t <- fasta_train_batch(df, class_mode = "binary")
+
+#' df <- data.frame(seqid = c("EP680779", "EP433799", "EP619387", "EP637315"),
+                 class = c(-1.2, 2.5, 6, 3.1))
+
+t <- fasta_train_batch("seqs.fasta", df, class_mode = "identity")
 print(t, bottom = "2d", end_n = c(6, 4))
 }
 \seealso{

@@ -5,8 +5,7 @@
 \title{Parse a FASTA file into a tensortree, using 1-hot encoding for base representation.}
 \usage{
 fasta_encode_tensor(fasta_file, start = 1, end = NULL, ids = NULL,
-  keras_format = TRUE, alphabet = list(A = c(1, 0, 0, 0), C = c(0, 1,
-  0, 0), G = c(0, 0, 1, 0), T = c(0, 0, 0, 1), N = c(0, 0, 0, 0)), ...)
+  alphabet = "nucleotide", ...)
 }
 \arguments{
 \item{fasta_file}{input filename to convert to a tensortree.}
@@ -17,7 +16,7 @@ fasta_encode_tensor(fasta_file, start = 1, end = NULL, ids = NULL,
 
 \item{ids}{only grab sequences with these sequence IDs.}
 
-\item{alphabet}{a list that specifies the one-hot encoding, per base.}
+\item{alphabet}{either "nucleotide", "protein", or a named list that specifies the encoding, per base.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
@@ -25,9 +24,10 @@ fasta_encode_tensor(fasta_file, start = 1, end = NULL, ids = NULL,
 a new tensortree.
 }
 \description{
-Parses a FASTA-formatted file, returning a 1-hot encoded tensor of rank 3, with ranknames "Sequence", "Base", and "Channel". Allows the user
-to specify that start and end indices for sequences to grab (e.g. grab the 5th to the 20th sequences), or sequence IDs. The default one-hot encoding
-accepts letters "A", "C", "G", "T", and "N" only (with "N" encoded with \code{0, 0, 0, 0}).
+Parses a FASTA-formatted file, returning a 1-hot (or multi-hot if IUPAC codes are used) encoded tensor of rank 3, with ranknames "Sequence", "Base", and "Channel". Allows the user
+to specify that start and end indices for sequences to grab (e.g. grab the 5th to the 20th sequences), or sequence IDs. The default "nucleotide" encoding
+accepts lower and upper-case A, C, G, and T and degenerate IUPAC codes. The "protein" alphabet results in length-20 one-hot encoding. Alternatively,
+one can set alphabet to a named list for endoding; e.g. `alphabet <- list("A" = c(1, 0), "C" = c(0, 1), "G" = c(0, 0), "T" = c(1, 1)`.
 }
 \details{
 If \code{seqnames} is given, only these are grabbed from the FASTA file for inclusion in the tensor (a warning will be produced
