@@ -185,41 +185,9 @@ get_min_length <- function(fasta_files) {
 #' print(t, bottom = "2d", end_n = c(6, 4))
 fasta_train_batch <- function(ids_targets_df, fasta_file, class_mode = "categorical", alphabet = "nucleotide", ids_col = "seqid", targets_col = "class", trim_to = NULL, ...  ) {
   # NOTE: putting the dataframe first makes this more pipe-able
-  # TODO: implement "binary" and options for specifying column names
   ids <- ids_targets_df[[ids_col]]
   targets <- ids_targets_df[[targets_col]]
 
-  if(all(alphabet == "nucleotide")) {
-    alphabet <- list("A" = c(1, 0, 0, 0),
-                     "C" = c(0, 1, 0, 0),
-                     "G" = c(0, 0, 1, 0),
-                     "T" = c(0, 0, 0, 1),
-                     "W" = c(1, 0, 0, 1),
-                     "S" = c(0, 1, 1, 0),
-                     "M" = c(1, 1, 0, 0),
-                     "K" = c(0, 0, 1, 1),
-                     "R" = c(1, 0, 1, 0),
-                     "Y" = c(0, 1, 0, 1),
-                     "B" = c(0, 1, 1, 1),
-                     "D" = c(1, 0, 1, 1),
-                     "H" = c(1, 1, 0, 1),
-                     "V" = c(1, 1, 1, 0),
-                     "N" = c(0, 0, 0, 0))
-  } else if(all(alphabet == "protein")) {
-    letters <- c("A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V")
-    alphabet <- list()
-    for(i in 1:length(letters)) {
-      letter <- letters[i]
-      alphabet[[letter]] <- rep(0, 20)
-      alphabet[[letter]][i] <- 1
-    }
-  }
-
-  # make sure both upper and lower-case versions are covered
-  for(letter in names(alphabet)) {
-    alphabet[[tolower(letter)]] <- alphabet[[letter]]
-    alphabet[[toupper(letter)]] <- alphabet[[letter]]
-  }
 
   # we don't want to re-factor if they are already a factor with defined levels, as this
   # reduces the levels to just the entries present
