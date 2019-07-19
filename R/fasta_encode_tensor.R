@@ -18,6 +18,7 @@
 #' @param end ending sequence number to grab (see details).
 #' @param ids only grab sequences with these sequence IDs.
 #' @param alphabet either "nucleotide", "protein", or a named list that specifies the encoding, per base.
+#' @param trim_to integer length to trim all sequences to if they are longer; don't attempt trimming if NULL.
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @return a new tensortree.
 #' @seealso \code{\link{ranknames}}.
@@ -25,7 +26,8 @@
 #' t <- fasta_encode_tensor("seqs.fasta")
 #' print(t, bottom = "2d", end_n = c(6, 4))
 #'
-fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, alphabet = "nucleotide", ...  ) {
+fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, alphabet = "nucleotide", trim_to = NULL, ...  ) {
+  # TODO: taking a trim_to parameter for use by other calls, BUT, if trim_to is NULL we should still trim to the shortest in the batch specified so we can create a well-formed tensor
   if(all(alphabet == "nucleotide")) {
     alphabet <- list("A" = c(1, 0, 0, 0),
                      "C" = c(0, 1, 0, 0),
@@ -86,6 +88,11 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
   }
 
   seqsch <- as.character(seqs)
+  # trim sequences if asked
+  if(!is.null(trim_to)) {
+    seqsch <- substr(seqsch, 1, trim_to)
+  }
+
   dna_split_list <- stringr::str_split(seqsch, "")
   names(dna_split_list) <- names(seqsch)
 
@@ -105,7 +112,29 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
   return(tensor)
 }
 
+# for internal use
+get_min_length <- function(fasta_files) {
+  answer <- Inf
+  unique_lengths_found <- c()
+  for(fasta_file in fasta_files) {
+    if(!file.exists(paste0(fasta_file, "fai", collapse = ""))) {
+      Rsamtools::indexFa(fasta_file)
+    }
 
+    idx <- Rsamtools::scanFaIndex(fasta_file)
+    seqlens <- GenomicRanges::seqinfo(idx)@seqlengths
+    this_answer <- min(seqlens)
+    unique_lengths_found <- unique(c(unique_lengths_found, seqlens))
+    if(this_answer < answer) {
+      answer <- this_answer
+    }
+  }
+  needs_trimming <- FALSE
+  if(length(unique_lengths_found) > 1) {
+    needs_trimming <- TRUE
+  }
+  return(list(answer, needs_trimming))
+}
 
 
 #' @export
@@ -130,6 +159,7 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
 #' @param alphabet either "nucleotide", "protein", or a named list that specifies the encoding, per base.
 #' @param ids_col column name to use for sequence ids.
 #' @param targets_col column name to use for target values.
+#' @param trim_to integer length to trim all sequences to if they are longer; don't attempt trimming if NULL.
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @return a new tensortree.
 #' @seealso \code{\link{fasta_encode_tensor}}.
@@ -150,7 +180,7 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
 #'
 #' t <- fasta_train_batch("seqs.fasta", df, class_mode = "identity")
 #' print(t, bottom = "2d", end_n = c(6, 4))
-fasta_train_batch <- function(ids_targets_df, fasta_file, class_mode = "categorical", alphabet = "nucleotide", ids_col = "seqid", targets_col = "class", ...  ) {
+fasta_train_batch <- function(ids_targets_df, fasta_file, class_mode = "categorical", alphabet = "nucleotide", ids_col = "seqid", targets_col = "class", trim_to = NULL, ...  ) {
   # NOTE: putting the dataframe first makes this more pipe-able
   # TODO: implement "binary" and options for specifying column names
   ids <- ids_targets_df[[ids_col]]
@@ -199,7 +229,7 @@ fasta_train_batch <- function(ids_targets_df, fasta_file, class_mode = "categori
     stop("Error: number of ids and targets must match in call to fasta_train_batch.")
   }
 
-  tensor <- fasta_encode_tensor(fasta_file, ids = ids, alphabet = alphabet)
+  tensor <- fasta_encode_tensor(fasta_file, ids = ids, alphabet = alphabet, trim_to = trim_to)
   if(dim(tensor)[1] != length(targets)) {
     warning("Warning: fasta_train_batch called with ids that are not present in the FASTA file, removing corresponding entries from targets.")
     ids <- ids[ids %in% dimnames(tensor)[[1]]]
@@ -306,6 +336,7 @@ fastas_to_targets_df <- function(fasta_files) {
 #' @param shuffle whether to reshuffle sequences between epochs (once all batches have been generated and recycling happens).
 #' @param seed random seed to set before each re-shuffle,
 #' @param alphabet either "nucleotide", "protein", or a named list that specifies the encoding, per base.
+#' @param trim_to integer length to trim all sequences to if they are longer; if NULL, trim to shortest sequence in the files.
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @return a new tensortree.
 #' @seealso \code{\link{fasta_encode_tensor}}.
@@ -341,7 +372,10 @@ flow_sequences_from_fasta_df <- function(df,
                                          batch_size = 32,
                                          shuffle = TRUE,
                                          seed = NULL,
-                                         alphabet = "nucleotide", ...) {
+                                         alphabet = "nucleotide",
+                                         trim_to = NULL, ...) {
+
+
 
   # if it isn't a factor already, make it one - we use the levels information for coding the category labels
   if(!is.factor(df[[targets_col]])) {
@@ -350,6 +384,16 @@ flow_sequences_from_fasta_df <- function(df,
 
   if(!is.null(directory)) {
     df[[filename_col]] <- paste(directory, filename_col, sep = "/")
+  }
+
+  # TODO: it's easy to trim to the shortest amongst all the sequences in the files, but it would be somewhat more
+  # flexible to trim to the shortest amongst the sequences in the df
+  if(is.null(trim_to)) {
+    trim_info <- get_min_length(unique(df[[filename_col]]))
+    if(trim_info[[2]] == TRUE) { # needs trimming, as more than one unique length was found
+      trim_to <- trim_info[[1]]
+      warning("Sequences in files are not all identical length; trimming to shortest (", trim_to, " bp).")
+    }
   }
 
   ##### Shuffle if necessary
@@ -385,7 +429,7 @@ flow_sequences_from_fasta_df <- function(df,
     batch_index <- 1
     for(filename in names(df_list)) {
       file_df <- df_list[[filename]]
-      train_batch <- fasta_train_batch(file_df, filename, class_mode, alphabet, ids_col, targets_col)
+      train_batch <- fasta_train_batch(file_df, filename, class_mode, alphabet, ids_col, targets_col, trim_to = trim_to)
       batch_x_tensors[[batch_index]] <- train_batch[[1]]
       batch_y_tensors[[batch_index]] <- train_batch[[2]]
 
@@ -447,13 +491,21 @@ flow_sequences_from_fastas <- function(fasta_files,
                                        shuffle = FALSE,
                                        seed = NULL,
                                        class_mode = "categorical",
-                                       alphabet = "nucleotide", ...) {
+                                       alphabet = "nucleotide",
+                                       trim_to = NULL, ...) {
 
+  if(is.null(trim_to)) {
+    trim_info <- get_min_length(unique(fasta_files))
+    if(trim_info[[2]] == TRUE) { # needs trimming, as more than one unique length was found
+      trim_to <- trim_info[[1]]
+      warning("Sequences in files are not all identical length; trimming to shortest (", trim_to, " bp).")
+    }
+  }
 
   ##### Generate list of names present in each file, along with the file they are present in and the target name
   ##### e.g. seqnames[["file1.fasta"]] <- c("id351", "file1.fasta")
   df <- fastas_to_targets_df(fasta_files)
-  gen <- flow_sequences_from_fasta_df(df, directory = directory, batch_size = batch_size, shuffle = shuffle, seed = seed, class_mode = class_mode, alphabet = alphabet)
+  gen <- flow_sequences_from_fasta_df(df, directory = directory, batch_size = batch_size, shuffle = shuffle, seed = seed, class_mode = class_mode, alphabet = alphabet, trim_to = trim_to)
   return(gen)
 }
 
@@ -470,7 +522,7 @@ flow_sequences_from_fastas <- function(fasta_files,
 # compile(network, optimizer = "rmsprop", loss = "binary_crossentropy")
 #
 #
-# gen <- flow_sequences_from_fastas(c("inst/extdata/seqs.fasta", "inst/extdata/seqs2.fasta"), batch_size = 100)
+#  gen <- flow_sequences_from_fastas(c("inst/extdata/seqs.fasta", "inst/extdata/seqs2.fasta"), batch_size = 100)
 #
 # fit_generator(network, gen, steps_per_epoch = 10)
 #
