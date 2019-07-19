@@ -7,7 +7,8 @@
 flow_sequences_from_fasta_df(df, directory = NULL,
   filename_col = "filename", ids_col = "seqid",
   targets_col = "class", class_mode = "categorical", batch_size = 32,
-  shuffle = TRUE, seed = NULL, alphabet = "nucleotide", ...)
+  shuffle = TRUE, seed = NULL, alphabet = "nucleotide",
+  trim_to = NULL, ...)
 }
 \arguments{
 \item{df}{data.frame to read filenames, sequence IDs, and target values from.}
@@ -29,6 +30,8 @@ flow_sequences_from_fasta_df(df, directory = NULL,
 \item{seed}{random seed to set before each re-shuffle,}
 
 \item{alphabet}{either "nucleotide", "protein", or a named list that specifies the encoding, per base.}
+
+\item{trim_to}{integer length to trim all sequences to if they are longer; if NULL, trim to shortest sequence in the files.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }

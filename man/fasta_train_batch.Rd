@@ -6,7 +6,7 @@
 \usage{
 fasta_train_batch(ids_targets_df, fasta_file, class_mode = "categorical",
   alphabet = "nucleotide", ids_col = "seqid", targets_col = "class",
-  ...)
+  trim_to = NULL, ...)
 }
 \arguments{
 \item{ids_targets_df}{data.frame with IDs and target values of sequences to include in the tensor.}
@@ -20,6 +20,8 @@ fasta_train_batch(ids_targets_df, fasta_file, class_mode = "categorical",
 \item{ids_col}{column name to use for sequence ids.}
 
 \item{targets_col}{column name to use for target values.}
+
+\item{trim_to}{integer length to trim all sequences to if they are longer; don't attempt trimming if NULL.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }

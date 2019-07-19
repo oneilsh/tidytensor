@@ -6,7 +6,8 @@
 \usage{
 flow_sequences_from_fastas(fasta_files, directory = NULL,
   batch_size = 32, shuffle = FALSE, seed = NULL,
-  class_mode = "categorical", alphabet = "nucleotide", ...)
+  class_mode = "categorical", alphabet = "nucleotide",
+  trim_to = NULL, ...)
 }
 \arguments{
 \item{fasta_files}{vector of fasta file names to read.}

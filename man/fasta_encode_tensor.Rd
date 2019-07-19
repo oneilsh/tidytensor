@@ -5,7 +5,7 @@
 \title{Parse a FASTA file into a tensortree, using 1-hot encoding for base representation.}
 \usage{
 fasta_encode_tensor(fasta_file, start = 1, end = NULL, ids = NULL,
-  alphabet = "nucleotide", ...)
+  alphabet = "nucleotide", trim_to = NULL, ...)
 }
 \arguments{
 \item{fasta_file}{input filename to convert to a tensortree.}
@@ -17,6 +17,8 @@ fasta_encode_tensor(fasta_file, start = 1, end = NULL, ids = NULL,
 \item{ids}{only grab sequences with these sequence IDs.}
 
 \item{alphabet}{either "nucleotide", "protein", or a named list that specifies the encoding, per base.}
+
+\item{trim_to}{integer length to trim all sequences to if they are longer; don't attempt trimming if NULL.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
