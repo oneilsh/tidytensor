@@ -108,9 +108,6 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
   for(seqindex in 1:length(dna_split_list)) {
     for(baseindex in 1:length(dna_split_list[[1]])) {
       base <- dna_split_list[[seqindex]][baseindex]
-      print("")
-      print(base)
-      print(alphabet[[base]])
       tensor[seqindex, baseindex, ] <- alphabet[[base]]
     }
   }
