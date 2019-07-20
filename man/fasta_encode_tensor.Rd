@@ -28,7 +28,8 @@ a new tensortree.
 \description{
 Parses a FASTA-formatted file, returning a 1-hot (or multi-hot if IUPAC codes are used) encoded tensor of rank 3, with ranknames "Sequence", "Base", and "Channel". Allows the user
 to specify that start and end indices for sequences to grab (e.g. grab the 5th to the 20th sequences), or sequence IDs. The default "nucleotide" encoding
-accepts lower and upper-case A, C, G, and T and degenerate IUPAC codes. The "protein" alphabet results in length-20 one-hot encoding. Alternatively,
+accepts lower and upper-case A, C, G, and T and degenerate IUPAC codes. The "protein" alphabet results in length-21 one-hot
+encoding (20 amino acid letters, plus stop codon '*'; also, the uknown "X" is encoded as an all-zero vector). Alternatively,
 one can set alphabet to a named list for endoding; e.g. `alphabet <- list("A" = c(1, 0), "C" = c(0, 1), "G" = c(0, 0), "T" = c(1, 1)`.
 }
 \details{

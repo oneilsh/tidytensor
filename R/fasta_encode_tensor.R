@@ -3,7 +3,8 @@
 #'
 #' @description Parses a FASTA-formatted file, returning a 1-hot (or multi-hot if IUPAC codes are used) encoded tensor of rank 3, with ranknames "Sequence", "Base", and "Channel". Allows the user
 #' to specify that start and end indices for sequences to grab (e.g. grab the 5th to the 20th sequences), or sequence IDs. The default "nucleotide" encoding
-#' accepts lower and upper-case A, C, G, and T and degenerate IUPAC codes. The "protein" alphabet results in length-20 one-hot encoding. Alternatively,
+#' accepts lower and upper-case A, C, G, and T and degenerate IUPAC codes. The "protein" alphabet results in length-21 one-hot
+#' encoding (20 amino acid letters, plus stop codon '*'; also, the uknown "X" is encoded as an all-zero vector). Alternatively,
 #' one can set alphabet to a named list for endoding; e.g. `alphabet <- list("A" = c(1, 0), "C" = c(0, 1), "G" = c(0, 0), "T" = c(1, 1)`.
 #'
 #' @details If \code{seqnames} is given, only these are grabbed from the FASTA file for inclusion in the tensor (a warning will be produced
@@ -48,13 +49,15 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
                      "N" = c(0, 0, 0, 0))
   } else if(all(alphabet == "protein")) {
     scan_as <- "AAStringSet"
-    letters <- c("A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V")
+    letters <- c("A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V", "*")
     alphabet <- list()
+    template <- rep(0, 21)
     for(i in 1:length(letters)) {
       letter <- letters[i]
-      alphabet[[letter]] <- rep(0, 20)
+      alphabet[[letter]] <- template
       alphabet[[letter]][i] <- 1
     }
+    alphabet[["X"]] <- template
   }
 
   # make sure both upper and lower-case versions are covered
@@ -105,6 +108,9 @@ fasta_encode_tensor <- function(fasta_file, start = 1, end = NULL, ids = NULL, a
   for(seqindex in 1:length(dna_split_list)) {
     for(baseindex in 1:length(dna_split_list[[1]])) {
       base <- dna_split_list[[seqindex]][baseindex]
+      print("")
+      print(base)
+      print(alphabet[[base]])
       tensor[seqindex, baseindex, ] <- alphabet[[base]]
     }
   }
@@ -510,6 +516,8 @@ flow_sequences_from_fastas <- function(fasta_files,
 #
 #
 #  gen <- flow_sequences_from_fastas(c("inst/extdata/seqs.fasta", "inst/extdata/seqs2.fasta"), batch_size = 100)
+# gen <- flow_sequences_from_fastas("inst/extdata/fmo_proteins.fa", alphabet = "protein")
+# while(TRUE) {gen()}
 #
 # fit_generator(network, gen, steps_per_epoch = 10)
 #
