@@ -4,12 +4,17 @@
 \alias{fastas_to_targets_df}
 \title{Generate a dataframe containing IDs and file-based target labels from a list of fasta-encoded filenames.}
 \usage{
-fastas_to_targets_df(fasta_files, directory = NULL)
+fastas_to_targets_df(fasta_files, directory = NULL,
+  function_list = NULL, encoding = "nucleotide")
 }
 \arguments{
 \item{fasta_files}{vector of fasta file names.}
 
 \item{directory}{directory to look for fasta files, in; if NULL, use current working directory.}
+
+\item{function_list}{a named list of functions to apply to each sequence; names will become columns in the output.}
+
+\item{encoding}{"nucleotide" or "protein".}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
@@ -25,6 +30,11 @@ Useful in conjunction with \code{\link{flow_sequences_from_fasta_df}}.
 df <- fastas_to_targets_df(c("seqs1.fasta", "seqs2.fasta"))
 
 gen <- flow_sequences_from_fasta_df(df)
+
+df2 <- fastas_to_targets_df("seqs1.fasta", function_list = list(gc_content = function(seq) {
+                                                                               no_ats <- gsub("[ATat]", "", seq)
+                                                                               return(nchar(no_ats)/nchar(seq))
+                                                                             }))
 }
 \seealso{
 \code{\link{flow_sequences_from_fasta_df}}.
