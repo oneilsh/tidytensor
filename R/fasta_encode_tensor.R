@@ -258,7 +258,7 @@ fasta_train_batch <- function(ids_targets_df, fasta_file, class_mode = "categori
 # the filename (repeated), and the class, derived from the filename (repeated)
 # meant to be called for different fasta files and combined
 # (for internal use)
-fasta_to_targets_df <- function(fasta_file) {
+fasta_to_targets_df <- function(fasta_file, function_list = NULL, encoding = "nucleotide") {
   if(!file.exists(paste0(fasta_file, "fai", collapse = ""))) {
     Rsamtools::indexFa(fasta_file)
   }
@@ -268,6 +268,27 @@ fasta_to_targets_df <- function(fasta_file) {
   message(paste0("Found ", nrow(ret_df), " sequences in ", fasta_file, "."))
   ret_df$filename <- fasta_file
   ret_df$class <- basename(tools::file_path_sans_ext(fasta_file))
+  seqlens <- GenomicRanges::seqinfo(idx)@seqlengths
+  ret_df$seq_len <- seqlens
+
+  if(!is.null(function_list)) {
+    if(encoding == "nucleotide") {
+      seqs <- Rsamtools::scanFa(fasta_file, as = "DNAStringSet")
+    } else if(encoding == "protein") {
+      seqs <- Rsamtools::scanFa(fasta_file, as = "AAStringSet")
+    }
+
+    for(name in names(function_list)) {
+      func <- function_list[[name]]
+      print(func)
+      ret_df[[name]] <- NA
+      # doing this in a loop because I don't want to load them all into memory, let the gc do its thing even if slower
+      for(i in 1:length(seqs)) {
+        ret_df[[name]][i] <- func(as.character(seqs[i]))
+      }
+    }
+  }
+
   #rownames(ret_df) <- paste0(ret_df$filename, ":", ret_df$seqid)
   return(ret_df)
 }
@@ -282,6 +303,8 @@ fasta_to_targets_df <- function(fasta_file) {
 #' #'
 #' @param fasta_files vector of fasta file names.
 #' @param directory directory to look for fasta files, in; if NULL, use current working directory.
+#' @param function_list a named list of functions to apply to each sequence; names will become columns in the output.
+#' @param encoding "nucleotide" or "protein".
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @return a data.frame.
 #' @seealso \code{\link{flow_sequences_from_fasta_df}}.
@@ -289,11 +312,16 @@ fasta_to_targets_df <- function(fasta_file) {
 #' df <- fastas_to_targets_df(c("seqs1.fasta", "seqs2.fasta"))
 #'
 #' gen <- flow_sequences_from_fasta_df(df)
-fastas_to_targets_df <- function(fasta_files, directory = NULL) {
+#'
+#' df2 <- fastas_to_targets_df("seqs1.fasta", function_list = list(gc_content = function(seq) {
+#'                                                                                no_ats <- gsub("[ATat]", "", seq)
+#'                                                                                return(nchar(no_ats)/nchar(seq))
+#'                                                                              }))
+fastas_to_targets_df <- function(fasta_files, directory = NULL, function_list = NULL, encoding = "nucleotide") {
   if(!is.null(directory)) {
     fasta_files <- paste(directory, fasta_files, sep = "/")
   }
-  resdfs <- lapply(fasta_files, fasta_to_targets_df)
+  resdfs <- lapply(fasta_files, fasta_to_targets_df, function_list = function_list, encoding = encoding)
   return(do.call(rbind, resdfs))
 }
 
