@@ -5,7 +5,7 @@
 \title{Generate a dataframe containing IDs and file-based target labels from a list of fasta-encoded filenames.}
 \usage{
 fastas_to_targets_df(fasta_files, directory = NULL,
-  function_list = NULL, encoding = "nucleotide")
+  function_list = NULL, alphabet = "nucleotide")
 }
 \arguments{
 \item{fasta_files}{vector of fasta file names.}
@@ -14,7 +14,7 @@ fastas_to_targets_df(fasta_files, directory = NULL,
 
 \item{function_list}{a named list of functions to apply to each sequence; names will become columns in the output.}
 
-\item{encoding}{"nucleotide" or "protein".}
+\item{alphabet}{"nucleotide" or "protein"; required if using function_list, ignored otherwise.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }

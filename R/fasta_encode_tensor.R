@@ -258,7 +258,7 @@ fasta_train_batch <- function(ids_targets_df, fasta_file, class_mode = "categori
 # the filename (repeated), and the class, derived from the filename (repeated)
 # meant to be called for different fasta files and combined
 # (for internal use)
-fasta_to_targets_df <- function(fasta_file, function_list = NULL, encoding = "nucleotide") {
+fasta_to_targets_df <- function(fasta_file, function_list = NULL, alphabet = "nucleotide") {
   if(!file.exists(paste0(fasta_file, "fai", collapse = ""))) {
     Rsamtools::indexFa(fasta_file)
   }
@@ -272,9 +272,9 @@ fasta_to_targets_df <- function(fasta_file, function_list = NULL, encoding = "nu
   ret_df$seq_len <- seqlens
 
   if(!is.null(function_list)) {
-    if(encoding == "nucleotide") {
+    if(alphabet == "nucleotide") {
       seqs <- Rsamtools::scanFa(fasta_file, as = "DNAStringSet")
-    } else if(encoding == "protein") {
+    } else if(alphabet == "protein") {
       seqs <- Rsamtools::scanFa(fasta_file, as = "AAStringSet")
     }
 
@@ -304,7 +304,7 @@ fasta_to_targets_df <- function(fasta_file, function_list = NULL, encoding = "nu
 #' @param fasta_files vector of fasta file names.
 #' @param directory directory to look for fasta files, in; if NULL, use current working directory.
 #' @param function_list a named list of functions to apply to each sequence; names will become columns in the output.
-#' @param encoding "nucleotide" or "protein".
+#' @param alphabet "nucleotide" or "protein"; required if using function_list, ignored otherwise.
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @return a data.frame.
 #' @seealso \code{\link{flow_sequences_from_fasta_df}}.
@@ -317,12 +317,13 @@ fasta_to_targets_df <- function(fasta_file, function_list = NULL, encoding = "nu
 #'                                                                                no_ats <- gsub("[ATat]", "", seq)
 #'                                                                                return(nchar(no_ats)/nchar(seq))
 #'                                                                              }))
-fastas_to_targets_df <- function(fasta_files, directory = NULL, function_list = NULL, encoding = "nucleotide") {
+fastas_to_targets_df <- function(fasta_files, directory = NULL, function_list = NULL, alphabet = "nucleotide") {
   if(!is.null(directory)) {
     fasta_files <- paste(directory, fasta_files, sep = "/")
   }
-  resdfs <- lapply(fasta_files, fasta_to_targets_df, function_list = function_list, encoding = encoding)
-  return(do.call(rbind, resdfs))
+  resdfs <- lapply(fasta_files, fasta_to_targets_df, function_list = function_list, alphabet = alphabet)
+  res_df <- do.call(rbind, resdfs)
+  return(res_df)
 }
 
 
