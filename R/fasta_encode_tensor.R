@@ -396,8 +396,8 @@ flow_sequences_from_fasta_df <- function(df,
 
 
 
-  # if it isn't a factor already, make it one - we use the levels information for coding the category labels
-  if(!is.factor(df[[targets_col]])) {
+  # if it isn't a factor already, but it's a character type, make it one - we use the levels information for coding the category labels
+  if(!is.factor(df[[targets_col]]) & is.character(df[[targets_col]])) {
     df[[targets_col]] <- factor(df[[targets_col]])
   }
 
