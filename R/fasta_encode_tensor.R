@@ -1,3 +1,5 @@
+# TODO: pull this stuff out into another package called biotensor or somesuch
+
 #' @export
 #' @title Parse a FASTA file into a tidytensor, using 1-hot encoding for base representation.
 #'

@@ -29,7 +29,6 @@ test_that("fancier tt_apply() test", {
   ranknames(t) <- c("batch", "sample", "row", "col")
 
   reduce_2d <- function(t) {
-    # TODO: Make a wrapper for [<- that preserves ranknames]
     subsampled <- as.tidytensor(t[c(T, F), c(T, F)])
     ranknames(subsampled) <- paste0(ranknames(t), "_sub")
     return(subsampled)

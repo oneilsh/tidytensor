@@ -81,7 +81,7 @@ tt_index.tidytensor <- function(tensor, indices, dimension = 1, drop = TRUE) {
   return(as.tidytensor(res))
 }
 
-# TODO: these are surprisingly slow, too slow for a loop
+# these are surprisingly slow, too slow for a loop
 # derp, we don't even need them, for some reason
 
 #`[<-.tidytensor` <- function(x, ...) {
@@ -98,7 +98,7 @@ tt_index.tidytensor <- function(tensor, indices, dimension = 1, drop = TRUE) {
 #   class(x) <- class(x)[class(x) != "tidytensor"]
 #   x <- `[`(x, ...)
 #   # alright, so the bummer is that if what is returned is a vector (1d tensor), it drops the names. (YTHO)
-#   # TODO: I'm not really sure what to do about this...
+#   # I'm not really sure what to do about this...
 #   x <- tt(x)
 #   return(x)
 # }
