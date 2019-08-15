@@ -23,7 +23,7 @@
 #' @param drop_final_1 If FUN returns a rank-0 tensor (length-1 vector), should it be collapsed? E.g. if final shape is (10, 10, 1), adjusts shape to (10, 10)
 #' @param ... additional arguments passed to FUN.
 #' @return a new tidytensor.
-#' @seealso \code{\link{index}}, \code{\link{c.tidytensor}}, \code{permute.tidytensor}}
+#' @seealso \code{\link{index}}, \code{\link{c.tidytensor}}, \code{\link{permute.tidytensor}}
 #' @examples
 #' # shape [20, 26, 26]
 #' t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))

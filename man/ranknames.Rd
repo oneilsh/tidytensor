@@ -15,7 +15,7 @@ ranknames(x, ...)
 character vector of the same length as dim(x), or NULL if unset.
 }
 \description{
-A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
+A tidytensor t may have ranknames(t); this is a character vector of the same length as dim(t)
 for future use. Note that ranknames(t) is independent of names(t) or dimnames(t); we are not naming elements,
 or the dimension names for each rank, but rank names themselves.
 Like names() and dimnames(), unset ranknames() are NULL.

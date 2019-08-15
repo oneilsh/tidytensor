@@ -5,7 +5,7 @@
 #' @export
 #' @title Assign ranknames to a tidytensor.
 #'
-#' @description A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
+#' @description A tidytensor t may have ranknames(t); this is a character vector of the same length as dim(t)
 #' for future use. Note that ranknames(t) is independent of names(t) or dimnames(t); we are not naming elements,
 #' or the dimension names for each rank, but rank names themselves.
 #' Like names() and dimnames(), unset ranknames() are NULL.
@@ -71,7 +71,7 @@
 #' @export
 #' @title Get ranknames of a tidytensor.
 #'
-#' @description A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
+#' @description A tidytensor t may have ranknames(t); this is a character vector of the same length as dim(t)
 #' for future use. Note that ranknames(t) is independent of names(t) or dimnames(t); we are not naming elements,
 #' or the dimension names for each rank, but rank names themselves.
 #' Like names() and dimnames(), unset ranknames() are NULL.
@@ -111,7 +111,7 @@ setGeneric("ranknames")
 #' @export
 #' @title Assign ranknames to a tidytensor via a standard function call.
 #'
-#' @description A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
+#' @description A tidytensor t may have ranknames(t); this is a character vector of the same length as dim(t)
 #' for future use. Note that ranknames(t) is independent of names(t) or dimnames(t); we are not naming elements,
 #' or the dimension names for each rank, but rank names themselves.
 #' Like names() and dimnames(), unset ranknames() are NULL.

@@ -17,7 +17,7 @@
 #' @seealso \code{\link{print.tidytensor}}
 #' @examples
 #' t <- as.tidytensor(array(1:(2 * 3 * 4 * 5), dim = c(2, 3, 4, 5)))
-#' ranknames(t) <- c("samples", "batches", rows", "cols")
+#' ranknames(t) <- c("samples", "batches", "rows", "cols")
 #' print(t, end = "2d")
 #'
 #' t <- as.tidytensor(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
