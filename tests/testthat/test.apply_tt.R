@@ -38,4 +38,15 @@ test_that("fancier tt_apply() test", {
   t_reduced <- tt_apply(t, rank = "sample", reduce_2d)
   expect_equal(dim(t_reduced), c(10, 20, 13, 13)) # the dimensions shouldn't change in this example
   expect_equal(ranknames(t_reduced), c("batch", "sample", "row_sub", "col_sub")) # nor the ranknames
+
+  # tidy
+  t_reduced <- tt_apply(t, sample, reduce_2d)
+  expect_equal(dim(t_reduced), c(10, 20, 13, 13)) # the dimensions shouldn't change in this example
+  expect_equal(ranknames(t_reduced), c("batch", "sample", "row_sub", "col_sub")) # nor the ranknames
+
+  # by index
+  t_reduced <- tt_apply(t, 2, reduce_2d)
+  expect_equal(dim(t_reduced), c(10, 20, 13, 13)) # the dimensions shouldn't change in this example
+  expect_equal(ranknames(t_reduced), c("batch", "sample", "row_sub", "col_sub")) # nor the ranknames
+
 })

@@ -14,7 +14,7 @@ a new tensortree.
 }
 \description{
 Given multiple tensortrees, concatenates them together to create a tensortree
-of the same rank, but larger in the first dimension. For example, c(x, y, z) where x, y, and z have shape [2, 3, 5] returns a new tensortree
+of the same rank, but larger in the first. For example, c(x, y, z) where x, y, and z have shape [2, 3, 5] returns a new tensortree
 of shape [6, 3, 5].
 }
 \details{

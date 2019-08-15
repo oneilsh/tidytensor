@@ -5,13 +5,13 @@
 #'
 #' Ranknames are respected for both inputs and return values.
 #'
-#' @details The \code{rank} parameter may be an integer numeric vector (for permuting by index), or character vector (for permuting).
+#' @details The \code{rank} parameter may be an integer numeric vector (for permuting by index), or character vector (for permuting by rankname).
 #'
 #'
 #'
 #' @param x the tensortree permute.
-#' @param rank the permutation vector.
-#' @param ... additional arguments passed to FUN.
+#' @param ... ranknames or integers to permute by (quoted or unquoted).
+#' @param .dots character or integer vector to permute by.
 #' @return a new tensortree.
 #' @seealso \code{\link{index}}, \code{\link{c.tensortree}}
 #' @examples
@@ -23,11 +23,12 @@
 #' t2 <- permute(t, c(3, 1, 2))
 #' t3 <- permute(t, c("col", "sample", "row"))
 #'
-permute <- function(tensor, rank, ...) {UseMethod("permute", tensor)}
+permute <- function(tensor, ...) {UseMethod("permute", tensor)}
 
 #' @export
-permute.tensortree <- function(tensor, rank = TRUE) {
-  permute_vec <- rank_to_index(tensor, rank)
+permute.tensortree <- function(tensor, ...) {
+  vars <- quovars(...)
+  permute_vec <- rank_to_index(tensor, vars)
 
   # TODO: create a version tt_index that can subset multiple dimensions, dropping others, so that we can permute AND select
   if(length(permute_vec) != length(dim(tensor))) {

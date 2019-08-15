@@ -1,4 +1,5 @@
 #' @export
+#' @importFrom magrittr %>%
 #' @title Convert a vector, matrix, or array to a tensortree type.
 #'
 #' @description Given a vector, matrix, or array, returns a tensortree.

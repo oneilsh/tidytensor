@@ -21,5 +21,8 @@ Suggests:
 Imports:
     abind,
     purrr,
-    rstackdeque
+    rstackdeque,
+    magrittr,
+    rlang,
+    tidyselect
 RoxygenNote: 6.1.1

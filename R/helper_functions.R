@@ -1,3 +1,20 @@
+# this is all internally used stuff
+
+# e.g. quovars(a, b, "c", d) returns c("a", "b", "c", "d")
+# and quovars(.dots = c("a", "b", "c", "d")) returns same
+quovars <- function(..., .dots = NULL) {
+  # get dots
+  if(!is.null(.dots)) {
+    return(.dots)
+  }
+  .dots <- rlang::enexprs(...)
+  lang <- unlist(lapply(rlang::enexprs(...), is.language))
+  labels <- purrr::map_at(.dots, which(lang), as.character)
+  labels <- unlist(labels)
+  names(labels) <- NULL
+  return(labels)
+}
+
 
 #' @export
 rank_to_index <- function(tensor, ...) {UseMethod("rank_to_index", tensor)}
@@ -65,24 +82,26 @@ tt_index.tensortree <- function(tensor, indices, dimension = 1, drop = TRUE) {
 }
 
 # TODO: these are surprisingly slow, too slow for a loop
+# derp, we don't even need them, for some reason
 
-#' @export
-`[<-.tensortree` <- function(x, ...) {
-  class(x) <- class(x)[class(x) != "tensortree"]
-  x <- `[<-`(x, ...)
-  x <- tt(x)
-  return(x)
-}
+#`[<-.tensortree` <- function(x, ...) {
+#  class(x) <- class(x)[class(x) != "tensortree"]
+#  x <- `[<-`(x, ...)
+#  #x <- tt(x)
+#  class(x) <- c("tensortree", class(x))
+#  return(x)
+#}
 
-#' @export
-`[.tensortree` <- function(x, ...) {
-  class(x) <- class(x)[class(x) != "tensortree"]
-  x <- `[`(x, ...)
-  # alright, so the bummer is that if what is returned is a vector (1d tensor), it drops the names. (YTHO)
-  # TODO: I'm not really sure what to do about this...
-  x <- tt(x)
-  return(x)
-}
+
+
+# `[.tensortree` <- function(x, ...) {
+#   class(x) <- class(x)[class(x) != "tensortree"]
+#   x <- `[`(x, ...)
+#   # alright, so the bummer is that if what is returned is a vector (1d tensor), it drops the names. (YTHO)
+#   # TODO: I'm not really sure what to do about this...
+#   x <- tt(x)
+#   return(x)
+# }
 
 
 

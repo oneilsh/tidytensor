@@ -122,28 +122,24 @@ setGeneric("ranknames")
 #'
 #' @param x input tensortree to set ranknames on.
 #' @param newnames character vector of new ranknames to assign.
-#' @param ... additional arguments to be passed to or from methods (ignored).
+#' @param ... new ranknames to assign (quoted or unquoted).
+#' @param .dots character vector of new ranknames to assign.
 #' @return a tensortree with ranknames set.
 #' @seealso \code{\link{ranknames<-}}
 #' @examples
 #' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
-#' t <- set_ranknames(t, c("sample", "row", "col"))
+#' t <- set_ranknames(t, sample, row, col)
+#' t <- set_ranknames(t, .dots = c("sample", "row", "col"))
 #' print(t)
-#'
-#' # If given a single rankname, will repeat the rankname for all ranks
-#' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
-#' t <- set_ranknames(t, "generic")
-#' print(t)
-#'
-`set_ranknames` <- function(x, newnames, ...) {
+`set_ranknames` <- function(x, ...) {
   if(is.null(x)) {return(NULL)}
   UseMethod("set_ranknames", x)
 }
 
 # method
 #' @export
-`set_ranknames.tensortree` <- function(x, newnames, ...) {
-  ranknames(x) <- newnames
+`set_ranknames.tensortree` <- function(x, ...) {
+  ranknames(x) <- quovars(...)
   return(x)
 }
 
@@ -217,27 +213,25 @@ setGeneric("ranknames")
 #'
 #' @param x input tensortree to set dimnames on.
 #' @param rank rank to set the dimnames on.
-#' @param newnames vector dimnames to assign.
-#' @param ... additional arguments to be passed to or from methods (ignored).
+#' @param ... dimnames to assign (quoted or unquoted).
+#' @param .dots character vector of dimnames to assign (quoted or unquoted).
 #' @return a tensortree with dimnames set.
 #' @seealso \code{\link{ranknames<-}}, \code{\link{dimnames}}, \code{\link{set_dimnames}}
 #' @examples
 #' t <- as.tensortree(array(1:(3 * 2), dim = c(3, 2)))
-#' t <- set_dimnames_for_rank(t, 2, c("valset1", "valset2"))
+#' t <- set_dimnames_for_rank(t, 2, valset1, valset2)
+#' t <- set_dimnames_for_rank(t, 2, .dots = c("valset1", "valset2"))
 #' print(t)
-#'
-#' # We can also assign ranknames:
-#' ranknames(t) <- c("sample", "valset")
-#' print(t)
-#'
-`set_dimnames_for_rank` <- function(x, rank, newnames, ...) {
+`set_dimnames_for_rank` <- function(x, rank, ...) {
   if(is.null(x)) {return(NULL)}
   UseMethod("set_dimnames_for_rank", x)
 }
 
 # method
 #' @export
-`set_dimnames_for_rank.tensortree` <- function(x, rank, newnames, ...) {
+`set_dimnames_for_rank.tensortree` <- function(x, rank, ...) {
+  rank <- tidyselect::vars_select(ranknames(x), !!rlang::enquo(rank))
+  newnames <- quovars(...)
   rank_index <- rank_to_index(x, rank)
   if(is.null(dimnames(x))) {
     # fill with NAs

@@ -4,14 +4,14 @@
 \alias{permute}
 \title{Permute the ranks of a tensor}
 \usage{
-permute(tensor, rank, ...)
+permute(tensor, ...)
 }
 \arguments{
-\item{rank}{the permutation vector.}
-
-\item{...}{additional arguments passed to FUN.}
+\item{...}{ranknames or integers to permute by (quoted or unquoted).}
 
 \item{x}{the tensortree permute.}
+
+\item{.dots}{character or integer vector to permute by.}
 }
 \value{
 a new tensortree.
@@ -22,7 +22,7 @@ Permute the ranks of a tensor, for example to convert between "channels first" a
 Ranknames are respected for both inputs and return values.
 }
 \details{
-The \code{rank} parameter may be an integer numeric vector (for permuting by index), or character vector (for permuting).
+The \code{rank} parameter may be an integer numeric vector (for permuting by index), or character vector (for permuting by rankname).
 }
 \examples{
 # shape [20, 26, 26]

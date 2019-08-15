@@ -43,6 +43,10 @@ tt_apply <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...
 # method
 #' @export
 tt_apply.tensortree <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...) {
+  if(!is.null(ranknames(x))) {
+    rank <- tidyselect::vars_select(ranknames(x), !!rlang::enquo(rank))
+  }
+
   index <- rank_to_index(x, rank)
   ## TODO: it seems like we should be able to apply a function over single values, though I'm not sure why one would want to...
   ## maybe I should dispatch to a separate method for that since it's a special case.

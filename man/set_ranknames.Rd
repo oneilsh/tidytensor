@@ -4,14 +4,16 @@
 \alias{set_ranknames}
 \title{Assign ranknames to a tensortree via a standard function call.}
 \usage{
-set_ranknames(x, newnames, ...)
+set_ranknames(x, ...)
 }
 \arguments{
 \item{x}{input tensortree to set ranknames on.}
 
+\item{...}{new ranknames to assign (quoted or unquoted).}
+
 \item{newnames}{character vector of new ranknames to assign.}
 
-\item{...}{additional arguments to be passed to or from methods (ignored).}
+\item{.dots}{character vector of new ranknames to assign.}
 }
 \value{
 a tensortree with ranknames set.
@@ -29,14 +31,9 @@ package also provides a specialized dimnames() which preserves ranknames when se
 }
 \examples{
 t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
-t <- set_ranknames(t, c("sample", "row", "col"))
+t <- set_ranknames(t, sample, row, col)
+t <- set_ranknames(t, .dots = c("sample", "row", "col"))
 print(t)
-
-# If given a single rankname, will repeat the rankname for all ranks
-t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
-t <- set_ranknames(t, "generic")
-print(t)
-
 }
 \seealso{
 \code{\link{ranknames<-}}

@@ -20,6 +20,10 @@
 #' l1 <- as.list(t1)
 #' str(l1)
 `as.list.tensortree` <- function(tensor, rank = 1, flatten = FALSE, state = NULL) {
+  if(!is.null(ranknames(tensor))) {
+    rank <- tidyselect::vars_select(ranknames(tensor), !!rlang::enquo(rank))
+  }
+
   # if this is the top level, just set the state to a bunch of empties
   if(rank == 0) {
     return(list(tensor))
