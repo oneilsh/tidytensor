@@ -9,12 +9,12 @@ permute(tensor, ...)
 \arguments{
 \item{...}{ranknames or integers to permute by (quoted or unquoted).}
 
-\item{x}{the tensortree permute.}
+\item{x}{the tidytensor permute.}
 
 \item{.dots}{character or integer vector to permute by.}
 }
 \value{
-a new tensortree.
+a new tidytensor.
 }
 \description{
 Permute the ranks of a tensor, for example to convert between "channels first" and "channels last" representations.
@@ -26,7 +26,7 @@ The \code{rank} parameter may be an integer numeric vector (for permuting by ind
 }
 \examples{
 # shape [20, 26, 26]
-t <- as.tensortree(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
+t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
 ranknames(t) <- c("sample", "row", "col")
 print(t)
 
@@ -35,5 +35,5 @@ t3 <- permute(t, c("col", "sample", "row"))
 
 }
 \seealso{
-\code{\link{index}}, \code{\link{c.tensortree}}
+\code{\link{index}}, \code{\link{c.tidytensor}}
 }

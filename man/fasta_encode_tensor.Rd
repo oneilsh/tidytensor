@@ -2,13 +2,13 @@
 % Please edit documentation in R/fasta_encode_tensor.R
 \name{fasta_encode_tensor}
 \alias{fasta_encode_tensor}
-\title{Parse a FASTA file into a tensortree, using 1-hot encoding for base representation.}
+\title{Parse a FASTA file into a tidytensor, using 1-hot encoding for base representation.}
 \usage{
 fasta_encode_tensor(fasta_file, start = 1, end = NULL, ids = NULL,
   alphabet = "nucleotide", trim_to = NULL, ...)
 }
 \arguments{
-\item{fasta_file}{input filename to convert to a tensortree.}
+\item{fasta_file}{input filename to convert to a tidytensor.}
 
 \item{start}{starting sequence number to grab.}
 
@@ -23,7 +23,7 @@ fasta_encode_tensor(fasta_file, start = 1, end = NULL, ids = NULL,
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
 \value{
-a new tensortree.
+a new tidytensor.
 }
 \description{
 Parses a FASTA-formatted file, returning a 1-hot (or multi-hot if IUPAC codes are used) encoded tensor of rank 3, with ranknames "Sequence", "Base", and "Channel". Allows the user

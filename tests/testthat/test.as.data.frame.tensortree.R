@@ -1,4 +1,4 @@
-library(tensortree)
+library(tidytensor)
 context("testing as.data.frame()")
 
 # a wild unit-test appears (a generic unit tester even)
@@ -20,12 +20,12 @@ test_generic_as.data.frame <- function(tensor) {
 }
 
 test_that("as.data.frame performs ok in various contexts", {
-  t <- as.tensortree(array(100 * 1:(3 * 4 * 5), dim = c(3, 4, 5)))
+  t <- as.tidytensor(array(100 * 1:(3 * 4 * 5), dim = c(3, 4, 5)))
   ranknames(t) <- c("sample", "row", "col")
 
   expect_equal(test_generic_as.data.frame(t), TRUE)
 
-  t2 <- as.tensortree(array(1:(2*3*2), dim = c(2, 3, 2)))
+  t2 <- as.tidytensor(array(1:(2*3*2), dim = c(2, 3, 2)))
   # each person has a cat and a dog and a bird, and each animal has a height and weight
   ranknames(t2) <- c("person", "pet", "height_weight")
   dimnames(t2) <- list(c("Joe", "Sally"), c("Cat", "Dog", "Bird"), c("Height", "Weight"))

@@ -7,24 +7,24 @@
 set_dimnames(x, newnames, ...)
 }
 \arguments{
-\item{x}{input tensortree to set dimnames on.}
+\item{x}{input tidytensor to set dimnames on.}
 
 \item{newnames}{list of dimnames to assign.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
 \value{
-a tensortree with dimnames set.
+a tidytensor with dimnames set.
 }
 \description{
-Since tensortrees are arrays, they support dimnames(). The usuall syntax dimnames(x) <- works;
-this function provides a Magritte-compatible regular function, set_dimnames(x, newnames) which returns a new tensortree.
+Since tidytensors are arrays, they support dimnames(). The usuall syntax dimnames(x) <- works;
+this function provides a Magritte-compatible regular function, set_dimnames(x, newnames) which returns a new tidytensor.
 }
 \details{
 Setting dimnames with set_dimnames() preserves any ranknames present.
 }
 \examples{
-t <- as.tensortree(array(1:(3 * 2), dim = c(3, 2)))
+t <- as.tidytensor(array(1:(3 * 2), dim = c(3, 2)))
 t <- set_dimnames(t, list(c("sample1", "sample2", "sample3"), c("valset1", "valset2")))
 print(t)
 

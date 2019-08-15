@@ -1,25 +1,25 @@
 #' @export
-#' @title Convert a tensortree into a nested list of tensors.
+#' @title Convert a tidytensor into a nested list of tensors.
 #'
-#' @description Convert a tensortree into a nested list of tensors, nested down to level specified in \code{rank}.
+#' @description Convert a tidytensor into a nested list of tensors, nested down to level specified in \code{rank}.
 #' If \code{flatten = TRUE}, returns a flattens the structure to a list of tensors (not nested).
 #'
 #' @details The \code{state} parameter is for internal use, and needn't be set during normal usage.
 #'
-#' @param tensor the tensortree to convert.
+#' @param tensor the tidytensor to convert.
 #' @param rank an indicator of the rank defining the contained tensors.
 #' @param flatten whether to return a nested list (\code{FALSE}) or a flattened list (\code{TRUE}).
 #' @param state an internally used parameter for tracking build state-do not set manually.
 #' @param ... additional arguments passed to methods (unusued).
 #' @return a list.
-#' @seealso \code{\link{as.data.frame.tensortree}}
+#' @seealso \code{\link{as.data.frame.tidytensor}}
 #' @examples
-#' # Three tensortrees of the same shape
-#' t3 <- as.tensortree(array(100 * 1:(3 * 4 * 5), dim = c(3, 4, 5)))
+#' # Three tidytensors of the same shape
+#' t3 <- as.tidytensor(array(100 * 1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' ranknames(t1) <- c("sample", "row", "col")
 #' l1 <- as.list(t1)
 #' str(l1)
-`as.list.tensortree` <- function(tensor, rank = 1, flatten = FALSE, state = NULL) {
+`as.list.tidytensor` <- function(tensor, rank = 1, flatten = FALSE, state = NULL) {
   if(!is.null(ranknames(tensor))) {
     rank <- tidyselect::vars_select(ranknames(tensor), !!rlang::enquo(rank))
   }
@@ -34,7 +34,7 @@
 
   index = rank_to_index(tensor, rank)
   if(length(index) != 1) {
-    stop("Error in as.list.tensortree: rank = can only specify a single valid rank.")
+    stop("Error in as.list.tidytensor: rank = can only specify a single valid rank.")
   }
 
   ret_list <- as.list(1:dim(tensor)[1]) # create a list of the right size

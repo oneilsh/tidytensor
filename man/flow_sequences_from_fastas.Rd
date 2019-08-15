@@ -27,7 +27,7 @@ flow_sequences_from_fastas(fasta_files, directory = NULL,
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
 \value{
-a new tensortree.
+a new tidytensor.
 }
 \description{
 Given a list of fasta files, produces a keras-style generator function for generating batches of training data. Each

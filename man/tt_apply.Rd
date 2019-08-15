@@ -2,12 +2,12 @@
 % Please edit documentation in R/tt_apply.tensortree.R
 \name{tt_apply}
 \alias{tt_apply}
-\title{Apply a function over lower ranks of a tensortree}
+\title{Apply a function over lower ranks of a tidytensor}
 \usage{
 tt_apply(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...)
 }
 \arguments{
-\item{x}{the tensortree to apply over.}
+\item{x}{the tidytensor to apply over.}
 
 \item{rank}{an indicator of the rank to apply over (see details).}
 
@@ -20,13 +20,13 @@ tt_apply(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...)
 \item{...}{additional arguments passed to FUN.}
 }
 \value{
-a new tensortree.
+a new tidytensor.
 }
 \description{
-Applies a function over the lower ranks of a tensortree, collecting
-the results into a tensortree. For example, if \code{FUN} is a function that takes a tensortree
-of shape [26, 26] and returns a tensortree of shape [13, 13], then we could apply \code{FUN}
-on a tensortree of shape [3, 100, 26, 26] starting at rank 2 to get back one with shape [3, 100, 13, 13].
+Applies a function over the lower ranks of a tidytensor, collecting
+the results into a tidytensor. For example, if \code{FUN} is a function that takes a tidytensor
+of shape [26, 26] and returns a tidytensor of shape [13, 13], then we could apply \code{FUN}
+on a tidytensor of shape [3, 100, 26, 26] starting at rank 2 to get back one with shape [3, 100, 13, 13].
 If \code{flatten = TRUE}, the higher ranks are collapsed to produce shape [300, 26, 26]
 
 Ranknames are respected for both inputs and return values.
@@ -34,12 +34,12 @@ Ranknames are respected for both inputs and return values.
 \details{
 The \code{rank} argument should specify a single rank to apply over;
 if \code{ranknames(t) <- c("sample", "rows", "cols", "channels")} then \code{rank = 2}, \code{rank = "rows"},
-and \code{rank = c(FALSE, TRUE, FALSE, FALSE)} all indicate that \code{FUN} will be called on tensortrees
+and \code{rank = c(FALSE, TRUE, FALSE, FALSE)} all indicate that \code{FUN} will be called on tidytensors
 with ranknames \code{c("rows", "cols", "channels")}.
 }
 \examples{
 # shape [20, 26, 26]
-t <- as.tensortree(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
+t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
 ranknames(t) <- c("sample", "row", "col")
 print(t)
 

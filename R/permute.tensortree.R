@@ -9,14 +9,14 @@
 #'
 #'
 #'
-#' @param x the tensortree permute.
+#' @param x the tidytensor permute.
 #' @param ... ranknames or integers to permute by (quoted or unquoted).
 #' @param .dots character or integer vector to permute by.
-#' @return a new tensortree.
-#' @seealso \code{\link{index}}, \code{\link{c.tensortree}}
+#' @return a new tidytensor.
+#' @seealso \code{\link{index}}, \code{\link{c.tidytensor}}
 #' @examples
 #' # shape [20, 26, 26]
-#' t <- as.tensortree(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
+#' t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(t)
 #'
@@ -26,7 +26,7 @@
 permute <- function(tensor, ...) {UseMethod("permute", tensor)}
 
 #' @export
-permute.tensortree <- function(tensor, ...) {
+permute.tidytensor <- function(tensor, ...) {
   vars <- quovars(...)
   permute_vec <- rank_to_index(tensor, vars)
 

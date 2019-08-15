@@ -1,7 +1,7 @@
 # context("reading fasta file, fasta_encode_tensor")
 #
 # test_that("fasta_encode_tensor() works properly", {
-#   t <- fasta_encode_tensor(system.file("extdata", "seqs.fasta", package = "tensortree"))
+#   t <- fasta_encode_tensor(system.file("extdata", "seqs.fasta", package = "tidytensor"))
 #   expect_equal(t[1,1,1:4], tt(c(0, 0, 0, 1))) # first base of first seq is a T
 #   expect_equal(t[1,4,1:4], tt(c(1, 0, 0, 0))) # fourth base of first seq is an A
 #
@@ -13,11 +13,11 @@
 #   expect_equal(dimnames(t)[[1]][2], "EP7180000000023_Z")
 #
 #
-#   t2 <- fasta_encode_tensor(system.file("extdata", "seqs.fasta", package = "tensortree"), start = 4, end = 6)
+#   t2 <- fasta_encode_tensor(system.file("extdata", "seqs.fasta", package = "tidytensor"), start = 4, end = 6)
 #   expect_equal(t2[1,1,1:4], tt(c(0, 0, 0, 1))) # first base of first seq is a T
 #   expect_equal(t2[1,4,1:4], tt(c(0, 0, 1, 0))) # fourth base of first seq is a G
 #
-#   t3 <- fasta_encode_tensor(system.file("extdata", "seqs.fasta", package = "tensortree"), ids = c("EP7180000000023_Z", "EP483640", "EP535473", "EP7180000026554"))
+#   t3 <- fasta_encode_tensor(system.file("extdata", "seqs.fasta", package = "tidytensor"), ids = c("EP7180000000023_Z", "EP483640", "EP535473", "EP7180000026554"))
 #   expect_equal(t3[1,1,1:4], tt(c(1, 0, 0, 0))) # first base of first seq is a A
 #   expect_equal(t3[1,4,1:4], tt(c(0, 1, 0, 0))) # fourth base of first seq is a C
 #   expect_equal(t3[2,1,1:4], tt(c(0, 1, 0, 0))) # first base of second seq is a C
@@ -30,7 +30,7 @@
 #
 #
 # test_that("fasta_train_batch() works properly", {
-#   t <- fasta_train_batch(system.file("extdata", "seqs.fasta", package = "tensortree"),
+#   t <- fasta_train_batch(system.file("extdata", "seqs.fasta", package = "tidytensor"),
 #                            ids = c("EP7180000000023_Z", "EP483640", "EP535473", "EP7180000026554"),
 #                            targets = c("one", "two", "three", "two"),
 #                            keras_categorical_targets = TRUE)
@@ -54,7 +54,7 @@
 #   expect_equal(dimnames(t_target)[[2]][3], "two") # second dim, target labels
 #
 #   # check factor ordering?
-#   t <- fasta_train_batch(system.file("extdata", "seqs.fasta", package = "tensortree"),
+#   t <- fasta_train_batch(system.file("extdata", "seqs.fasta", package = "tidytensor"),
 #                          ids = c("EP7180000000023_Z", "EP483640", "EP535473", "EP7180000026554"),
 #                          targets = factor(c("one", "two", "three", "two"), levels = c("one", "two", "three")),
 #                          keras_categorical_targets = TRUE)
@@ -68,7 +68,7 @@
 #
 #
 # test_that("flow_sequences_from_fasta() works properly", {
-#   gen <- flow_sequences_from_fasta(system.file("extdata", "seqs.fasta", package = "tensortree"),
+#   gen <- flow_sequences_from_fasta(system.file("extdata", "seqs.fasta", package = "tidytensor"),
 #                          ids = c("EP7180000000023_Z", "EP483640", "EP535473", "EP7180000026554"),
 #                          targets = c("one", "two", "three", "two"),
 #                          keras_categorical_targets = TRUE,
@@ -116,7 +116,7 @@
 #   expect_equal(dimnames(t_target)[[2]][3], "two") # second dim, target labels
 #
 #
-#   gen <- flow_sequences_from_fasta(system.file("extdata", "seqs.fasta", package = "tensortree"),
+#   gen <- flow_sequences_from_fasta(system.file("extdata", "seqs.fasta", package = "tidytensor"),
 #                                    ids = c("EP7180000000023_Z", "EP483640", "EP535473", "EP7180000026554"),
 #                                    targets = c(-1, 2, 3, 0),
 #                                    keras_categorical_targets = FALSE,

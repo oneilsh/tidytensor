@@ -1,7 +1,7 @@
 #' @export
-#' @title Convert a tensortree to a data.frame representation.
+#' @title Convert a tidytensor to a data.frame representation.
 #'
-#' @description Given a tensortree, returns a data.frame, with each rank of the tensor being represented by a column.
+#' @description Given a tidytensor, returns a data.frame, with each rank of the tensor being represented by a column.
 #' Produces an error if the resulting data.frame would have more than 1 million entries; use \code{allow_huge = TRUE} to override.
 #'
 #' @details Note that this produces a row for each value in the tensor, and a column for each rank; data.frames are a much less
@@ -9,7 +9,7 @@
 #' the resulting data.frame would have more than 1 million entries; but one can set \code{allow_huge = TRUE} to override.
 #' If dimnames() are set (naming each dimension), then the columns will be factors, rather than integer indices.
 #'
-#' If the tensortree ranks are not named, columns will be named \code{index_1}, \code{index_2}, etc., otherwise they will be
+#' If the tidytensor ranks are not named, columns will be named \code{index_1}, \code{index_2}, etc., otherwise they will be
 #' set to ranknames.
 #' Tensor values will be in a column named \code{value}.
 #'
@@ -21,7 +21,7 @@
 #' @examples
 #' # From an array (representing e.g. 30 26x26 images (30 sets of 26 rows of 26 pixels))
 #' a <- array(rnorm(30 * 26 * 26), dim = c(30, 26, 26))
-#' t <- as.tensortree(a)
+#' t <- as.tidytensor(a)
 #' ranknames(t) <- c("sample", "row", "pixel")
 #' df <- as.data.frame(t)
 #' print(head(df))
@@ -36,7 +36,7 @@
 #'                     paste("pixel", 1:26, sep = "_"))
 #'
 #' print(head(as.data.frame(t)))
-as.data.frame.tensortree <- function(tensor, allow_huge = FALSE) {
+as.data.frame.tidytensor <- function(tensor, allow_huge = FALSE) {
   if(length(tensor) * length(dim(tensor)) > 1000000 & !allow_huge) {
     stop("The data frame you are trying to create from a tensor will have more than 1 million entries (in this case ",
          length(tensor),

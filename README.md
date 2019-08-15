@@ -1,3 +1,3 @@
-# TensorTree
+# TidyTensor
 
 This is a stub readme, more soon.

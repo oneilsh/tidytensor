@@ -1,9 +1,9 @@
-library(tensortree)
+library(tidytensor)
 context("testing rank_to_index()")
 
 
 test_that("rank_to_index performs ok", {
-  t <- as.tensortree(array(100 * 1:(3 * 4 * 5), dim = c(3, 4, 5)))
+  t <- as.tidytensor(array(100 * 1:(3 * 4 * 5), dim = c(3, 4, 5)))
   ranknames(t) <- c("sample", "row", "col")
 
   expect_equal(rank_to_index(t, 2), 2)

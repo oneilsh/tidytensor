@@ -2,12 +2,12 @@
 % Please edit documentation in R/ranknames_various.R
 \name{set_ranknames}
 \alias{set_ranknames}
-\title{Assign ranknames to a tensortree via a standard function call.}
+\title{Assign ranknames to a tidytensor via a standard function call.}
 \usage{
 set_ranknames(x, ...)
 }
 \arguments{
-\item{x}{input tensortree to set ranknames on.}
+\item{x}{input tidytensor to set ranknames on.}
 
 \item{...}{new ranknames to assign (quoted or unquoted).}
 
@@ -16,7 +16,7 @@ set_ranknames(x, ...)
 \item{.dots}{character vector of new ranknames to assign.}
 }
 \value{
-a tensortree with ranknames set.
+a tidytensor with ranknames set.
 }
 \description{
 A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
@@ -25,12 +25,12 @@ or the dimension names for each rank, but rank names themselves.
 Like names() and dimnames(), unset ranknames() are NULL.
 }
 \details{
-Ranknames for a tensortree t are stored as the names() attribute of dimnames(t). If dimnames(t) happens
-to be null, before setting ranknames() we create valid dimnames() filled with NA values. The tensortree
+Ranknames for a tidytensor t are stored as the names() attribute of dimnames(t). If dimnames(t) happens
+to be null, before setting ranknames() we create valid dimnames() filled with NA values. The tidytensor
 package also provides a specialized dimnames() which preserves ranknames when setting dimnames().
 }
 \examples{
-t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
+t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 t <- set_ranknames(t, sample, row, col)
 t <- set_ranknames(t, .dots = c("sample", "row", "col"))
 print(t)

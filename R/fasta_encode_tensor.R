@@ -1,5 +1,5 @@
 #' @export
-#' @title Parse a FASTA file into a tensortree, using 1-hot encoding for base representation.
+#' @title Parse a FASTA file into a tidytensor, using 1-hot encoding for base representation.
 #'
 #' @description Parses a FASTA-formatted file, returning a 1-hot (or multi-hot if IUPAC codes are used) encoded tensor of rank 3, with ranknames "Sequence", "Base", and "Channel". Allows the user
 #' to specify that start and end indices for sequences to grab (e.g. grab the 5th to the 20th sequences), or sequence IDs. The default "nucleotide" encoding
@@ -14,14 +14,14 @@
 #' The \code{alphabet} parameter specifies how each letter in sequences should be encoded, as a named list.
 #'
 #'
-#' @param fasta_file input filename to convert to a tensortree.
+#' @param fasta_file input filename to convert to a tidytensor.
 #' @param start starting sequence number to grab.
 #' @param end ending sequence number to grab (see details).
 #' @param ids only grab sequences with these sequence IDs.
 #' @param alphabet either "nucleotide", "protein", or a named list that specifies the encoding, per base.
 #' @param trim_to integer length to trim all sequences to if they are longer; don't attempt trimming if NULL.
 #' @param ... additional arguments to be passed to or from methods (ignored).
-#' @return a new tensortree.
+#' @return a new tidytensor.
 #' @seealso \code{\link{ranknames}}.
 #' @examples
 #' t <- fasta_encode_tensor("seqs.fasta")
@@ -144,7 +144,7 @@ get_min_length <- function(fasta_files) {
 
 
 #' @export
-#' @title Parse entries from a FASTA file into a tensortree with target data to predict.
+#' @title Parse entries from a FASTA file into a tidytensor with target data to predict.
 #'
 #' @description Given a FASTA filename, a data.frame of sequence IDs and target values, generates a list with two elements: the first
 #' being the tensor encoding the relavent sequences, and the second being a tensor encoding the targets.
@@ -160,14 +160,14 @@ get_min_length <- function(fasta_files) {
 #'
 #'
 #' @param ids_targets_df data.frame with IDs and target values of sequences to include in the tensor.
-#' @param fasta_file input filename to convert to a tensortree.
+#' @param fasta_file input filename to convert to a tidytensor.
 #' @param class_mode equivalent to \code{\link{keras::flow_images_from_dataframe}} class_mode parameter. Additionally supports 'identity' for regression.
 #' @param alphabet either "nucleotide", "protein", or a named list that specifies the encoding, per base.
 #' @param ids_col column name to use for sequence ids.
 #' @param targets_col column name to use for target values.
 #' @param trim_to integer length to trim all sequences to if they are longer; don't attempt trimming if NULL.
 #' @param ... additional arguments to be passed to or from methods (ignored).
-#' @return a new tensortree.
+#' @return a new tidytensor.
 #' @seealso \code{\link{fasta_encode_tensor}}.
 #' @examples
 #' df <- data.frame(seqid = c("EP680779", "EP433799", "EP619387", "EP637315"),
@@ -220,16 +220,16 @@ fasta_train_batch <- function(ids_targets_df, fasta_file, class_mode = "categori
     cat_labels <- levels(targets)
     cat_ints <- as.integer(targets) - 1 # keras uses 0 indexing...; note that targets must be a factor at this point
     # this seems to be *breaking* if length(cat_ints) = 1 - is this a bug in keras' to_categorical? Maybe... the shape is different if only 1 target is given
-    target_tensor <- as.tensortree(keras::to_categorical(cat_ints, num_classes = length(cat_labels)))
+    target_tensor <- as.tidytensor(keras::to_categorical(cat_ints, num_classes = length(cat_labels)))
     # fix for above:
     if(length(cat_ints) == 1) {
-      target_tensor <- as.tensortree(keras::array_reshape(target_tensor, dim = c(length(cat_ints), length(cat_labels))))
+      target_tensor <- as.tidytensor(keras::array_reshape(target_tensor, dim = c(length(cat_ints), length(cat_labels))))
     }
     ranknames(target_tensor) <- c("Sequence", "Target")
     dimnames(target_tensor)[[1]] <- ids
     dimnames(target_tensor)[[2]] <- cat_labels
   } else if(class_mode == "identity"){
-    target_tensor <- as.tensortree(targets)
+    target_tensor <- as.tidytensor(targets)
     ranknames(target_tensor) <- "Target"
     dimnames(target_tensor)[[1]] <- ids
     # TODO: add an "input" mode for autoencoders, maybe "other" as well
@@ -238,7 +238,7 @@ fasta_train_batch <- function(ids_targets_df, fasta_file, class_mode = "categori
       stop("Error: class_mode = 'binary' requires exactly two distinct target values. (If using a factor, be sure length(levels()) is exactly two.)")
     }
     cat_labels <- levels(targets)
-    target_tensor <- as.tensortree(as.integer(targets) - 1) # keras uses 0 indexing...; note that targets must be a factor at this point
+    target_tensor <- as.tidytensor(as.integer(targets) - 1) # keras uses 0 indexing...; note that targets must be a factor at this point
     ranknames(target_tensor) <- cat_labels[2]
     dimnames(target_tensor)[[1]] <- ids
   } else {
@@ -357,7 +357,7 @@ fastas_to_targets_df <- function(fasta_files, directory = NULL, function_list = 
 #' @param alphabet either "nucleotide", "protein", or a named list that specifies the encoding, per base.
 #' @param trim_to integer length to trim all sequences to if they are longer; if NULL, trim to shortest sequence in the files.
 #' @param ... additional arguments to be passed to or from methods (ignored).
-#' @return a new tensortree.
+#' @return a new tidytensor.
 #' @seealso \code{\link{fasta_encode_tensor}}.
 #' @examples
 #' df <- data.frame(filename = c("inst/extdata/seqs.fasta", "inst/extdata/seqs.fasta", "inst/extdata/seqs2.fasta", "inst/extdata/seqs2.fasta"),
@@ -486,7 +486,7 @@ flow_sequences_from_fasta_df <- function(df,
 #' @param class_mode how the encode the target column into a target tensor; one of "categorical", "binary", or "identity".
 #' @param alphabet either "nucleotide", "protein", or a named list that specifies the encoding, per base.
 #' @param ... additional arguments to be passed to or from methods (ignored).
-#' @return a new tensortree.
+#' @return a new tidytensor.
 #' @seealso \code{\link{fasta_encode_tensor}}.
 #' @examples
 #' gen <- flow_sequences_from_fastas(c("inst/extdata/seqs.fasta", "inst/extdata/seqs2.fasta"),

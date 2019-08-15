@@ -2,22 +2,22 @@
 % Please edit documentation in R/as.tensortree.R
 \name{tt}
 \alias{tt}
-\title{Convert a vector, matrix, or array to a tensortree type.}
+\title{Convert a vector, matrix, or array to a tidytensor type.}
 \usage{
 tt(x, ...)
 }
 \arguments{
-\item{x}{input to convert to a tensortree.}
+\item{x}{input to convert to a tidytensor.}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
 \value{
-a new tensortree.
+a new tidytensor.
 }
 \description{
-\code{tt()} is a convenience shorthand for \code{as.tensortree()}. Given a vector, matrix, or array, returns a tensortree.
+\code{tt()} is a convenience shorthand for \code{as.tidytensor()}. Given a vector, matrix, or array, returns a tidytensor.
 If given a vector, converts to a 1-d array supporting \code{dim()}, matrices are left as matrices,
-and in all cases the class 'tensortree' is added.
+and in all cases the class 'tidytensor' is added.
 }
 \details{
 Matrices are synonymous with 2-d arrays, so these are left as is. Vectors are converted
@@ -42,5 +42,5 @@ ranknames(t) <- c("pixel")
 print(t)
 }
 \seealso{
-\code{\link{print.tensortree}}, \code{\link{ranknames}}.
+\code{\link{print.tidytensor}}, \code{\link{ranknames}}.
 }

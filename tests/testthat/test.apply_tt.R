@@ -1,8 +1,8 @@
-library(tensortree)
+library(tidytensor)
 context("testing tt_apply")
 
 test_that("basic tt_apply() works properly", {
-  t <- as.tensortree(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
+  t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
   ranknames(t) <- c("sample", "row", "col")
 
   dev_median <- function(t) {
@@ -17,7 +17,7 @@ test_that("basic tt_apply() works properly", {
     return(median(s))
   }, drop_final_1 = FALSE)
 
-  expected_test2 <- as.tensortree(array(rep(0, 20), dim = c(20, 1)))
+  expected_test2 <- as.tidytensor(array(rep(0, 20), dim = c(20, 1)))
   ranknames(expected_test2) <- c("sample", NA)
 
   expect_equal(expected_test2, test2)
@@ -25,12 +25,12 @@ test_that("basic tt_apply() works properly", {
 })
 
 test_that("fancier tt_apply() test", {
-  t <- as.tensortree(array(rnorm(10 * 20 * 26 * 26), dim = c(10, 20, 26, 26)))
+  t <- as.tidytensor(array(rnorm(10 * 20 * 26 * 26), dim = c(10, 20, 26, 26)))
   ranknames(t) <- c("batch", "sample", "row", "col")
 
   reduce_2d <- function(t) {
     # TODO: Make a wrapper for [<- that preserves ranknames]
-    subsampled <- as.tensortree(t[c(T, F), c(T, F)])
+    subsampled <- as.tidytensor(t[c(T, F), c(T, F)])
     ranknames(subsampled) <- paste0(ranknames(t), "_sub")
     return(subsampled)
   }

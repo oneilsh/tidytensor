@@ -1,4 +1,4 @@
 library(testthat)
-library(tensortree)
+library(tidytensor)
 
-test_check("tensortree")
+test_check("tidytensor")

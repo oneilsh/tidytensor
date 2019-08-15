@@ -3,27 +3,27 @@
 ###################################
 
 #' @export
-#' @title Assign ranknames to a tensortree.
+#' @title Assign ranknames to a tidytensor.
 #'
 #' @description A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
 #' for future use. Note that ranknames(t) is independent of names(t) or dimnames(t); we are not naming elements,
 #' or the dimension names for each rank, but rank names themselves.
 #' Like names() and dimnames(), unset ranknames() are NULL.
 #'
-#' @details Ranknames for a tensortree t are stored as the names() attribute of dimnames(t). If dimnames(t) happens
-#' to be null, before setting ranknames() we create valid dimnames() filled with NA values. The tensortree
+#' @details Ranknames for a tidytensor t are stored as the names() attribute of dimnames(t). If dimnames(t) happens
+#' to be null, before setting ranknames() we create valid dimnames() filled with NA values. The tidytensor
 #' package also provides a specialized dimnames() which preserves ranknames when setting dimnames().
 #'
-#' @param x input tensortree to set ranknames on.
+#' @param x input tidytensor to set ranknames on.
 #' @param value what to store in ranknames(x).
 #' @seealso \code{\link{set_ranknames}}, \code{\link{dimnames<-}}
 #' @examples
-#' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
+#' t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(t)
 #'
 #' # works like names():
-#' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
+#' t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(ranknames(t))
 #' ranknames(t)[3] <- "pixel"
@@ -33,7 +33,7 @@
 
 # method:
 #' @export
-`ranknames<-.tensortree` <- function(x, value) {
+`ranknames<-.tidytensor` <- function(x, value) {
   if(is.null(x)) {return(NULL)}
   # we're going to work with the names() of the dimnames(), so we need to have some dimnames there.
   # this just sets them all to NA if there aren't any already
@@ -69,23 +69,23 @@
 
 
 #' @export
-#' @title Get ranknames of a tensortree.
+#' @title Get ranknames of a tidytensor.
 #'
 #' @description A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
 #' for future use. Note that ranknames(t) is independent of names(t) or dimnames(t); we are not naming elements,
 #' or the dimension names for each rank, but rank names themselves.
 #' Like names() and dimnames(), unset ranknames() are NULL.
 #'
-#' @details Ranknames for a tensortree t are stored as the names() attribute of dimnames(t). If dimnames(t) happens
-#' to be null, before setting ranknames() we create valid dimnames() filled with NA values. The tensortree
+#' @details Ranknames for a tidytensor t are stored as the names() attribute of dimnames(t). If dimnames(t) happens
+#' to be null, before setting ranknames() we create valid dimnames() filled with NA values. The tidytensor
 #' package also provides a specialized dimnames() which preserves ranknames when setting dimnames().
 #'
-#' @param x input tensortree to get ranknames for.
+#' @param x input tidytensor to get ranknames for.
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @return character vector of the same length as dim(x), or NULL if unset.
 #' @seealso \code{\link{set_ranknames}}, \code{\link{ranknames<-}}
 #' @examples
-#' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
+#' t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(ranknames(t))
 #'
@@ -97,7 +97,7 @@ setGeneric("ranknames")
 
 # method:
 #' @export
-`ranknames.tensortree` <- function(x, ...) {
+`ranknames.tidytensor` <- function(x, ...) {
     if(is.null(x)) {return(NULL)}
     if(is.null(attr(x, "dimnames"))) {
       return(NULL)
@@ -109,25 +109,25 @@ setGeneric("ranknames")
 ## set_ranknames(t, c("one", "two", "three"))
 ###########################################
 #' @export
-#' @title Assign ranknames to a tensortree via a standard function call.
+#' @title Assign ranknames to a tidytensor via a standard function call.
 #'
 #' @description A tensor tree t may have ranknames(t); this is a character vector of the same length as dim(t)
 #' for future use. Note that ranknames(t) is independent of names(t) or dimnames(t); we are not naming elements,
 #' or the dimension names for each rank, but rank names themselves.
 #' Like names() and dimnames(), unset ranknames() are NULL.
 #'
-#' @details Ranknames for a tensortree t are stored as the names() attribute of dimnames(t). If dimnames(t) happens
-#' to be null, before setting ranknames() we create valid dimnames() filled with NA values. The tensortree
+#' @details Ranknames for a tidytensor t are stored as the names() attribute of dimnames(t). If dimnames(t) happens
+#' to be null, before setting ranknames() we create valid dimnames() filled with NA values. The tidytensor
 #' package also provides a specialized dimnames() which preserves ranknames when setting dimnames().
 #'
-#' @param x input tensortree to set ranknames on.
+#' @param x input tidytensor to set ranknames on.
 #' @param newnames character vector of new ranknames to assign.
 #' @param ... new ranknames to assign (quoted or unquoted).
 #' @param .dots character vector of new ranknames to assign.
-#' @return a tensortree with ranknames set.
+#' @return a tidytensor with ranknames set.
 #' @seealso \code{\link{ranknames<-}}
 #' @examples
-#' t <- as.tensortree(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
+#' t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' t <- set_ranknames(t, sample, row, col)
 #' t <- set_ranknames(t, .dots = c("sample", "row", "col"))
 #' print(t)
@@ -138,7 +138,7 @@ setGeneric("ranknames")
 
 # method
 #' @export
-`set_ranknames.tensortree` <- function(x, ...) {
+`set_ranknames.tidytensor` <- function(x, ...) {
   ranknames(x) <- quovars(...)
   return(x)
 }
@@ -149,7 +149,7 @@ setGeneric("ranknames")
 ##############################################
 # just a method, the generic already exists in base R
 #' @export
-`dimnames<-.tensortree` <- function(x, value) {
+`dimnames<-.tidytensor` <- function(x, value) {
   if(is.null(x)) {return(NULL)}
 
   # setting dimnames() directly erases previous ranknames, because those were stored as names(dimnames())
@@ -169,18 +169,18 @@ setGeneric("ranknames")
 #' @export
 #' @title Set dimnames() via a standard function call.
 #'
-#' @description Since tensortrees are arrays, they support dimnames(). The usuall syntax dimnames(x) <- works;
-#' this function provides a Magritte-compatible regular function, set_dimnames(x, newnames) which returns a new tensortree.
+#' @description Since tidytensors are arrays, they support dimnames(). The usuall syntax dimnames(x) <- works;
+#' this function provides a Magritte-compatible regular function, set_dimnames(x, newnames) which returns a new tidytensor.
 #'
 #' @details Setting dimnames with set_dimnames() preserves any ranknames present.
 #'
-#' @param x input tensortree to set dimnames on.
+#' @param x input tidytensor to set dimnames on.
 #' @param newnames list of dimnames to assign.
 #' @param ... additional arguments to be passed to or from methods (ignored).
-#' @return a tensortree with dimnames set.
+#' @return a tidytensor with dimnames set.
 #' @seealso \code{\link{ranknames<-}}, \code{\link{dimnames}}
 #' @examples
-#' t <- as.tensortree(array(1:(3 * 2), dim = c(3, 2)))
+#' t <- as.tidytensor(array(1:(3 * 2), dim = c(3, 2)))
 #' t <- set_dimnames(t, list(c("sample1", "sample2", "sample3"), c("valset1", "valset2")))
 #' print(t)
 #'
@@ -195,7 +195,7 @@ setGeneric("ranknames")
 
 # method
 #' @export
-`set_dimnames.tensortree` <- function(x, newnames, ...) {
+`set_dimnames.tidytensor` <- function(x, newnames, ...) {
   if(is.null(x)) {return(NULL)}
   dimnames(x) <- newnames
   return(x)
@@ -211,14 +211,14 @@ setGeneric("ranknames")
 #'
 #' @details If all dimnames are unset, they will be set to NA for the other ranks, otherwise they will be left alone.
 #'
-#' @param x input tensortree to set dimnames on.
+#' @param x input tidytensor to set dimnames on.
 #' @param rank rank to set the dimnames on.
 #' @param ... dimnames to assign (quoted or unquoted).
 #' @param .dots character vector of dimnames to assign (quoted or unquoted).
-#' @return a tensortree with dimnames set.
+#' @return a tidytensor with dimnames set.
 #' @seealso \code{\link{ranknames<-}}, \code{\link{dimnames}}, \code{\link{set_dimnames}}
 #' @examples
-#' t <- as.tensortree(array(1:(3 * 2), dim = c(3, 2)))
+#' t <- as.tidytensor(array(1:(3 * 2), dim = c(3, 2)))
 #' t <- set_dimnames_for_rank(t, 2, valset1, valset2)
 #' t <- set_dimnames_for_rank(t, 2, .dots = c("valset1", "valset2"))
 #' print(t)
@@ -229,7 +229,7 @@ setGeneric("ranknames")
 
 # method
 #' @export
-`set_dimnames_for_rank.tensortree` <- function(x, rank, ...) {
+`set_dimnames_for_rank.tidytensor` <- function(x, rank, ...) {
   rank <- tidyselect::vars_select(ranknames(x), !!rlang::enquo(rank))
   newnames <- quovars(...)
   rank_index <- rank_to_index(x, rank)

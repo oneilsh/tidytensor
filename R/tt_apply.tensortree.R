@@ -1,32 +1,32 @@
 #' @export
-#' @title Apply a function over lower ranks of a tensortree
+#' @title Apply a function over lower ranks of a tidytensor
 #'
-#' @description Applies a function over the lower ranks of a tensortree, collecting
-#' the results into a tensortree. For example, if \code{FUN} is a function that takes a tensortree
-#' of shape [26, 26] and returns a tensortree of shape [13, 13], then we could apply \code{FUN}
-#' on a tensortree of shape [3, 100, 26, 26] starting at rank 2 to get back one with shape [3, 100, 13, 13].
+#' @description Applies a function over the lower ranks of a tidytensor, collecting
+#' the results into a tidytensor. For example, if \code{FUN} is a function that takes a tidytensor
+#' of shape [26, 26] and returns a tidytensor of shape [13, 13], then we could apply \code{FUN}
+#' on a tidytensor of shape [3, 100, 26, 26] starting at rank 2 to get back one with shape [3, 100, 13, 13].
 #' If \code{flatten = TRUE}, the higher ranks are collapsed to produce shape [300, 26, 26]
 #'
 #' Ranknames are respected for both inputs and return values.
 #'
 #' @details The \code{rank} argument should specify a single rank to apply over;
 #' if \code{ranknames(t) <- c("sample", "rows", "cols", "channels")} then \code{rank = 2}, \code{rank = "rows"},
-#' and \code{rank = c(FALSE, TRUE, FALSE, FALSE)} all indicate that \code{FUN} will be called on tensortrees
+#' and \code{rank = c(FALSE, TRUE, FALSE, FALSE)} all indicate that \code{FUN} will be called on tidytensors
 #' with ranknames \code{c("rows", "cols", "channels")}.
 #'
 #'
 #'
-#' @param x the tensortree to apply over.
+#' @param x the tidytensor to apply over.
 #' @param FUN the function to apply
 #' @param rank an indicator of the rank to apply over (see details).
 #' @param flatten whether to preserve the higher-rank structure, or collapse into a single rank (see description).
 #' @param drop_final_1 If FUN returns a rank-0 tensor (length-1 vector), should it be collapsed? E.g. if final shape is (10, 10, 1), adjusts shape to (10, 10)
 #' @param ... additional arguments passed to FUN.
-#' @return a new tensortree.
-#' @seealso \code{\link{index}}, \code{\link{c.tensortree}}, \code{permute.tensortree}}
+#' @return a new tidytensor.
+#' @seealso \code{\link{index}}, \code{\link{c.tidytensor}}, \code{permute.tidytensor}}
 #' @examples
 #' # shape [20, 26, 26]
-#' t <- as.tensortree(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
+#' t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(t)
 #'
@@ -42,7 +42,7 @@ tt_apply <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...
 
 # method
 #' @export
-tt_apply.tensortree <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...) {
+tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...) {
   if(!is.null(ranknames(x))) {
     rank <- tidyselect::vars_select(ranknames(x), !!rlang::enquo(rank))
   }
@@ -71,11 +71,11 @@ tt_apply.tensortree <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
   # we'll wrap the user's function in one that helps out with ranknames etc.
   wrapper_func <- function(subarray) {
     # omg it even strips the names... we only try to set them if there were before, since it won't let us assign NULL to ranknames()
-    subarray <- as.tensortree(subarray)
+    subarray <- as.tidytensor(subarray)
     if(!is.null(ranknames(x))) {
       ranknames(subarray) <- ranknames(x)[seq(index + 1, length(dim(x)))]
     }
-    func_result <- as.tensortree(FUN(subarray, ...))
+    func_result <- as.tidytensor(FUN(subarray, ...))
     # if it's a vector, the shape is just the length (user-friendliness)
     if(is.null(dim(func_result))) {
       function_ret_shape <<- length(func_result)
@@ -121,7 +121,7 @@ tt_apply.tensortree <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
   # prime the array with some ranknames so that we can ranknames(result)[1] <- assign (otherwise we'd be assigning to [1] of NULL, which is silly)
   # we're going to have *some* ranknames at least
 
-  result <- as.tensortree(result)
+  result <- as.tidytensor(result)
   if(is.null(ranknames(result))) { ranknames(result) <- rep(NA, length(dim(result)))}
 
   effective_index <- index

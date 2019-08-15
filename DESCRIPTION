@@ -1,4 +1,4 @@
-Package: tensortree
+Package: tidytensor
 Type: Package
 Title: Multidimensional Arrays as Hierarchical Structures
 Version: 0.1.0

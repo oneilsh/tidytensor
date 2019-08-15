@@ -2,7 +2,7 @@
 % Please edit documentation in R/fasta_encode_tensor.R
 \name{fasta_train_batch}
 \alias{fasta_train_batch}
-\title{Parse entries from a FASTA file into a tensortree with target data to predict.}
+\title{Parse entries from a FASTA file into a tidytensor with target data to predict.}
 \usage{
 fasta_train_batch(ids_targets_df, fasta_file, class_mode = "categorical",
   alphabet = "nucleotide", ids_col = "seqid", targets_col = "class",
@@ -11,7 +11,7 @@ fasta_train_batch(ids_targets_df, fasta_file, class_mode = "categorical",
 \arguments{
 \item{ids_targets_df}{data.frame with IDs and target values of sequences to include in the tensor.}
 
-\item{fasta_file}{input filename to convert to a tensortree.}
+\item{fasta_file}{input filename to convert to a tidytensor.}
 
 \item{class_mode}{equivalent to \code{\link{keras::flow_images_from_dataframe}} class_mode parameter. Additionally supports 'identity' for regression.}
 
@@ -26,7 +26,7 @@ fasta_train_batch(ids_targets_df, fasta_file, class_mode = "categorical",
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
 \value{
-a new tensortree.
+a new tidytensor.
 }
 \description{
 Given a FASTA filename, a data.frame of sequence IDs and target values, generates a list with two elements: the first

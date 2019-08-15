@@ -36,7 +36,7 @@ flow_sequences_from_fasta_df(df, directory = NULL,
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
 \value{
-a new tensortree.
+a new tidytensor.
 }
 \description{
 Given data.frame of fasta file paths, sequence IDs and target values, returns a generator function generating

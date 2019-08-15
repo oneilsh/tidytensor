@@ -1,30 +1,30 @@
 #' @export
-#' @title Print a tensortree.
+#' @title Print a tidytensor.
 #'
-#' @description Prints a summary of a tensortree as a nested hierarchy of tensors of lower rank.
+#' @description Prints a summary of a tidytensor as a nested hierarchy of tensors of lower rank.
 #'
 #' @details The \code{bottom} argument specifies whether the lowest ranks of the tensor should be shown as 2d matrices, 3d matrices, or 1d arrays; \code{"auto"} will
 #' select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image and a "channels-first" convention) or if there are only two ranks,
 #' and otherwise will default to "1d".
 #'
-#' @param x a tensortree to summarize.
+#' @param x a tidytensor to summarize.
 #' @param max_per_level only show this many sub-tensors per level.
 #' @param signif_digits number of significant digits to print for numeric tensors.
 #' @param end_n limit the base-level prints to include this many dimensions of each rank.
 #' @param show_names show the dimension names, if present, or dimension indices if not in base-level prints.
 #' @param bottom either "auto", "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.
 #' @param ... additional arguments to be passed to or from methods (ignored).
-#' @seealso \code{\link{print.tensortree}}
+#' @seealso \code{\link{print.tidytensor}}
 #' @examples
-#' t <- as.tensortree(array(1:(2 * 3 * 4 * 5), dim = c(2, 3, 4, 5)))
+#' t <- as.tidytensor(array(1:(2 * 3 * 4 * 5), dim = c(2, 3, 4, 5)))
 #' ranknames(t) <- c("samples", "batches", rows", "cols")
 #' print(t, end = "2d")
 #'
-#' t <- as.tensortree(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
+#' t <- as.tidytensor(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
 #' ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
 #' print(t, n = c(6, 6, 3), bottom = "3d")
 #'
-`print.tensortree` <- function(x, max_per_level = 2, signif_digits = 4, end_n = NULL, show_names = FALSE, bottom = "auto", ...) {
+`print.tidytensor` <- function(x, max_per_level = 2, signif_digits = 4, end_n = NULL, show_names = FALSE, bottom = "auto", ...) {
     if(bottom == "auto") {
       bottom = "1d"
       if(length(dim(x)) > 2) { # could be 3d
@@ -188,10 +188,10 @@ tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = NULL, show
     mat2 <- tt_apply(mat2, 2, function(channels) {
       channels <- as.character(channels)
       if(length(channels) > end_n[length(end_n)]) {
-        channels <- c(channels[1:end_n[length(end_n)]], "...") # BEWARE: tt_apply always gets an array (tensortree), even if 1d, so c() here is using c.tensortree, NOT c.character, unless we explictly cast it as a character array. ugh.
+        channels <- c(channels[1:end_n[length(end_n)]], "...") # BEWARE: tt_apply always gets an array (tidytensor), even if 1d, so c() here is using c.tidytensor, NOT c.character, unless we explictly cast it as a character array. ugh.
       }
       res1 <- paste0("[", paste(channels, collapse = ", "), "]")
-      res <- as.tensortree(res1)
+      res <- as.tidytensor(res1)
       return(res)
     })
     is3d <- TRUE
@@ -350,9 +350,9 @@ tt_print_1d <- function(mat, indent = 0, signif_digits = 4, end_n = NULL, show_n
 
 
   if(is.numeric(mat)) {
-    mat <- as.tensortree(signif(mat, signif_digits))
+    mat <- as.tidytensor(signif(mat, signif_digits))
   } else if(is.character(mat)) {
-    mat <- as.tensortree(paste0('"', mat, '"'))
+    mat <- as.tidytensor(paste0('"', mat, '"'))
   }
 
   ranknames(mat) <- saved_ranknames

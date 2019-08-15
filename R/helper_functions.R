@@ -23,7 +23,7 @@ rank_to_index <- function(tensor, ...) {UseMethod("rank_to_index", tensor)}
 # used to convert a rank selector (numeric, character (by rankname), or logical)
 # to an index vector (numeric)
 #' @export
-rank_to_index.tensortree <- function(tensor, by = TRUE) {
+rank_to_index.tidytensor <- function(tensor, by = TRUE) {
   permute_vec <- seq(1:length(dim(tensor))) # no change by default
   if(mode(by) == "logical") {
     logical_full <- rep(by, length.out = length(dim(tensor)))
@@ -56,7 +56,7 @@ tt_index <- function(tensor, ...) {UseMethod("tt_index", tensor)}
 # just subsets a tensor *without* knowing its rank
 # eg suppose we want some_tensor[ , ,1:10 , , ], which is a rank-5 tensor, but we don't know that to begin with,
 # we can use tt_index(some_tensor, 1:10, dimension = 3)
-tt_index.tensortree <- function(tensor, indices, dimension = 1, drop = TRUE) {
+tt_index.tidytensor <- function(tensor, indices, dimension = 1, drop = TRUE) {
   # here's where it gets tricky: we need to grab the first couple of entries
   # from the first dimenions of the tensor. E.g. if dim(tensor) is c(10, 10, 10, 10), we
   # want tensor[1:n, , , ]. But we can't write it that way because we don't know the rank to hard-code it.
@@ -78,24 +78,24 @@ tt_index.tensortree <- function(tensor, indices, dimension = 1, drop = TRUE) {
   names(args_list)[length(args_list)] <- "drop"
   # make the call
   res <- do.call(`[`, args_list)
-  return(as.tensortree(res))
+  return(as.tidytensor(res))
 }
 
 # TODO: these are surprisingly slow, too slow for a loop
 # derp, we don't even need them, for some reason
 
-#`[<-.tensortree` <- function(x, ...) {
-#  class(x) <- class(x)[class(x) != "tensortree"]
+#`[<-.tidytensor` <- function(x, ...) {
+#  class(x) <- class(x)[class(x) != "tidytensor"]
 #  x <- `[<-`(x, ...)
 #  #x <- tt(x)
-#  class(x) <- c("tensortree", class(x))
+#  class(x) <- c("tidytensor", class(x))
 #  return(x)
 #}
 
 
 
-# `[.tensortree` <- function(x, ...) {
-#   class(x) <- class(x)[class(x) != "tensortree"]
+# `[.tidytensor` <- function(x, ...) {
+#   class(x) <- class(x)[class(x) != "tidytensor"]
 #   x <- `[`(x, ...)
 #   # alright, so the bummer is that if what is returned is a vector (1d tensor), it drops the names. (YTHO)
 #   # TODO: I'm not really sure what to do about this...

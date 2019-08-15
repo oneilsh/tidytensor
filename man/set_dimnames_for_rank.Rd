@@ -7,7 +7,7 @@
 set_dimnames_for_rank(x, rank, ...)
 }
 \arguments{
-\item{x}{input tensortree to set dimnames on.}
+\item{x}{input tidytensor to set dimnames on.}
 
 \item{rank}{rank to set the dimnames on.}
 
@@ -16,7 +16,7 @@ set_dimnames_for_rank(x, rank, ...)
 \item{.dots}{character vector of dimnames to assign (quoted or unquoted).}
 }
 \value{
-a tensortree with dimnames set.
+a tidytensor with dimnames set.
 }
 \description{
 Sets the dimensions names for a particular rank, without requiring dimnames for the other ranks.
@@ -25,7 +25,7 @@ Sets the dimensions names for a particular rank, without requiring dimnames for 
 If all dimnames are unset, they will be set to NA for the other ranks, otherwise they will be left alone.
 }
 \examples{
-t <- as.tensortree(array(1:(3 * 2), dim = c(3, 2)))
+t <- as.tidytensor(array(1:(3 * 2), dim = c(3, 2)))
 t <- set_dimnames_for_rank(t, 2, valset1, valset2)
 t <- set_dimnames_for_rank(t, 2, .dots = c("valset1", "valset2"))
 print(t)

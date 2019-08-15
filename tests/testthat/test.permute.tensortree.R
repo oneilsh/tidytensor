@@ -1,8 +1,8 @@
-library(tensortree)
+library(tidytensor)
 context("testing permute()")
 
 test_that("basic permute() works properly", {
-  t <- as.tensortree(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
+  t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
   ranknames(t) <- c("sample", "row", "col")
 
   t_p1 <- permute(t, .dots = c(3, 2, 1))
