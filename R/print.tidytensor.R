@@ -4,370 +4,308 @@
 #' @description Prints a summary of a tidytensor as a nested hierarchy of tensors of lower rank.
 #'
 #' @details The \code{bottom} argument specifies whether the lowest ranks of the tensor should be shown as 2d matrices, 3d matrices, or 1d arrays; \code{"auto"} will
-#' select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image and a "channels-first" convention) or if there are only two ranks,
-#' and otherwise will default to "1d".
+#' select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image
+#' and a "channels-first" convention) or if there are only two ranks or if the last two ranks are equal, and otherwise will default to "1d".
+#'
+#' \code{max_per_level} indicates how many replicates
 #'
 #' @param x a tidytensor to summarize.
-#' @param max_per_level only show this many sub-tensors per level.
-#' @param signif_digits number of significant digits to print for numeric tensors.
-#' @param end_n limit the base-level prints to include this many dimensions of each rank.
 #' @param show_names show the dimension names, if present, or dimension indices if not in base-level prints.
+#' @param max_per_level only show this many sub-tensors per level.
 #' @param bottom either "auto", "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.
+#' @param max_rows limit the base-level prints to include this many rows (also applies to 1d prints).
+#' @param max_cols limit the base-level prints to include this many columns.
+#' @param max_depth in 3d representation, limit the base-level prints to include this many entries of the last rank.
+#' @param signif_digits number of significant digits to print for numeric tensors.
+#' @param indent indent the printout by this much (used internally).
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @seealso \code{\link{print.tidytensor}}
 #' @examples
 #' t <- as.tidytensor(array(1:(2 * 3 * 4 * 5), dim = c(2, 3, 4, 5)))
 #' ranknames(t) <- c("samples", "batches", "rows", "cols")
-#' print(t, end = "2d")
+#' print(t, bottom = "2d")
 #'
 #' t <- as.tidytensor(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
 #' ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
-#' print(t, n = c(6, 6, 3), bottom = "3d")
+#' print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, bottom = "3d")
 #'
-`print.tidytensor` <- function(x, max_per_level = 2, signif_digits = 4, end_n = NULL, show_names = FALSE, bottom = "auto", ...) {
-    if(bottom == "auto") {
-      bottom = "1d"
-      if(length(dim(x)) > 2) { # could be 3d
-        if(dim(x)[length(dim(x))] %in% c(3, 1)) {          # looks like channels-first...
-          bottom = "3d"
-        } else if(dim(x)[length(dim(x))-2] %in% c(3, 1)) { # looks like channels-first... OR the lst two dimensions are exactly equal
-          bottom = "2d"
-        }
-      }
-      if(length(dim(x)) >= 2) {
-        if((dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) & dim(x)[length(dim(x))] > 3) { # if the last two are exactly equal, and greader than 3
-          bottom = "2d"
-        }
+`print.tidytensor` <- function(x,  show_names = FALSE, max_per_level = 1, bottom = "auto", max_rows = 6, max_cols = 6, max_depth = 3, signif_digits = 3, indent = 0, ...) {
+  if(bottom == "auto") {
+    bottom = "1d"
+    if(length(dim(x)) > 2) { # could be 3d
+      if(dim(x)[length(dim(x))] %in% c(3, 1)) {          # looks like channels-first...
+        bottom = "3d"
+      } else if(dim(x)[length(dim(x))-2] %in% c(3, 1)) { # looks like channels-first... OR the lst two dimensions are exactly equal
+        bottom = "2d"
       }
     }
+    if(length(dim(x)) >= 2) {
+      if((dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) & dim(x)[length(dim(x))] > 3) { # if the last two are exactly equal, and greader than 3
+        bottom = "2d"
+      }
+    }
+  }
 
-    # make sure end_n is set to something reasonable...
-    if(is.null(end_n)) {
-      if(bottom == "1d") {end_n = c(6)}
-      if(bottom == "2d") {end_n = c(6, 6)}
-      if(bottom == "3d") {end_n = c(6, 6, 3)}
+  shape <- dim(x)
+  if(bottom == "1d" & length(shape) == 1) {
+    print_1d_bottom(x, end_n = max_rows, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
+    return(invisible())
+  }
+  if(bottom == "2d" & length(shape) == 2) {
+    print_2d_bottom(x, max_rows = max_rows, max_cols = max_cols, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
+    return(invisible())
+  }
+  if(bottom == "3d" & length(shape) == 3) {
+    print_3d_bottom(x, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
+    return(invisible())
+  }
+
+  cat_indent(size = indent, is.tensor = TRUE)
+  #ct(rep("| ", indent/2))
+  ct("Rank ", length(shape) , " tensor, shape: (", comma(shape), ")")
+  if(!is.null(ranknames(x))) {
+    ct(", ranknames: ")
+    ct(comma(ranknames(x)))
+  }
+  ct("\n")
+
+  #sub_ts <- tt_index(x, 1:max_per_level, dimension = 1, drop = FALSE)
+  #tt_apply(x, rank = 1, function(subt) {
+  #  print(subt, show_names = show_names, max_per_level = max_per_level, bottom = bottom, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, signif_digits = signif_digits, indent = indent + 1, ...)
+  #})
+  for(i in 1:min(max_per_level, shape[1])) {
+    # BUG, TODO: how do I drop the first rank only?
+    subt <- tt_index(x, i, dimension = 1, drop = FALSE) # equiv of t[i, , , ] for a rank-4 tensor, but we don't know the rank hence calling tt_index
+    # abind::adrop removes class when only one dim left?
+    subt <- tt(abind::adrop(subt, drop = 1))
+    #str("############")
+    #print(i)
+    #str(subt)
+    print(subt, show_names = show_names, max_per_level = max_per_level, bottom = bottom, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, signif_digits = signif_digits, indent = indent + 1, ...)
+  }
+  cat_indent(size = indent+1, is.tensor = FALSE)
+  #left <- dim(t)[1] - max_per_level
+  #ct("# (and", left, "more Rank", length(dim(t))-1, "tensors ...)", color = crayon::make_style("#BBBBBB"))
+  if(shape[1] > max_per_level) {
+    ct("# ...")
+  }
+  ct("\n")
+}
+
+
+ct <- function(...) {
+  cat(..., sep = "")
+}
+
+
+comma <-function(...) {
+  return(paste0(..., collapse = ", "))
+}
+
+cat_indent <- function(size = 1, is.tensor = TRUE) {
+  if(!is.tensor) {
+    for(i in rep(0, size)) {
+      ct("|  ")
+    }
+  } else {
+    for(i in rep(0, max(0, size))) {
+      ct("|  ")
+    }
+    #ct("+--")
+    ct("# ")
+  }
+}
+
+nicecolnames <- function(m, predims = 1, postdims = 0, max_cols = 6) {
+  colnames <- as.character(1:ncol(m))
+  if(!is.null(colnames(m))) {
+    if(!all(is.na(colnames(m)))) {
+      colnames <- paste0('"', colnames(m), '"' , sep = "")
+    }
+  }
+
+
+  res <- rep("[", length(colnames))
+  commas_pre <- paste0(rep(",", predims), collapse = "")
+  commas_post <- paste0(rep(",", postdims), collapse = "")
+  res <- paste0(res, commas_pre, colnames, commas_post, "]", sep = "")
+  if(length(res) > max_cols) {
+    res <- res[1:max_cols]
+    res <- c(res, "...")
+  }
+  return(res)
+}
+
+nicerownames <- function(m, predims = 0, postdims = 1, max_rows = 6) {
+  rownames <- as.character(1:nrow(m))
+  if(!is.null(rownames(m))) {
+    if(!all(is.na(rownames(m)))) {
+      rownames <- paste0('"', rownames(m), '"' , sep = "")
+    }
+  }
+
+  res <- rep("[", length(rownames))
+  commas_pre <- paste0(rep(",", predims), collapse = "")
+  commas_post <- paste0(rep(",", postdims), collapse = "")
+  res <- paste0(res, commas_pre, rownames, commas_post, "]", sep = "")
+  if(length(res) > max_rows) {
+    res <- res[1:max_rows]
+    res <- c(res, "...")
+  }
+
+  return(res)
+}
+
+space_fill <- function(charvec) {
+  max_chars <- max(nchar(charvec))
+  format <- paste0("%", max_chars, "s", collapse = "")
+  res <- sprintf(format, charvec)
+  return(res)
+}
+
+# returns a set of formatted lines (as a character vector)
+nicemat <- function(m, show_row_names = TRUE, show_col_names = TRUE, row_predims = 0, row_postdims = 1, col_predims = 1, col_postdims = 0, max_rows = 6, max_cols = 6) {
+  # sigh... apply returns a vector in some cases; if it does so this function fixes it back to a matrix
+  fix <- function(x) {
+    if(!is.matrix(x)) {
+      return(t(as.matrix(x)))
     } else {
-      if(length(end_n) == 0) {end_n = 6}
-      if(bottom == "1d" & length(end_n) > 1) {end_n = tail(end_n, n = 1)}
-      if(bottom == "2d" & length(end_n) < 2) {end_n = c(rep(end_n[1], 2 - length(end_n)), end_n)}
-      if(bottom == "2d" & length(end_n) > 2) {end_n = tail(end_n, n = 2)}
-      if(bottom == "3d" & length(end_n) < 3) {end_n = c(rep(end_n[1], 3 - length(end_n)), end_n)}
-      if(bottom == "3d" & length(end_n) > 3) {end_n = tail(end_n, n = 3)}
-    }
-
-    cat("Rank ", length(dim(x)), " tensor, shape: ", sep = "")
-    cat("(", paste0(dim(x), collapse = ", "), ")", sep = "")
-    if(!is.null(ranknames(x))) {
-      cat(", rank names: ", paste0(ranknames(x), collapse = ", "), sep = "")
-    }
-    cat("\n")
-
-    orig_dims <- dim(x)
-    orig_ranks <- ranknames(x)
-
-    num_bottom_ranks <- length(end_n)
-    # reduce size of top ranks (above the bottom ones)
-    if(length(orig_dims) > num_bottom_ranks) {
-      for(i in 1:(length(orig_dims) - num_bottom_ranks)) {
-        x <- tt_index(x, 1:min(max_per_level, orig_dims[i]), i, drop = FALSE)
-      }
-    }
-
-
-    # reduce size of last bottom ones
-    last_ranks <- (max(length(orig_dims) - (num_bottom_ranks - 1), 1)):(length(orig_dims)) # indices of last ranks
-    end_n_counter <- 1
-    for(i in last_ranks) {
-      # the +1 is to include one more than asked for, which will then be truncated with ... to indicate more data available
-      x <- tt_index(x, 1:(min(end_n[end_n_counter]+1, orig_dims[i])), i, drop = FALSE)
-      end_n_counter <- end_n_counter + 1
-    }
-
-
-    if(bottom == "1d") {
-      # don't listify if we don't need to; we'll just hit the base case in print_list immediately
-      if(length(dim(x)) == 1) {x_list <- x}
-      else {x_list <- as.list(x, rank = max(length(orig_dims) - 1, 0))}
-    } else if(bottom == "2d") {
-      if(length(orig_dims) < 2) {stop("Cannot print rank 1 tensor with bottom = '2d'.")}
-      if(length(dim(x)) == 2) {x_list <- x}
-      else {
-        x_list <- as.list(x, rank = max(length(orig_dims) - 2, 0))
-        }
-    } else if(bottom == "3d") {
-      if(length(orig_dims) < 3) {stop("Cannot print rank 1 or rank 2 tensor with bottom = '3d'.")}
-      if(length(dim(x)) == 3) {x_list <- x}
-      else {x_list <- as.list(x, rank = max(length(orig_dims) - 3, 0))}
-    }
-    print_list(x_list, indent = 2, max_per_level = max_per_level, signif_digits = signif_digits, end_n = end_n, show_names = show_names, orig_dims = orig_dims, orig_ranks = orig_ranks)
-  }
-
-
-# internal recursive function
-print_list <- function(xl, indent = 0, max_per_level = 2, signif_digits = 4, end_n = c(6, 6, 3), show_names = FALSE, orig_dims, orig_ranks, state = NULL) {
-  # if this is the top level, just set the state to a bunch of empties
-  if(is.null(state)) {
-    state <- rep("", length(orig_dims))
-  }
-
-  ident <- paste(rep(" ", indent), collapse = "")
-  if(!is.list(xl)) {  # base case, not a nested list
-    # which of these is used will be determined by the input shape of the base tensors
-    if(length(dim(xl)) == 1) { tt_print_1d(xl, indent = indent, signif_digits = signif_digits, end_n = end_n, show_names = show_names) }
-    else if(length(dim(xl) <= 3)) { tt_print_23d(xl, indent = indent, signif_digits = signif_digits, end_n = end_n, show_names = show_names) }
-    else{
-      stop("Cannot print tensor of rank > 3. Guru meditation error 1001.")
-    }
-
-  } else {  # recursive case
-    state_to_change <- which(state == "")[1]
-    for(i in 1:min(max_per_level, length(xl))) {
-      state[state_to_change] <- i       # update carried index state (just for list names)
-      index_string <- paste0(c("[", paste(state, collapse = ", "), "]"), collapse = "")
-
-      cat(ident)
-      cat("# ")
-      if(!is.null(orig_ranks)) {cat(orig_ranks[1])}
-      else {cat("tensor")}
-      commas = paste(rep("", length(orig_dims)), collapse = ", ")
-      #cat(" [", i, commas,  "]", sep = "")'
-      cat(" ", index_string, sep = "")
-      cat(" shape: (", paste0(orig_dims[(2):length(orig_dims)], collapse = ", "), ")", sep = "")
-
-
-      cat("\n", sep = "")
-      sublist <- xl[[i]]
-      print_list(sublist, indent = indent+2, max_per_level = max_per_level, signif_digits = signif_digits, end_n = end_n, show_names = show_names, orig_dims = orig_dims[-1], orig_ranks = orig_ranks[-1], state = state)
-    }
-
-    if(orig_dims[1] > max_per_level) {
-      cat(ident, paste("... truncating", orig_dims[1] - max_per_level, orig_ranks[1] ,"entries.", collapse = ""), sep = "")
-      cat("\n")
-    }
-
-  }
-}
-
-# Base functions for printing 1, 2 and 3d tensors, not for external use, big mess of code too...
-tt_print_23d <- function (mat, indent = 0, signif_digits = 4, end_n = NULL, show_names = FALSE) {
-  #if( !length(end_n) %in% c(2, 3) | mode(end_n) != "numeric") {
-  #  stop("n parameter must be a length-2 or 3 numeric vector, representing the max number of rows/cols or max number of rows/columns/cell entries to print, it's length should also match the rank of the tensor. n was: ", end_n)
-  #}
-
-  if(is.null(end_n)) {
-    if(length(dim(mat)) == 2) {end_n = c(6, 6)}
-    if(length(dim(mat)) == 3) {end_n = c(6, 6, 3)}
-  }
-
-  saved_dimnames <- dimnames(mat)
-  # replace missing dimnames or any NAs with proper dimnames
-  # if(is.null(saved_dimnames)) {
-  #   saved_dimnames <- lapply(dim(mat), function(d) {return(1:d)})
-  # }
-  #
-  # for(i in 1:length(saved_dimnames)) {
-  #   dimnames_i <- saved_dimnames[[i]]
-  #   dimnames_i[is.na(dimnames_i)] <- seq(1, length(dimnames_i))[is.na(dimnames_i)]
-  #   saved_dimnames[[i]] <- dimnames_i
-  # }
-
-  saved_ranknames <- ranknames(mat)
-  if(is.numeric(mat)) {
-    mat <- signif(mat, signif_digits)
-  }
-
-  mat2 <- tt_apply(mat, length(dim(mat)) - 1, as.character, drop_final_1 = FALSE) # make it a character type, but don't deconstruct to a vector
-  if(is.character(mat)) { # if the original was a character
-    #mat2 <- t(apply(mat, 1, function(vec) { return(paste0("'", vec, "'"))}))
-    mat2 <- tt_apply(mat, length(dim(mat)) - 1, function(el) {return(paste0("'", el, "'"))}, drop_final_1 = FALSE)
-  }
-
-
-  is3d <- FALSE
-  if(length(dim(mat)) == 3) {
-    mat2 <- tt_apply(mat2, 2, function(channels) {
-      channels <- as.character(channels)
-      if(length(channels) > end_n[length(end_n)]) {
-        channels <- c(channels[1:end_n[length(end_n)]], "...") # BEWARE: tt_apply always gets an array (tidytensor), even if 1d, so c() here is using c.tidytensor, NOT c.character, unless we explictly cast it as a character array. ugh.
-      }
-      res1 <- paste0("[", paste(channels, collapse = ", "), "]")
-      res <- as.tidytensor(res1)
-      return(res)
-    })
-    is3d <- TRUE
-  }
-
-
-
-  #if(is3d) { cat(paste0("Rank 3 tensor (", paste(dim(mat2), collapse = ", "), ")"))}
-  #else { cat(paste0("Rank 2 tensor (", paste(dim(mat2), collapse = ", "), ")"))}
-
-  needs_newline = FALSE
-
-  if(!is.null(saved_ranknames)) {
-    #res <- paste('"', saved_ranknames, '"', sep = "")
-    #cat(paste0("  Rank names: ",
-    #           paste(res, collapse = ", ")
-    #))
-    cat(paste0(rep(" ", indent)), sep = "")
-    cat("#", paste(saved_ranknames, collapse = ", "))
-    needs_newline = TRUE
-  }
-
-
-  mat <- mat2
-  prepend_colnames <- c()
-  set_rownames <- FALSE
-  set_colnames <- FALSE
-
-
-  if(show_names == TRUE) {
-
-
-    if(!is.null(saved_dimnames)) {
-      if(length(saved_dimnames) >= 1) {
-        if(any(!is.na(saved_dimnames[[1]]))) {
-          #saved_dimnames[[1]][is.na(saved_dimnames[[1]])] <- "NA"
-          saved_dimnames[[1]][!is.na(saved_dimnames[[1]])] <- paste('"', saved_dimnames[[1]][!is.na(saved_dimnames[[1]])], '"', sep = "")
-          saved_dimnames[[1]][is.na(saved_dimnames[[1]])] <- (1:length(saved_dimnames[[1]]))[is.na(saved_dimnames[[1]])]
-          if(is3d) {saved_dimnames[[1]] <- paste("[", saved_dimnames[[1]], ",,]", sep = "")}
-          else {saved_dimnames[[1]] <- paste("[", saved_dimnames[[1]], ",]", sep = "")}
-          mat <- cbind(saved_dimnames[[1]], mat)
-          prepend_colnames <- ""
-          set_rownames <- TRUE
-        }
-      }
-
-      if(length(saved_dimnames) >= 2) {
-        if(any(!is.na(saved_dimnames[[2]]))) {
-          # we need to create an empty corner entry IF we did a cbind above
-          #saved_dimnames[[2]][is.na(saved_dimnames[[2]])] <- "NA"
-          saved_dimnames[[2]][!is.na(saved_dimnames[[2]])] <- paste('"', saved_dimnames[[2]][!is.na(saved_dimnames[[2]])], '"', sep = "")
-          saved_dimnames[[2]][is.na(saved_dimnames[[2]])] <- (1:length(saved_dimnames[[2]]))[is.na(saved_dimnames[[2]])]
-          if(is3d) {saved_dimnames[[2]] <- paste("[,", saved_dimnames[[2]], ",]", sep = "")}
-          else {saved_dimnames[[2]] <- paste("[,", saved_dimnames[[2]], "]", sep = "")}
-          mat <- rbind(c(prepend_colnames, saved_dimnames[[2]]), mat)
-          set_colnames <- TRUE
-        }
-      }
-      if(length(saved_dimnames) >= 3) {
-        if(any(!is.na(saved_dimnames[[3]]))) {
-          res <- paste('"', saved_dimnames[[3]], '"', sep = "")
-          res[is.na(saved_dimnames[[3]])] <- NA
-          cat(paste0('  ("', saved_ranknames[3] ,'" Dimension names: [',
-                     paste(res, collapse = ", "), "])"
-          ))
-          needs_newline = TRUE
-        }
-      }
-    }
-
-
-    if(!set_rownames & !set_colnames) {
-      row_names <- paste("[", 1:nrow(mat), ",]", sep = "")
-      col_names <- paste("[,", 1:(ncol(mat)), "]", sep = "")
-      if(is3d) {
-        row_names <- paste("[", 1:nrow(mat), ",,]", sep = "")
-        col_names <- paste("[,", 1:(ncol(mat)), ",]", sep = "")
-      }
-
-      mat <- cbind(row_names, mat)
-      mat <- rbind(c("", col_names), mat) # this is
-
-    } else if(!set_rownames) {
-      if(is3d) {row_names <- paste("[", 0:nrow(mat), ",,]", sep = "")}
-      else {row_names <- paste("[", 0:nrow(mat), ",]", sep = "")}
-      mat <- cbind(row_names, mat)
-      mat[1, 1] <- ""
-    } else if(!set_colnames) {
-      if(is3d) {col_names <- paste("[,", 1:ncol(mat)-1, ",]", sep = "")}
-      else {col_names <- paste("[,", 1:ncol(mat)-1, "]", sep = "")}
-      mat <- rbind(col_names, mat)
-      mat[1, 1] <- ""
+      return(x)
     }
   }
 
-
-  if(needs_newline) {cat("\n")}
-
-
-  mat[is.na(mat)] <- "NA"
-
-  adder <- 0
-  if(show_names) {adder <- 1}
-  if(nrow(mat) > end_n[1] + adder) {
-    mat <- mat[1:(end_n[1] + adder), ,drop = FALSE]
-    mat <- rbind(mat, rep("... ", ncol(mat)))
+  m_char <- fix(apply(m, 2, as.character))
+  if(nrow(m_char) > max_rows) {
+    m_char <- m_char[1:max_rows, , drop = FALSE]
+    dots <- rep("...", ncol(m_char))
+    m_char <- rbind(m_char, dots, deparse.level = 0)
+  }
+  if(ncol(m_char) > max_cols) {
+    m_char <- m_char[, 1:max_cols, drop = FALSE]
+    dots <- rep("...", nrow(m_char))
+    m_char <- cbind(m_char, dots)
   }
 
-
-  adder <- 0
-  if(show_names) {adder <- 1}
-  if(ncol(mat) > end_n[2] + adder) {
-    mat <- mat[, 1:(end_n[2] + adder), drop = FALSE]
-    mat <- cbind(mat, rep("... ", nrow(mat)))
+  if(show_col_names) {
+    col_names <- nicecolnames(m, predims = col_predims, postdims = col_postdims, max_cols = max_cols)
+    m_char <- rbind(col_names, m_char, deparse.level = 0)
   }
-
-
-
-  wd <- max(nchar(mat)) + 1
-  sp <- wd - nchar(mat)
-  sp[,1] <- max(nchar(mat[,1])) + 1 - nchar(mat[,1]) # seperate indenting for the first col, we don't need to space according to the rest of the data
-  sp[,ncol(mat)] <- max(nchar(mat[,ncol(mat),drop=FALSE])) + 1 - nchar(mat[,ncol(mat),drop=FALSE]) # seperate indenting for the first col, we don't need to space according to the rest of the data
-  build <- rstackdeque::rstack()
-  for (i in 1:nrow(mat)) {
-    build <- rstackdeque::insert_top(build, paste0(rep(" ", indent), collapse = "")) # why even the -2? there's an extra two coming here somehow
-    for (j in 1:ncol(mat)) {
-      build <- rstackdeque::insert_top(build, paste0(rep(" ", sp[i, j]+1), collapse = ""))
-      build <- rstackdeque::insert_top(build, paste0(mat[i, j], collapse = ""))
+  if(show_row_names) {
+    row_names <- nicerownames(m, predims = row_predims, postdims = row_postdims, max_rows = max_rows)
+    if(show_col_names) {
+      m_char <- cbind(c("", row_names), m_char)
+    } else {
+      m_char <- cbind(row_names, m_char)
     }
-    build <- rstackdeque::insert_top(build, "\n")
   }
-
-  #cat("\n")
-  cat(paste0(rev(unlist(as.list(build))), collapse = ""))
+  m_char <- fix(apply(m_char, 2, space_fill))
+  collapserow <- function(row) {
+    return(paste0(row, collapse = "  "))
+  }
+  m_char <- fix(apply(m_char, 1, collapserow))
+  return(m_char)
 }
 
 
-tt_print_1d <- function(mat, indent = 0, signif_digits = 4, end_n = NULL, show_names = FALSE) {
-  if(is.null(end_n)) {end_n <- c(6)}
-  saved_ranknames <- ranknames(mat)
-  saved_dimnames <- dimnames(mat)
 
-  cat(paste0(rep(" ", indent)), sep = "")
-  #cat(paste0("Rank 1 tensor (", length(mat) ,")"))
-  if(!is.null(ranknames(mat))) {
-    cat("#", ranknames(mat))
-    cat("\n")
+print_1d_bottom <- function(t, end_n = 6, show_names = TRUE, indent = 0, signif_digits = 3, ...) {
+  if(is.null(dim(t))) {stop("print_1d_bottom called on object t without dim(t).")}
+  shape <- dim(t)
+  t <- signif(t, signif_digits)
+  if(length(shape) == 1) {
+    #ct(rep(" ", indent))
+    cat_indent(size = indent, is.tensor = TRUE)
+    ct("Rank 1 tensor, shape: (", shape, ")")
+    if(!is.null(ranknames(t))) {
+      ct(", ranknames: ")
+      ct(comma(ranknames(t)))
+    }
+    ct("\n")
+    lines <- nicemat(t(as.matrix(t)), show_col_names = show_names, show_row_names = FALSE, col_predims = 0, max_cols = end_n)
+    for(line in lines) {
+      #ct(rep(" ", indent))
+      cat_indent(size = indent, is.tensor = FALSE)
+      cat("   ", line, "\n")
+    }
+  } else {
+    stop("print_1d_bottom called on object t with length(dim(t)) != 1.")
   }
-  #if(!is.null(ranknames(mat))) {
-  #  cat(paste0('  Rank name: "', ranknames(mat), '"'))
-  #}
-  #if(!is.null(dimnames(mat)) & show_names) {
-  #  dims <- paste0('"', dimnames(mat)[[1]], '"')
-  #  cat(paste0('  (Dimension names: ', paste(dims, collapse = ", "), ')'))
-  #}
-
-
-  if(is.numeric(mat)) {
-    mat <- as.tidytensor(signif(mat, signif_digits))
-  } else if(is.character(mat)) {
-    mat <- as.tidytensor(paste0('"', mat, '"'))
-  }
-
-  ranknames(mat) <- saved_ranknames
-  dimnames(mat) <- saved_dimnames
-
-  cat(paste0(rep(" ", indent + 2)), sep = "")
-  missing <- 0
-  if(length(mat) > end_n[1]) {
-    missing <- length(mat) - end_n[1]
-    mat <- mat[1:end_n[1]]
-  }
-  cat(mat)
-  if(missing > 0) {
-    #cat(paste0(" (+", missing, " more)"))
-    cat(" ...")
-  }
-  cat("\n")
 }
+
+print_2d_bottom <- function(t, max_rows = 6, max_cols = 6, show_names = TRUE, indent = 0, signif_digits = 3, ...) {
+  if(is.null(dim(t))) {stop("print_2d_bottom called on object t without dim(t).")}
+  shape <- dim(t)
+  t <- signif(t, signif_digits)
+  if(length(shape) == 2) {
+    #ct(rep(" ", indent))
+    cat_indent(size = indent, is.tensor = TRUE)
+    ct("Rank 2 tensor, shape: (", comma(shape), ")")
+    if(!is.null(ranknames(t))) {
+      ct(", ranknames: ")
+      ct(comma(ranknames(t)))
+    }
+    ct("\n")
+    lines <- nicemat(t, show_col_names = show_names, show_row_names = show_names, max_rows = max_rows, max_cols = max_cols)
+    for(line in lines) {
+      #ct(rep(" ", indent))
+      cat_indent(size = indent, is.tensor = FALSE)
+      cat("   ", line, "\n")
+    }
+  } else {
+    stop("print_2d_bottom called on object t with length(dim(t)) != 2.")
+  }
+}
+
+
+print_3d_bottom <- function(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, indent = 0, signif_digits = 3, ...) {
+  if(is.null(dim(t))) {stop("print_3d_bottom called on object t without dim(t).")}
+  shape <- dim(t)
+  t <- signif(t, signif_digits)
+  if(length(shape) == 3) {
+    #ct(rep(" ", indent))
+    cat_indent(size = indent, is.tensor = TRUE)
+
+    ct("Rank 3 tensor, shape: (", comma(shape), ")")
+    if(!is.null(ranknames(t))) {
+      ct(", ranknames: ")
+      ct(comma(ranknames(t)))
+    }
+
+    recast <- apply(t, c(1,2), comma)
+    bracketed <- paste0("[", recast, "]")
+    bracketed <- array(bracketed, dim = shape[1:2])
+    if(!is.null(dimnames(t))) {
+      # arrgh R stop dropping things; this sets dummy dimnames for replacing
+      if(is.null(dimnames(bracketed))) {
+        dimnames(bracketed) <- lapply(dim(bracketed), function(times) {rep(NA, times)})
+      }
+      dimnames(bracketed)[[1]] <- dimnames(t)[[1]]
+      dimnames(bracketed)[[2]] <- dimnames(t)[[2]]
+      if(show_names & any(!is.na(dimnames(t)[[3]]))) {
+        ct(" (bottom dimnames: ")
+        dn <- paste0('"', dimnames(t)[[3]], '"')
+        ct(comma(dn))
+        ct(")")
+      }
+    }
+    ct("\n")
+
+    if(shape[3] > max_depth) {
+      t <- t[, , 1:(max_depth+1), drop = FALSE]
+      t[, , max_depth + 1] <- "..."
+    }
+
+    lines <- nicemat(bracketed, show_col_names = show_names, show_row_names = show_names, max_rows = max_rows, max_cols = max_cols, row_postdims = 2, col_postdims = 1)
+    for(line in lines) {
+      #ct(rep(" ", indent))
+      cat_indent(size = indent, is.tensor = FALSE)
+      cat("   ", line, "\n")
+    }
+  } else {
+    stop("print_3d_bottom called on object t with length(dim(t)) != 3.")
+  }
+}
+
+
+
+

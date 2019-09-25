@@ -18,4 +18,9 @@ test_that("as.tidytensor() works properly", {
 
   x <- data.frame(col1 = c(1, 2), col2 = c(3, 4))
   expect_error(as.tidytensor(x))
+
+  x <- c(1, 2, 3)
+  names(x) <- c("A", "B", "C")
+  tx <- as.tidytensor(x)
+  expect_equal(dimnames(tx)[[1]], c("A", "B", "C"))
 })

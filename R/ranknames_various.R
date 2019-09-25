@@ -230,7 +230,9 @@ setGeneric("ranknames")
 # method
 #' @export
 `set_dimnames_for_rank.tidytensor` <- function(x, rank, ...) {
-  rank <- tidyselect::vars_select(ranknames(x), !!rlang::enquo(rank))
+  if(!is.null(ranknames(x))) {
+    rank <- tidyselect::vars_select(ranknames(x), !!rlang::enquo(rank))
+  }
   newnames <- quovars(...)
   rank_index <- rank_to_index(x, rank)
   if(is.null(dimnames(x))) {

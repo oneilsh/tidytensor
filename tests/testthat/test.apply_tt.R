@@ -24,6 +24,42 @@ test_that("basic tt_apply() works properly", {
 
 })
 
+test_that("basic tt_apply() works properly, include size-1 ranks", {
+  dimslist <- list(c(20, 26, 26),
+                   c(1, 26, 26),
+                   c(20, 1, 26),
+                   c(20, 26, 1),
+                   c(1, 1, 26),
+                   c(20, 1, 1),
+                   c(1, 1, 1))
+
+  for(dims in dimslist) {
+
+    t <- as.tidytensor(array(rnorm(prod(dims)), dim = dims))
+    ranknames(t) <- c("sample", "row", "col")
+
+    dev_median <- function(t) {
+      return(t - median(t))
+    }
+
+    t_median <- tt_apply(t, rank = 1, dev_median)
+    expect_equal(dim(t_median), dims) # the dimensions shouldn't change in this example
+    expect_equal(ranknames(t_median), c("sample", "row", "col")) # nor the ranknames
+
+
+    test2 <- tt_apply(t_median, 1, function(s) {
+      return(median(s))
+    }, drop_final_1 = FALSE)
+
+    expected_test2 <- as.tidytensor(array(rep(0, dims[1]), dim = c(dims[1], 1)))
+    ranknames(expected_test2) <- c("sample", NA)
+
+    expect_equal(expected_test2, test2)
+
+  }
+})
+
+
 test_that("fancier tt_apply() test", {
   t <- as.tidytensor(array(rnorm(10 * 20 * 26 * 26), dim = c(10, 20, 26, 26)))
   ranknames(t) <- c("batch", "sample", "row", "col")
@@ -49,3 +85,4 @@ test_that("fancier tt_apply() test", {
   expect_equal(ranknames(t_reduced), c("batch", "sample", "row_sub", "col_sub")) # nor the ranknames
 
 })
+

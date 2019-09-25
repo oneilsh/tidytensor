@@ -49,13 +49,14 @@ rank_to_index.tidytensor <- function(tensor, by = TRUE) {
 }
 
 
-
+#' @export
 tt_index <- function(tensor, ...) {UseMethod("tt_index", tensor)}
 
 
 # just subsets a tensor *without* knowing its rank
 # eg suppose we want some_tensor[ , ,1:10 , , ], which is a rank-5 tensor, but we don't know that to begin with,
 # we can use tt_index(some_tensor, 1:10, dimension = 3)
+#' @export
 tt_index.tidytensor <- function(tensor, indices, dimension = 1, drop = TRUE) {
   # here's where it gets tricky: we need to grab the first couple of entries
   # from the first dimenions of the tensor. E.g. if dim(tensor) is c(10, 10, 10, 10), we
@@ -69,6 +70,7 @@ tt_index.tidytensor <- function(tensor, indices, dimension = 1, drop = TRUE) {
   tensor_dims <- dim(tensor)
   args_list[[1]] <- tensor
   for(i in 1:length(tensor_dims)) {
+    # yup, this is O(rank^2)
     args_list[[i+1]] <- seq(1,tensor_dims[[i]])
   }
 

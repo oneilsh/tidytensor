@@ -35,7 +35,11 @@ as.tidytensor <- function(x, ...) {
     stop("Cannot convert to tidytensor: input must be vector, matrix, or array.")
   }
   if(is.null(dim(x))) {
-    x <- array(x, dim = length(x))
+    xres <- array(x, dim = length(x))
+    if(!is.null(names(x))) {
+      dimnames(xres) <- list(names(x))
+    }
+    x <- xres
   }
   class(x) <- c("tidytensor", class(x))
   return(x)

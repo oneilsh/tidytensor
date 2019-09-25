@@ -4,21 +4,28 @@
 \alias{print.tidytensor}
 \title{Print a tidytensor.}
 \usage{
-\method{print}{tidytensor}(x, max_per_level = 2, signif_digits = 4,
-  end_n = NULL, show_names = FALSE, bottom = "auto", ...)
+\method{print}{tidytensor}(x, show_names = FALSE, max_per_level = 1,
+  bottom = "auto", max_rows = 6, max_cols = 6, max_depth = 3,
+  signif_digits = 3, indent = 0, ...)
 }
 \arguments{
 \item{x}{a tidytensor to summarize.}
 
+\item{show_names}{show the dimension names, if present, or dimension indices if not in base-level prints.}
+
 \item{max_per_level}{only show this many sub-tensors per level.}
+
+\item{bottom}{either "auto", "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.}
+
+\item{max_rows}{limit the base-level prints to include this many rows (also applies to 1d prints).}
+
+\item{max_cols}{limit the base-level prints to include this many columns.}
+
+\item{max_depth}{in 3d representation, limit the base-level prints to include this many entries of the last rank.}
 
 \item{signif_digits}{number of significant digits to print for numeric tensors.}
 
-\item{end_n}{limit the base-level prints to include this many dimensions of each rank.}
-
-\item{show_names}{show the dimension names, if present, or dimension indices if not in base-level prints.}
-
-\item{bottom}{either "auto", "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.}
+\item{indent}{indent the printout by this much (used internally).}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }
@@ -27,17 +34,19 @@ Prints a summary of a tidytensor as a nested hierarchy of tensors of lower rank.
 }
 \details{
 The \code{bottom} argument specifies whether the lowest ranks of the tensor should be shown as 2d matrices, 3d matrices, or 1d arrays; \code{"auto"} will
-select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image and a "channels-first" convention) or if there are only two ranks,
-and otherwise will default to "1d".
+select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image
+and a "channels-first" convention) or if there are only two ranks or if the last two ranks are equal, and otherwise will default to "1d".
+
+\code{max_per_level} indicates how many replicates
 }
 \examples{
 t <- as.tidytensor(array(1:(2 * 3 * 4 * 5), dim = c(2, 3, 4, 5)))
 ranknames(t) <- c("samples", "batches", "rows", "cols")
-print(t, end = "2d")
+print(t, bottom = "2d")
 
 t <- as.tidytensor(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
 ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
-print(t, n = c(6, 6, 3), bottom = "3d")
+print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, bottom = "3d")
 
 }
 \seealso{
