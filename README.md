@@ -9,34 +9,51 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
 R natively supports *tensors* as one of vectors (1d arrays, or rank-1 tensors), matrices (2d arrays, or rank-2 tensors), or higher-dimensional arrays. Further, these support `names()`, allowing for indexing of elements by index and/or name. 
 
 ```r
-> t1 <- c(1.4, 2.5, 0.5, 1.3)
-> t1[3]
-[1] 0.5
-> 
-> names(t1) <- c("a", "b", "c", "d")
-> t1["c"]
-  c 
-0.5 
+t1 <- c(1.4, 2.5, 0.5, 1.3)
+t1[3]
+# [1] 0.5
+
+names(t1) <- c("a", "b", "c", "d")
+t1["c"]
+#   c 
+# 0.5 
 ```
 
 Matrices:
 
 ```r
-> t2 <- matrix(1:6, nrow = 2, ncol = 3)
-> t2
-     [,1] [,2] [,3]
-[1,]    1    3    5
-[2,]    2    4    6
-> t2[1, 2]
-[1] 3
-> 
-> dimnames(t2) <- list(c("row1", "row2"), c("col1", "col2", "col3"))
-> t2
-     col1 col2 col3
-row1    1    3    5
-row2    2    4    6
-> t2["row1", "col2"]
-[1] 3
+t2 <- matrix(1:6, nrow = 2, ncol = 3)
+t2
+```
+
+```
+#      [,1] [,2] [,3]
+# [1,]    1    3    5
+# [2,]    2    4    6
+```
+
+```r
+t2[1, 2]
+```
+
+```
+# [1] 3
+```
+
+```r
+dimnames(t2) <- list(c("row1", "row2"), c("col1", "col2", "col3"))
+t2
+```
+```
+#      col1 col2 col3
+# row1    1    3    5
+# row2    2    4    6
+```
+```r
+t2["row1", "col2"]
+```
+```
+# [1] 3
 ```
 
 Higher-rank arrays can be created with e.g. `array(1:(3*6*6), dim = c(3, 6, 6))` to create a 3x6x6 structure--these also accept optional `dimnames()`. The *shape* of a tensor is the vector returned by `dim()`, here `c(3, 6, 6)`. To stay with convention we use 'rank' of a tensor rather than 'dimension' of a tensor to avoid confusion in situations like 3d-points being stored in a rank-1 tensor of shape (3). 
@@ -50,39 +67,43 @@ If this were stored in the R array `data`, then `data[20, 57, , , ]` would selec
 The default print function for arrays in R is... not great. Whereas groups are typically organized in tensors "leftward," R breaks them down "rightward" and provides little hierarchical organization. (I think Python's `numpy` arrays are better in this regard, but still leave a lot to be desired.) Consider a simulated dataset of 4 color 10x10 images (channels-first):
 
 ```r
-> array(rnorm(4*3*10*10), dim = c(4, 3, 10, 10))
+array(rnorm(4*3*10*10), dim = c(4, 3, 10, 10))
+```
 
-, , 1, 1
-
-            [,1]       [,2]      [,3]
-[1,]  0.72733056 -0.2473793 0.7246183
-[2,] -0.02961571 -0.6277961 1.3537430
-[3,]  0.53652082 -0.8531169 1.8976249
-[4,]  0.49515707  0.4510950 0.1110309
-
-, , 2, 1
-
-           [,1]        [,2]       [,3]
-[1,]  1.8017886 -0.36434137 -0.5022344
-[2,]  0.8728468 -0.38282962  0.8931795
-[3,] -0.5263026 -0.55057900 -1.1352055
-[4,] -0.7984145  0.08755078 -0.5806810
-
-, , 3, 1
-
-            [,1]       [,2]       [,3]
-[1,] -0.26588696 -1.2376636 -0.9721222
-[2,]  0.04935331 -0.8383761  0.2938657
-# ...
+``` 
+# , , 1, 1
+# 
+#             [,1]       [,2]      [,3]
+# [1,]  0.72733056 -0.2473793 0.7246183
+# [2,] -0.02961571 -0.6277961 1.3537430
+# [3,]  0.53652082 -0.8531169 1.8976249
+# [4,]  0.49515707  0.4510950 0.1110309
+# 
+# , , 2, 1
+# 
+#            [,1]        [,2]       [,3]
+# [1,]  1.8017886 -0.36434137 -0.5022344
+# [2,]  0.8728468 -0.38282962  0.8931795
+# [3,] -0.5263026 -0.55057900 -1.1352055
+# [4,] -0.7984145  0.08755078 -0.5806810
+# 
+# , , 3, 1
+# 
+#             [,1]       [,2]       [,3]
+# [1,] -0.26588696 -1.2376636 -0.9721222
+# [2,]  0.04935331 -0.8383761  0.2938657
+# # ...
 ```
 
 TidyTensor provides a customized `print()` by allowing R vectors, matrices, and arrays to be converted with `as.tidytensor()`, or
 the shorthand `tt()`. 
 
 ```r
-> library(tidytensor)
-> array(rnorm(4*3*10*10), dim = c(4, 3, 10, 10)) %>% 
-+   tt()
+library(tidytensor)
+array(rnorm(4*3*10*10), dim = c(4, 3, 10, 10)) %>% 
+  tt()
+```
+```
 # Rank 4 tensor, shape: (4, 3, 10, 10)
 |  # Rank 3 tensor, shape: (3, 10, 10)
 |  |  # Rank 2 tensor, shape: (10, 10)
@@ -104,11 +125,13 @@ Here the printout is emphasizing the nested nature of tensors and providing a qu
 function can be customized to show more or fewers rows and columns in the "bottom" tensors and to show dimension names there (it's on the TODO list to also incorporate dimesion names for higher ranks). 
 
 ```r
-> images <- array(rnorm(4*3*10*10), dim = c(4, 3, 10, 10))
-> dimnames(images)[[3]] <- letters[1:10]
-> images %>%
-+   tt() %>%
-+   print(show_names = T, max_rows = 10, max_cols = 10)
+images <- array(rnorm(4*3*10*10), dim = c(4, 3, 10, 10))
+dimnames(images)[[3]] <- letters[1:10]
+images %>%
+  tt() %>%
+  print(show_names = T, max_rows = 10, max_cols = 10)
+```
+```
 # Rank 4 tensor, shape: (4, 3, 10, 10)
 |  # Rank 3 tensor, shape: (3, 10, 10)
 |  |  # Rank 2 tensor, shape: (10, 10)
@@ -131,9 +154,11 @@ function can be customized to show more or fewers rows and columns in the "botto
 And we can see more of the structure by increasing the `max_per_level` parameter:
 
 ```r
-> images %>%
-+   tt() %>%
-+   print(max_per_level = 2)
+images %>%
+  tt() %>%
+  print(max_per_level = 2)
+```
+```
 # Rank 4 tensor, shape: (4, 3, 10, 10)
 |  # Rank 3 tensor, shape: (3, 10, 10)
 |  |  # Rank 2 tensor, shape: (10, 10)
@@ -178,9 +203,11 @@ What if our data were in channels-last configuration? In cases where we want to 
 (pixels in an image, or channels in a filter map) we can specify `bottom = "3d"`.
 
 ```r
-> array(rnorm(4*10*10*3), dim = c(4, 10, 10, 3)) %>%
-+   tt() %>%
-+   print(bottom = "3d")
+array(rnorm(4*10*10*3), dim = c(4, 10, 10, 3)) %>%
+  tt() %>%
+  print(bottom = "3d")
+```
+```
 # Rank 4 tensor, shape: (4, 10, 10, 3)
 |  # Rank 3 tensor, shape: (10, 10, 3)
 |          [0.866, 0.183, 1.05]    [0.815, 0.0934, -1.72]  [0.573, 0.425, -1.89]      [-0.356, 0.438, 2.34]    [1.54, -0.159, -1.59]     [0.0329, 1.68, 2.2]  ... 
@@ -192,4 +219,33 @@ What if our data were in channels-last configuration? In cases where we want to 
 |                           ...                       ...                    ...                        ...                      ...                     ...  ... 
 |  # ...
 ```
+
+Here each channel is represented as a vector within the grid. There's also a `bottom = "1d"` for situations where a grid display doesn't make sense.
+
+```r
+array(rnorm(4*10*8), dim = c(4, 10, 8)) %>%
+  tt() %>%
+  print(bottom = "1d", max_per_level = 2)
+```
+```
+# Rank 3 tensor, shape: (4, 10, 8)
+|  # Rank 2 tensor, shape: (10, 8)
+|  |  # Rank 1 tensor, shape: (8)
+|  |      0.291  0.751  -0.0842  0.991  -0.626  -0.6  ... 
+|  |  # Rank 1 tensor, shape: (8)
+|  |      0.814  -0.478  1.15  -0.244  -1.62  -1.28  ... 
+|  |  # ...
+|  # Rank 2 tensor, shape: (10, 8)
+|  |  # Rank 1 tensor, shape: (8)
+|  |      -0.987  -0.451  2.17  0.838  0.646  -0.868  ... 
+|  |  # Rank 1 tensor, shape: (8)
+|  |      0.429  0.481  -0.339  -1.78  0.332  1.42  ... 
+|  |  # ...
+|  # ...
+```
+
+The default for `bottom` is `"auto"`, which selects `"2d"` when the input may be a set of channels-first images (3rd-to-last rank is of size 3, or last two ranks are equal in size), `"3d"` if it looks like a channels-last image (last rank is of size 3 or 1), and otherwise falls back to `"1d"`. 
+
+### Named Ranks
+
 
