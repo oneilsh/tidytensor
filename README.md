@@ -401,7 +401,7 @@ images[1:4, , , ] %>%
     coord_equal()
 ```
 
-<img src="readme_images/cifar_rgb_separate.png" width=200>
+<img src="readme_images/cifar_multi.png" width=200>
 
 
 
