@@ -401,7 +401,7 @@ images[1:4, , , ] %>%
     coord_equal()
 ```
 
-<img src="readme_images/cifar_multi.png" style="width: 50%; align=center">
+<img src="readme_images/cifar_multi.png" width=700>
 
 It's a little hard to make out, but these images are upside-down, because image data are typically encoded with the origin in the upper-left rather than the lower-right, and inverted, so next time we'll add a `scale_y_reverse()` as well. To get fancy, we can use `tidyr::spread()` to create individual `R`, `G`, and
 `B` columns, combined with `rgb()` and `scale_fill_identity()` to merge the channels into color images.
