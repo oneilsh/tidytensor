@@ -403,8 +403,28 @@ images[1:4, , , ] %>%
 
 <img src="readme_images/cifar_multi.png" style="width: 50%; align=center">
 
+It's a little hard to make out, but these images are upside-down, because image data are typically encoded with the origin in the upper-left rather than the lower-right, and inverted, so next time we'll add a `scale_y_reverse()` as well. To get fancy, we can use `tidyr::spread()` to create individual `R`, `G`, and
+`B` columns, combined with `rgb()` and `scale_fill_identity()` to merge the channels into color images.
+
+```r
+library(tidyr)
+
+images[1:4, , , ] %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  permute(image, channel, row, col) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  as.data.frame() %>%
+  spread(channel, value) %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = rgb(R, G, B, maxColorValue = 255))) +
+    facet_wrap( ~ image) +
+    coord_equal() +
+    scale_y_reverse() +
+    scale_fill_identity()
+```
 
 
-
+<img src="readme_images/cifar_color.png" style="width: 40%; align=center">
 
 

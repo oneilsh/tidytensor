@@ -86,5 +86,29 @@ images %>%
   set_dimnames_for_rank(channel, R, G, B) %>%
   print(max_per_level = 2)
 
+images[1:4, , , ] %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  permute(image, channel, row, col) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  as.data.frame() %>%
+  head()
+
+library(ggplot2)
+library(tidyr)
+
+images[1:4, , , ] %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  permute(image, channel, row, col) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  as.data.frame() %>%
+  spread(channel, value) %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = rgb(R, G, B, maxColorValue = 255))) +
+    facet_wrap( ~ image) +
+    coord_equal() +
+    scale_y_reverse() +
+    scale_fill_identity()
 
 } # end if(FALSE)
