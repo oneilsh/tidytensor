@@ -425,6 +425,6 @@ images[1:4, , , ] %>%
 ```
 
 
-<img src="readme_images/cifar_color.png" width=500 align=center>
+<img src="readme_images/cifar_color.png" width=500>
 
 
