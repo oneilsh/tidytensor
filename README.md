@@ -375,7 +375,7 @@ images %>%
 
 ### Converting to `data.frame` and plotting
 
-Named ranks also work well with conversion to data frame. We'll start with just a few images--tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). `as.data.frame()` will by default throw an error when more than a million-entry
+Named ranks also work well with conversion to data frame. We'll convert just a few images, because tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). `as.data.frame()` will by default throw an error when more than a million-entry
 data frame would result, unless `allow_huge = TRUE` is set.
 
 ```r
@@ -453,9 +453,11 @@ output <- get_layer(vgg_model, name = "block1_conv2")$output
 compute_featuremaps <- k_function(input, output)
 ```
 
-To visualize the feature maps we generate an output tensor, name it, convert it to data frame, select only the first six featuremaps to keep it reasonable, and then plot the values.
+To visualize the feature maps we generate an output tensor, name it, convert it to data frame, select only the first six featuremaps with `dplyr::filter()` to keep it reasonable, and then plot the values.
 
 ```r
+library(dplyr)
+
 compute_featuremaps(images[1:4, , ,]) %>% # produces shape (4, 32, 32, 64) tensor, where last rank are feature maps
   tt() %>%
   set_ranknames(image, row, col, featuremap) %>%
