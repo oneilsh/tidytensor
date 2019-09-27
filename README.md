@@ -248,4 +248,162 @@ The default for `bottom` is `"auto"`, which selects `"2d"` when the input may be
 
 ### Named Ranks
 
+Tidytensors support `ranknames()` in addition to `dimnames()` (implemented as `names(dimnames())`) for meaningful annotation. Here's a basic print for the CIFAR10 
+dataset provided by `keras`:
+
+```r
+images <- dataset_cifar10()$train$x
+images %>% tt()
+```
+
+```
+# Rank 4 tensor, shape: (50000, 32, 32, 3)
+|  # Rank 3 tensor, shape: (32, 32, 3)
+|      [59, 62, 63]  [43, 46, 45]   [50, 48, 43]   [68, 54, 42]   [98, 73, 52]  [119, 91, 63]  ... 
+|      [16, 20, 20]     [0, 0, 0]     [18, 8, 0]    [51, 27, 8]   [88, 51, 21]  [120, 82, 43]  ... 
+|      [25, 24, 21]    [16, 7, 0]    [49, 27, 8]   [83, 50, 23]  [110, 72, 41]  [129, 92, 54]  ... 
+|      [33, 25, 17]   [38, 20, 4]   [87, 54, 25]  [106, 63, 28]  [115, 70, 33]  [117, 74, 35]  ... 
+|      [50, 32, 21]  [59, 32, 11]  [102, 65, 34]  [127, 79, 39]  [124, 77, 36]  [121, 77, 36]  ... 
+|      [71, 48, 29]  [84, 53, 24]  [110, 73, 37]  [129, 82, 38]  [136, 88, 45]  [131, 84, 42]  ... 
+|               ...           ...            ...            ...            ...            ...  ... 
+|  # ...
+
+```
+
+A set of 50000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the `%>%`-friendly tidy-unquoted `set_ranknames()`.
+
+```r
+images <- dataset_cifar10()$train$x
+
+images <- tt(images)
+ranknames(images) <- c("image", "row", "col", "channel")
+images
+
+# OR
+images %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel)
+
+# OR
+images %>%
+  tt() %>%
+  set_ranknames(.dots = c("image", "row", "col", "channel"))
+```
+
+```
+# Rank 4 tensor, shape: (50000, 32, 32, 3), ranknames: image, row, col, channel
+|  # Rank 3 tensor, shape: (32, 32, 3)
+|      [59, 62, 63]  [43, 46, 45]   [50, 48, 43]   [68, 54, 42]   [98, 73, 52]  [119, 91, 63]  ... 
+|      [16, 20, 20]     [0, 0, 0]     [18, 8, 0]    [51, 27, 8]   [88, 51, 21]  [120, 82, 43]  ... 
+|      [25, 24, 21]    [16, 7, 0]    [49, 27, 8]   [83, 50, 23]  [110, 72, 41]  [129, 92, 54]  ... 
+|      [33, 25, 17]   [38, 20, 4]   [87, 54, 25]  [106, 63, 28]  [115, 70, 33]  [117, 74, 35]  ... 
+|      [50, 32, 21]  [59, 32, 11]  [102, 65, 34]  [127, 79, 39]  [124, 77, 36]  [121, 77, 36]  ... 
+|      [71, 48, 29]  [84, 53, 24]  [110, 73, 37]  [129, 82, 38]  [136, 88, 45]  [131, 84, 42]  ... 
+|               ...           ...            ...            ...            ...            ...  ... 
+|  # ...
+```
+
+(Another TODO: show ranknames for bottom ranks at those levels as well.) 
+
+Named ranks make a variety of operations easier, or at least more explicit. For example, we may wish to permute the ranks to a channels-first representation, then 
+set dimensions names for the `channel` rank.
+
+```r
+images %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  permute(image, channel, row, col) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  print(max_per_level = 2)
+```
+
+```
+# Rank 4 tensor, shape: (50000, 3, 32, 32), ranknames: image, channel, row, col
+|  # Rank 3 tensor, shape: (3, 32, 32)
+|  |  # Rank 2 tensor, shape: (32, 32)
+|  |       59   43   50   68   98  119  ... 
+|  |       16    0   18   51   88  120  ... 
+|  |       25   16   49   83  110  129  ... 
+|  |       33   38   87  106  115  117  ... 
+|  |       50   59  102  127  124  121  ... 
+|  |       71   84  110  129  136  131  ... 
+|  |      ...  ...  ...  ...  ...  ...  ... 
+|  |  # Rank 2 tensor, shape: (32, 32)
+|  |       62   46   48   54   73   91  ... 
+|  |       20    0    8   27   51   82  ... 
+|  |       24    7   27   50   72   92  ... 
+|  |       25   20   54   63   70   74  ... 
+|  |       32   32   65   79   77   77  ... 
+|  |       48   53   73   82   88   84  ... 
+|  |      ...  ...  ...  ...  ...  ...  ... 
+|  |  # ...
+|  # Rank 3 tensor, shape: (3, 32, 32)
+|  |  # Rank 2 tensor, shape: (32, 32)
+|  |      154  126  105  102  125  155  ... 
+|  |      140  145  125  124  150  152  ... 
+|  |      140  139  115  147  138  132  ... 
+|  |      136  137  122  132  151  181  ... 
+|  |      129  141  136  186  215  202  ... 
+|  |      136  136  127  153  138  120  ... 
+|  |      ...  ...  ...  ...  ...  ...  ... 
+|  |  # Rank 2 tensor, shape: (32, 32)
+|  |      177  137  104  101  131  166  ... 
+|  |      160  153  125  129  161  164  ... 
+|  |      155  146  115  153  150  145  ... 
+|  |      147  142  121  133  157  193  ... 
+|  |      137  146  139  186  220  216  ... 
+|  |      144  149  148  172  160  141  ... 
+|  |      ...  ...  ...  ...  ...  ...  ... 
+|  |  # ...
+|  # ...
+```
+
+### Converting to `data.frame`
+
+Named ranks also work well with conversion to data frame. We'll start with just a few images--tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). `as.data.frame()` will by default throw an error when more than a million-entry
+data frame would result, unless `allow_huge = TRUE` is set.
+
+```r
+images[1:4, , , ] %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  permute(image, channel, row, col) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  as.data.frame() %>%
+  head()
+```
+```
+  image channel row col value
+1     1       R   1   1    59
+2     2       R   1   1   154
+3     3       R   1   1   255
+4     4       R   1   1    28
+5     1       G   1   1    62
+6     2       G   1   1   177
+```
+
+The third row here indicates that the value in `images[3, "R", 1, 1]` is 255. Non-named tensors get generic 
+column names. In the case of set `dimnames()` as in `R`, `G`, and `B` above, factors are created
+with the level ordering determined by the `dimnames()` ordering. 
+
+This provides a nice interface for visualization with `ggplot2`.
+
+```r
+images[1:4, , , ] %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  permute(image, channel, row, col) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  as.data.frame() %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = value)) +
+    facet_grid(channel ~ image) +
+    coord_equal()
+```
+
+<img src="readme_images/cifar_rgb_separate.png">
+
+
+
+
 

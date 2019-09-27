@@ -62,5 +62,29 @@ array(rnorm(4*10*8), dim = c(4, 10, 8)) %>%
   print(bottom = "1d", max_per_level = 2)
 
 
+images <- dataset_cifar10()$train$x
+
+images <- tt(images)
+ranknames(images) <- c("image", "row", "col", "channel")
+images
+
+# OR
+images %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel)
+
+# OR
+images %>%
+  tt() %>%
+  set_ranknames(.dots = c("image", "row", "col", "channel"))
+
+# OR
+images %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  permute(image, channel, row, col) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  print(max_per_level = 2)
+
 
 } # end if(FALSE)
