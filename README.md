@@ -4,6 +4,18 @@ TidyTensor is an R package for inspecting and manipulating tensors (multidimensi
 
 TidyTensor was inspired by a workshop I taught in deep learning with R, and a desire to explain and explore tensors in a more intuitive way.  
 
+   * [Installation](#installation)
+   * [Background](#background)
+   * [Printing](#printing)
+   * [Named Ranks](#named-ranks)
+   * [Converting to data.frame and plotting](#converting-to-data.frame-and-plotting)
+   * [Manipulations](#manipulations)
+
+
+### Installation
+
+A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don't have `devtools`, grab it with `install.packages("devtools")`. 
+
 ### Background
 
 R natively supports *tensors* as one of vectors (1d arrays, or rank-1 tensors), matrices (2d arrays, or rank-2 tensors), or higher-dimensional arrays. Further, these support `names()`, allowing for indexing of elements by index and/or name. 
@@ -358,7 +370,7 @@ images %>%
 |  # ...
 ```
 
-### Converting to `data.frame`
+### Converting to `data.frame` and plotting
 
 Named ranks also work well with conversion to data frame. We'll start with just a few images--tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). `as.data.frame()` will by default throw an error when more than a million-entry
 data frame would result, unless `allow_huge = TRUE` is set.
@@ -454,3 +466,6 @@ compute_featuremaps(images[1:4, , ,]) %>% # produces shape (4, 32, 32, 64) tenso
 ```
 
 <img src="readme_images/feature_maps.png" width=850>
+
+
+### Manipulations
