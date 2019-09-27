@@ -111,4 +111,28 @@ images[1:4, , , ] %>%
     scale_y_reverse() +
     scale_fill_identity()
 
+
+vgg_model <- application_vgg16(include_top = FALSE, input_shape = c(32, 32, 3))
+
+input <- vgg_model$input
+output <- get_layer(vgg_model, name = "block1_conv2")$output
+
+compute_featuremaps <- k_function(input, output)
+
+library(dplyr)
+
+compute_featuremaps(images[1:4, , ,]) %>% # produces shape (4, 32, 32, 64) tensor, where last rank are feature maps
+  tt() %>%
+  set_ranknames(image, row, col, feature) %>%
+  as.data.frame(allow_huge = T) %>%
+  filter(feature <= 6) %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = value)) +
+    facet_grid(feature ~ image) +
+    coord_equal() +
+    scale_y_reverse()
+
+
+
+
 } # end if(FALSE)

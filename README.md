@@ -427,4 +427,30 @@ images[1:4, , , ] %>%
 
 <img src="readme_images/cifar_color.png" width=400>
 
+These techniques work nicely for model investigation, for example in plotting feature maps produced interally in deep models. We'll start by importing a predefined model and creating a function that maps input tensors to feature maps using the `keras` API.
 
+```r
+vgg_model <- application_vgg16(include_top = FALSE, input_shape = c(32, 32, 3))
+
+input <- vgg_model$input
+output <- get_layer(vgg_model, name = "block1_conv2")$output
+
+compute_featuremaps <- k_function(input, output)
+```
+
+To visualize the feature maps we generate an output tensor, name it, convert it to data frame, select only the first six featuremaps to keep it reasonable, and then plot the values.
+
+```r
+compute_featuremaps(images[1:4, , ,]) %>% # produces shape (4, 32, 32, 64) tensor, where last rank are feature maps
+  tt() %>%
+  set_ranknames(image, row, col, featuremap) %>%
+  as.data.frame(allow_huge = T) %>%
+  filter(featuremap <= 6) %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = value)) +
+    facet_grid(image ~ featuremap) +
+    coord_equal() +
+    scale_y_reverse()
+```
+
+<img src="readme_images/feature_maps.png" width=850>
