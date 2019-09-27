@@ -8,9 +8,12 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
    * [Background](#background)
    * [Printing](#printing)
    * [Named Ranks](#named-ranks)
-   * [Converting to data.frame and plotting](#converting-to-data-frame-and-plotting)
-   * [Manipulations](#manipulations)
+   * [Converting to data.frame and plotting](#converting-to-dataframe-and-plotting)
+   * [Manipulation](#manipulation)
 
+<br />
+<br />
+<br />
 
 ### Installation
 
@@ -468,4 +471,4 @@ compute_featuremaps(images[1:4, , ,]) %>% # produces shape (4, 32, 32, 64) tenso
 <img src="readme_images/feature_maps.png" width=850>
 
 
-### Manipulations
+### Manipulation
