@@ -264,6 +264,8 @@ The default for `bottom` is `"auto"`, which selects `"2d"` when the input looks 
 Tidytensors support `ranknames()` in addition to `dimnames()` (implemented as `names(dimnames())`) for meaningful annotation. Here's a basic print for the CIFAR10 dataset provided by `keras`:
 
 ```r
+library(keras)
+
 images <- dataset_cifar10()$train$x
 images %>% tt()
 ```
