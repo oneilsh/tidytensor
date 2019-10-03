@@ -70,7 +70,7 @@ tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
 
   # we'll wrap the user's function in one that helps out with ranknames etc.
   wrapper_func <- function(subarray) {
-    # omg it even strips the names... we only try to set them if there were before, since it won't let us assign NULL to ranknames()
+    # omg it even strips the names... we only try to set them if they were before, since it won't let us assign NULL to ranknames()
     subarray <- as.tidytensor(subarray)
     if(!is.null(ranknames(x))) {
       ranknames(subarray) <- ranknames(x)[seq(index + 1, length(dim(x)))]
@@ -116,7 +116,7 @@ tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
   ## rules: ranknames should be NULL if there's no data, if any rankname is set, then the others should be NA
   ## further: if the user sets a new_rankname, it should be set (possible upgrading the rankrames from NULL to mostly NAs)
   ## otherwise it should be set to what the rankname was at the applied level in the original data (ie the rankname of the index,
-  ## if it is set). Collapse=true means we collapse ranks 1 to index into a single rank; if it's not set we inherit those
+  ## if it is set). flatten=true means we collapse ranks 1 to index into a single rank; if it's not set we inherit those
   ## ranks from the input as well.
   # prime the array with some ranknames so that we can ranknames(result)[1] <- assign (otherwise we'd be assigning to [1] of NULL, which is silly)
   # we're going to have *some* ranknames at least

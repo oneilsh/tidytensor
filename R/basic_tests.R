@@ -123,16 +123,23 @@ library(dplyr)
 
 compute_featuremaps(images[1:4, , ,]) %>% # produces shape (4, 32, 32, 64) tensor, where last rank are feature maps
   tt() %>%
-  set_ranknames(image, row, col, feature) %>%
+  set_ranknames(image, row, col, featuremap) %>%
+  bind(tt(images[1:4, , ,]), new_rank_name = "type") %>%
+  set_dimnames_for_rank(type, featuremap, input) %>%
   as.data.frame(allow_huge = T) %>%
-  filter(feature <= 6) %>%
+  filter(featuremap <= 6) %>%
   ggplot() +
     geom_tile(aes(x = col, y = row, fill = value)) +
-    facet_grid(feature ~ image) +
+    facet_grid(image ~ featuremap + input) +
     coord_equal() +
     scale_y_reverse()
 
+images <- dataset_cifar10()$train$x
+images <- tt(images)
 
+seta <- images[1:4, , ,]
+setb <- images[5:7, , ,]
+setc <- images[8:16, , ,]
 
 
 } # end if(FALSE)

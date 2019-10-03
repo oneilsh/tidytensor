@@ -67,6 +67,9 @@
     ct(", ranknames: ")
     ct(comma(ranknames(x)))
   }
+  # if the first rank is empty, stop--there's nothing to show
+  if(dim(x)[1] == 0) {ct("\n"); return(invisible())}
+
   ct("\n")
 
   #sub_ts <- tt_index(x, 1:max_per_level, dimension = 1, drop = FALSE)
@@ -74,13 +77,10 @@
   #  print(subt, show_names = show_names, max_per_level = max_per_level, bottom = bottom, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, signif_digits = signif_digits, indent = indent + 1, ...)
   #})
   for(i in 1:min(max_per_level, shape[1])) {
-    # BUG, TODO: how do I drop the first rank only?
+    # BUG, how do I drop the first rank only? A: don't drop here...
     subt <- tt_index(x, i, dimension = 1, drop = FALSE) # equiv of t[i, , , ] for a rank-4 tensor, but we don't know the rank hence calling tt_index
     # abind::adrop removes class when only one dim left?
-    subt <- tt(abind::adrop(subt, drop = 1))
-    #str("############")
-    #print(i)
-    #str(subt)
+    subt <- tt(abind::adrop(subt, drop = 1)) # ... drop here
     print(subt, show_names = show_names, max_per_level = max_per_level, bottom = bottom, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, signif_digits = signif_digits, indent = indent + 1, ...)
   }
   cat_indent(size = indent+1, is.tensor = FALSE)
@@ -220,6 +220,9 @@ print_1d_bottom <- function(t, end_n = 6, show_names = TRUE, indent = 0, signif_
       ct(", ranknames: ")
       ct(comma(ranknames(t)))
     }
+    # if the first rank is empty, stop--there's nothing to show
+    if(dim(t)[1] == 0) {ct("\n"); return(invisible())}
+
     ct("\n")
     lines <- nicemat(t(as.matrix(t)), show_col_names = show_names, show_row_names = FALSE, col_predims = 0, max_cols = end_n)
     for(line in lines) {
@@ -244,6 +247,9 @@ print_2d_bottom <- function(t, max_rows = 6, max_cols = 6, show_names = TRUE, in
       ct(", ranknames: ")
       ct(comma(ranknames(t)))
     }
+    # if the first rank is empty, stop--there's nothing to show
+    if(dim(t)[1] == 0) {ct("\n"); return(invisible())}
+
     ct("\n")
     lines <- nicemat(t, show_col_names = show_names, show_row_names = show_names, max_rows = max_rows, max_cols = max_cols)
     for(line in lines) {
@@ -270,6 +276,8 @@ print_3d_bottom <- function(t, max_rows = 6, max_cols = 6, max_depth = 3, show_n
       ct(", ranknames: ")
       ct(comma(ranknames(t)))
     }
+    # if the first rank is empty, stop--there's nothing to show
+    if(dim(t)[1] == 0) {ct("\n"); return(invisible())}
 
     recast <- apply(t, c(1,2), comma)
     bracketed <- paste0("[", recast, "]")

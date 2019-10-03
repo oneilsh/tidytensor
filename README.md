@@ -284,7 +284,7 @@ images %>% tt()
 
 ```
 
-A set of 50000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the `%>%`-friendly tidy-unquoted `set_ranknames()`.
+A set of 50000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the `%>%`-friendly and bare-name ready `set_ranknames()`.
 
 ```r
 images <- dataset_cifar10()$train$x
@@ -417,7 +417,7 @@ images[1:4, , , ] %>%
 
 <img src="readme_images/cifar_multi.png" width=750>
 
-It's a little hard to make out, but these images are upside-down, because image data are typically encoded with the origin in the upper-left rather than the lower-right, and inverted, so next time we'll add a `scale_y_reverse()` as well. To get fancy, we can use `tidyr::spread()` to create individual `R`, `G`, and
+It's a little hard to make out, but these images are upside-down, because image data are typically encoded with an inverted y-axis, so next time we'll add a `scale_y_reverse()` as well. To get fancy, we can use `tidyr::spread()` to create individual `R`, `G`, and
 `B` columns, combined with `rgb()` and `scale_fill_identity()` to merge the channels into color images.
 
 ```r
@@ -441,7 +441,7 @@ images[1:4, , , ] %>%
 
 <img src="readme_images/cifar_color.png" width=400>
 
-These techniques work nicely for model investigation, for example in plotting feature maps produced interally in deep models. We'll start by importing a predefined model and creating a function that maps input tensors to feature maps using the `keras` API.
+These techniques work nicely for model investigation, for example in plotting internal feature maps produced by deep models. We'll start by importing a predefined model and creating a function that maps input tensors to feature maps using the `keras` API.
 
 ```r
 vgg_model <- application_vgg16(include_top = FALSE, input_shape = c(32, 32, 3))
@@ -475,3 +475,18 @@ compute_featuremaps(images[1:4, , ,]) %>%
 
 
 ### Manipulation
+
+A few functions are included for transforming or working with tensors. We've already seen `permute()` which re-orders ranks (and is a rankname-aware wrapper around `base::aperm()`). There are also `c()` and `bind()`. To start with
+we'll extract three subsets of CIFAR10 images of different sizes:
+
+```r
+images <- dataset_cifar10()$train$x
+images <- tt(images)
+
+seta <- images[1:4, , ,]
+setb <- images[5:7, , ,]
+setc <- images[8:16, , ,]
+```
+
+
+
