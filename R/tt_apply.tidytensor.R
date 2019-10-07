@@ -109,6 +109,7 @@ tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
   # if they want collapsed output, collapse it down - must reverse due to R array reshaping
   if(flatten == TRUE) {
     reversed <- aperm(result, rev(1:length(dim(result))))
+    # no sense in setting keep.class = TRUE in the above since we need to run it through array() again
     result <- array(reversed, dim = c(prod(dim_margin), function_ret_shape))
   }
 

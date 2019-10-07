@@ -97,20 +97,24 @@ images[1:4, , , ] %>%
 library(ggplot2)
 library(tidyr)
 
-images[1:4, , , ] %>%
+images <- dataset_cifar10()$train$x %>%
   tt() %>%
   set_ranknames(image, row, col, channel) %>%
   permute(image, channel, row, col) %>%
-  set_dimnames_for_rank(channel, R, G, B) %>%
+  set_dimnames_for_rank(channel, R, G, B)
+
+
+images[1:4, 1, , ] <- images[1:4, 1, , ] * -1
+
+images[1:4, c(2, 3, 1), , ] %>%
   as.data.frame() %>%
-  spread(channel, value) %>%
+  #spread(channel, value) %>%
   ggplot() +
-    geom_tile(aes(x = col, y = row, fill = rgb(R, G, B, maxColorValue = 255))) +
-    facet_wrap( ~ image) +
+    geom_tile(aes(x = col, y = row, fill = value)) + #fill = rgb(R, G, B, maxColorValue = 255))) +
+    facet_grid(channel ~ image) +
     coord_equal() +
     scale_y_reverse() +
-    scale_fill_identity()
-
+    scale_fill_gradient2()
 
 vgg_model <- application_vgg16(include_top = FALSE, input_shape = c(32, 32, 3))
 
@@ -140,6 +144,15 @@ images <- tt(images)
 seta <- images[1:4, , ,]
 setb <- images[5:7, , ,]
 setc <- images[8:16, , ,]
+
+
+
+test <- function(...) {
+  str(list(...))
+}
+
+test(a = 4, b = 5)
+
 
 
 } # end if(FALSE)

@@ -30,11 +30,11 @@ permute.tidytensor <- function(tensor, ...) {
   vars <- quovars(...)
   permute_vec <- rank_to_index(tensor, vars)
 
-  # TODO: create a version tt_index that can subset multiple dimensions, dropping others, so that we can permute AND select
+  # nevermind, this doesn't even make sense, values would have to collapse: create a version tt_index that can subset multiple dimensions, dropping others, so that we can permute AND select
   if(length(permute_vec) != length(dim(tensor))) {
     stop("Error in permute: permutation vector must be same size as rank of tensor.")
   }
 
-  tensor <- tt(aperm(tensor, permute_vec))
+  tensor <- tt(aperm(tensor, permute_vec)) # keep.class = T doesn't work here either, hm
   return(tensor)
 }

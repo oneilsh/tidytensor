@@ -53,9 +53,12 @@
                 paste0("(", paste0(dim(x), collapse = ", "), ")"),
                 "; attempted names: ",
                 paste0(value, collapse = ", "),
-                "\n\n"
-    )
-    )
+                "\n\n"))
+  }
+  # no duplicate ranknames allowed, cmon
+  nonas <- value[!is.na(value)]
+  if(any(duplicated(nonas))) {
+    stop("duplicate ranknames not allowed.")
   }
 
   names(attr(x, "dimnames")) <- value
