@@ -476,17 +476,72 @@ compute_featuremaps(images[1:4, , ,]) %>%
 
 ### Manipulation
 
-A few functions are included for transforming or working with tensors. We've already seen `permute()` which re-orders ranks (and is a rankname-aware wrapper around `base::aperm()`). There are also `c()` and `bind()`. To start with
-we'll extract three subsets of CIFAR10 images of different sizes:
+A few functions are included for transforming or working with tensors. We've already seen `permute()` which re-orders ranks (and is a rankname-aware wrapper around `base::aperm()`). There are also `c()` and `bind()`. To start with we'll extract three subsets of CIFAR10 images of different sizes; unfortunately `[]` is not yet tidytensor-aware, I was having some trouble making the wrappers operate correctly and efficiently, though `subset()` provides a rankname-aware and `%>%`-friendly alternative.
 
 ```r
 images <- dataset_cifar10()$train$x
-images <- tt(images)
+images <- tt(images) %>% 
+  set_ranknames(image, row, col, channel) %>%
+  set_dimnames_for_rank(channel, R, G, B)
 
-seta <- images[1:4, , ,]
-setb <- images[5:7, , ,]
-setc <- images[8:16, , ,]
+# TODO: make [] tidytensor-aware
+#seta <- images[1:4, , ,]
+#setb <- images[5:7, , ,]
+#setc <- images[8:16, , ,]
+
+seta <- images %>% subset(image = 1:4)
+setb <- images %>% subset(image = 5:8)
+setc <- images %>% subset(image = 9:16)
 ```
 
+While on the subset of `subset()`, the syntax allows using ranknames as above, or in the case of not specifying
+by name uses the first ranks; e.g. `subset(images, 1:4, 1:10, 1:12)` selects the first 4 images, the first 10 rows, the first 12 columns, and all of other unspecified ranks, as does `subset(images, image = 1:4, row = 1:10, col = 1:12)`. If the dimensions are named, those can be used as well, and the function also takes a `drop` argument defaulting to `TRUE` to drop ranks with only one entry (to match `[]` functionality), as in
+`subset(images, image = 1, channel = c("G", "B"), drop = FALSE)` selects all rows, all columns, and just the green and blue channels from the first image, without dropping the image rank.
+
+The `c()` function concatenates multiple tensors of the same shape except for the first rank, into a single tensor representing a concatenated set. (`c()` can also take a list of tensors.)
+
+```r
+result <- c(seta, setb, setc)
+print(result)
+```
+
+```
+# Rank 4 tensor, shape: (16, 32, 32, 3), ranknames: image, row, col, channel
+|  # Rank 3 tensor, shape: (32, 32, 3)
+|      [59, 62, 63]  [43, 46, 45]   [50, 48, 43]   [68, 54, 42]   [98, 73, 52]  [119, 91, 63]  ... 
+|      [16, 20, 20]     [0, 0, 0]     [18, 8, 0]    [51, 27, 8]   [88, 51, 21]  [120, 82, 43]  ... 
+|      [25, 24, 21]    [16, 7, 0]    [49, 27, 8]   [83, 50, 23]  [110, 72, 41]  [129, 92, 54]  ... 
+|      [33, 25, 17]   [38, 20, 4]   [87, 54, 25]  [106, 63, 28]  [115, 70, 33]  [117, 74, 35]  ... 
+|      [50, 32, 21]  [59, 32, 11]  [102, 65, 34]  [127, 79, 39]  [124, 77, 36]  [121, 77, 36]  ... 
+|      [71, 48, 29]  [84, 53, 24]  [110, 73, 37]  [129, 82, 38]  [136, 88, 45]  [131, 84, 42]  ... 
+|               ...           ...            ...            ...            ...            ...  ... 
+|  # ...
+```
+
+`bind()`, on the other hand, collects multiple tensors of the *exact* same shape into a new tensor with
+one higher rank. 
+
+```r
+result <- bind(seta, setb, new_rank_name = "sets")
+print(result)
+```
+
+```
+# Rank 5 tensor, shape: (2, 4, 32, 32, 3), ranknames: sets, image, row, col, channel
+|  # Rank 4 tensor, shape: (4, 32, 32, 3)
+|  |  # Rank 3 tensor, shape: (32, 32, 3)
+|  |      [59, 62, 63]  [43, 46, 45]   [50, 48, 43]   [68, 54, 42]   [98, 73, 52]  [119, 91, 63]  ... 
+|  |      [16, 20, 20]     [0, 0, 0]     [18, 8, 0]    [51, 27, 8]   [88, 51, 21]  [120, 82, 43]  ... 
+|  |      [25, 24, 21]    [16, 7, 0]    [49, 27, 8]   [83, 50, 23]  [110, 72, 41]  [129, 92, 54]  ... 
+|  |      [33, 25, 17]   [38, 20, 4]   [87, 54, 25]  [106, 63, 28]  [115, 70, 33]  [117, 74, 35]  ... 
+|  |      [50, 32, 21]  [59, 32, 11]  [102, 65, 34]  [127, 79, 39]  [124, 77, 36]  [121, 77, 36]  ... 
+|  |      [71, 48, 29]  [84, 53, 24]  [110, 73, 37]  [129, 82, 38]  [136, 88, 45]  [131, 84, 42]  ... 
+|  |               ...           ...            ...            ...            ...            ...  ... 
+|  |  # ...
+|  # ...
+```
+
+The `partition()` function splits a tensor into a list of tensors of relative proportions along the first rank, which can be useful for generating train/test splits. It takes a `seed` argument for repeatable partitioning
+(of things of the same size). 
 
 
