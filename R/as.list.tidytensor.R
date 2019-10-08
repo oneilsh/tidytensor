@@ -77,7 +77,7 @@
 
   # flatten if needed
   # (but, only if this isn't the top level)
-  if(flatten & index != 1) {return(flatten(ret_list))}
+  if(flatten & index != 1) {return(purrr::flatten(ret_list))}
 
   return(ret_list)
 }

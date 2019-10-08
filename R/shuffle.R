@@ -33,5 +33,10 @@ shuffle <- function(t, seed = NULL) {UseMethod("shuffle", t)}
 #' t <- shuffle(t, seed = 42)
 #'
 shuffle.tidytensor <- function(t, seed = NULL) {
+  if(!is.null(seed)) {
+    set.seed(seed)
+  }
 
+  sample <- sample(1:dim(t)[1])
+  return(subset(t, sample))
 }
