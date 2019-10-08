@@ -35,7 +35,7 @@ subset.tidytensor <- function(t, ...) {UseMethod("subset", t)}
 #' t3 <- subset(t, sample = 1:20, channel = c("G", "R", "B"), drop = FALSE)
 #' print(t3)
 #'
-subset.tidytensor <- function(t, drop = TRUE, ...) {
+subset.tidytensor <- function(t, ..., drop = TRUE) {
   select_list <- list(...)
   orig_dimnames <- dimnames(t) # may be NULL
   orig_ranknames <- ranknames(t) # may be NULL

@@ -15,4 +15,8 @@ test_that("basic subset() works properly", {
   expect_equal(dim(t2), c(10, 26, 2))
   expect_equal(ranknames(t2), c("sample", "row", "channel"))
   expect_equal(dimnames(t2)[[3]], c("G", "R"))
+
+  t3 <- subset(t, 1:10)
+  expect_equal(dim(t3), c(10, 26, 26, 3))
+  expect_equal(ranknames(t3), c("sample", "row", "col", "channel"))
 })

@@ -4,7 +4,7 @@
 \alias{subset.tidytensor}
 \title{Subset dimensions of a tidytensor}
 \usage{
-\method{subset}{tidytensor}(t, drop = TRUE, ...)
+\method{subset}{tidytensor}(t, ..., drop = TRUE)
 }
 \arguments{
 \item{t}{the tidytensor to apply over.}
