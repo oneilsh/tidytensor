@@ -12,15 +12,16 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
    * [Manipulation](#manipulation)
      * [`c()` and `bind()`](#c-and-bind)
      * [`partition()` and `as.list()`](#partition-and-aslist)
-     * [`shuffle()` and `tt_apply()`](#shuff-and-ttapply)
+     * [`shuffle()` and `tt_apply()`](#shuff-and-tt_apply)
 
 <br />
 <br />
-<br />
 
-### Installation
+### Installation and Caveats
 
 A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don't have `devtools`, grab it with `install.packages("devtools")`. 
+
+This software is still in development, and its API may change. 
 
 ### Background
 
@@ -753,17 +754,48 @@ of the appropriate shape as opposed to one-per-parameter.
 #### `shuffle()` and `tt_apply()`
 
 
-The `shuffle()` function shuffles the elements along the first rank. Only the first rank is supported, as lower ranks would break the 'set-of-sets' intuition that tidytensor relies on; for example, in a channels-last configurition, shuffling the channels would shuffle them identically for all images in the dataset. This function accepts an optional `seed` argument to pass to `set.seed()` for repeatable randomness, again handy for generated training/testing splits. 
+The `shuffle()` function shuffles the elements along the first rank. Only the first rank is supported, as lower ranks would break the 'set-of-sets' intuition that tidytensor relies on; for example, in a channels-last configurition, shuffling the channels would shuffle them identically for all images in the dataset. This function accepts an optional `seed` argument to pass to `set.seed()` for repeatable randomness, again handy for generating training/testing splits. 
 
 ```r
 # shuffle then partition
-split_images <- images %>% 
+train_test_images <- images %>% 
   shuffle(seed = 42) %>%
   partition(c(0.2, 0.8))
   
 # shuffle similarly then partition
-split_labels <- labels %>% 
+train_test_labels <- labels %>% 
   shuffle(seed = 42) %>%
   partition(c(0.2, 0.8))
 ```
+
+Finally we have `tt_apply()`, tidytensor's answer to base-R `apply()`, another area of not-greatness for arrays in R. While `apply()` allows applying over arbitrary ranks with the `MARGIN` parameter, it not only removes metadata, it *deconstructs* each call's return value into a vector, before *prepending* it to the remaining ranks. If `t` has shape `(500, 3, 26, 26)` and `normalize` is a function that returns an array of the same shape as it's input, `apply(t, MARGIN = c(1, 2), normalize)` doesn't return a tensor of the same shape as `t`, but rather shape `c(26 * 26, 500, 3)`. Blech. `tt_apply()` uses `apply()` under the hood, but puts all the pieces back together nicely. In fact, if the called function returns a tidytensor with ranknames, those will be used for the applied ranks.
+
+However, `tt_apply()` is limited compared to `apply()` in one respect, it only applies over the "top" N ranks, to stick with the sets-of-sets metaphor. If `t` has ranknames `c("image", "channel", "row", "col")`, we can `tt_apply()` over every image, or every channel (within each image), or every row (within each channel within each image), and so on. Should a different grouping be desired, `permute()` can help.
+
+Here's a `normalize()` function that respects metadata of input tidytensors (most R functions do, `[]`, `apply()`, and `scale()` are notable exceptions).
+
+```r
+# scales to [0, 1]
+normalize <- function(t) {
+  t <- t - min(t)
+  t <- t / max(t)
+  return(t)
+}
+```
+
+For pre-processing, rather than scale the entire dataset to a [0,1] range, perhaps we'd like to do 
+so for each channel of each image, maximizing the dynamic range utilized (but perhaps not actually useful
+for model training?).
+
+```r
+images_normalized <- images %>%
+  permute(image, channel, row, col) %>%   # permute to channels-first
+  tt_apply(channel, normalize) %>%        # normalize each (row, col) tensor
+  permute(image, row, col, channel)       # permute back if we want
+```
+
+Notice that here we've organized the data channel-first so we can do our per-image, per-channel normalization, then permuted back to the original. Applying can take some time, as a function call is being executed for each entry asked for, and there can be *quite* a few in a large tensor. 
+
+The function call results needn't match their input shape: `tt_apply()` just needs all returned result to be tensors (vectors, matrices, arrays, or tidytensors) all of the same shape. 
+
 
