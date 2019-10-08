@@ -19,7 +19,7 @@
 #' ranknames(t1) <- c("sample", "row", "col")
 #' l1 <- as.list(t1)
 #' str(l1)
-`as.list.tidytensor` <- function(tensor, rank = 1, flatten = FALSE, state = NULL) {
+`as.list.tidytensor` <- function(tensor, rank = 1, flatten = TRUE, state = NULL) {
   if(!is.null(ranknames(tensor))) {
     rank <- tidyselect::vars_select(ranknames(tensor), !!rlang::enquo(rank))
   }

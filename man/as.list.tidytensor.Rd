@@ -4,7 +4,7 @@
 \alias{as.list.tidytensor}
 \title{Convert a tidytensor into a nested list of tensors.}
 \usage{
-\method{as.list}{tidytensor}(tensor, rank = 1, flatten = FALSE,
+\method{as.list}{tidytensor}(tensor, rank = 1, flatten = TRUE,
   state = NULL)
 }
 \arguments{
