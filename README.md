@@ -10,6 +10,7 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
    * [Named Ranks](#named-ranks)
    * [Converting to data.frame and plotting](#converting-to-dataframe-and-plotting)
    * [Manipulation](#manipulation)
+     * [`c()` and `bind()`](#c-and-bind)
 
 <br />
 <br />
@@ -82,7 +83,7 @@ If this were stored in the R array `data`, then `data[20, 57, , , ]` would selec
 The default print function for arrays in R is... not great. Whereas groups are typically organized in tensors "leftward," R breaks them down "rightward" and provides little hierarchical organization. (I think Python's `numpy` arrays are better in this regard, but still leave a lot to be desired.) Consider a simulated dataset of 4 color 10x10 images (channels-first):
 
 ```r
-array(runif(4*3*10*10, min = 0, max = 1), dim = c(4, 3, 10, 10))
+simulated <- array(runif(4*3*10*10, min = 0, max = 1), dim = c(4, 3, 10, 10))
 ```
 
 ``` 
@@ -115,7 +116,7 @@ the shorthand `tt()`.
 
 ```r
 library(tidytensor)
-array(runif(4*3*10*10, min = 0, max = 1), dim = c(4, 3, 10, 10)) %>% 
+simulated %>% 
   tt()
 ```
 ```
@@ -139,9 +140,8 @@ Here the printout is emphasizing the nested nature of tensors and providing a qu
 function can be customized to show more or fewers rows and columns in the "bottom" tensors and to show dimension names there (it's on the TODO list to also incorporate dimesion names for higher ranks). 
 
 ```r
-images <- array(runif(4*3*10*10, min = 0, max = 1), dim = c(4, 3, 10, 10)) 
-dimnames(images)[[3]] <- letters[1:10]
-images %>%
+dimnames(simulated)[[3]] <- letters[1:10]
+simulated %>%
   tt() %>%
   print(show_names = T, max_rows = 10, max_cols = 10)
 ```
@@ -476,7 +476,9 @@ compute_featuremaps(images[1:4, , ,]) %>%
 
 ### Manipulation
 
-A few functions are included for transforming or working with tensors. We've already seen `permute()` which re-orders ranks (and is a rankname-aware wrapper around `base::aperm()`). There are also `c()` and `bind()`. To start with we'll extract three subsets of CIFAR10 images of different sizes; unfortunately `[]` is not yet tidytensor-aware, I was having some trouble making the wrappers operate correctly and efficiently, though `subset()` provides a rankname-aware and `%>%`-friendly alternative.
+#### `c()` and `bind()`
+
+A few functions are included for transforming or working with tensors. We've already seen `permute()` which re-orders ranks (and is a rankname-aware wrapper around `base::aperm()`). There are also `c()` and `bind()`. To start with we'll extract three subsets of CIFAR10 images of different sizes; unfortunately `[]` is not yet tidytensor-aware, I was having some trouble making the wrappers operate correctly and efficiently (particularly `[<-`), though `subset()` provides a rankname-aware and `%>%`-friendly alternative.
 
 ```r
 images <- dataset_cifar10()$train$x
@@ -541,8 +543,10 @@ print(result)
 |  # ...
 ```
 
-The `partition()` function works as an inverse of `c()`, partitioning a tensor into a list of tensors of relative proportions along the first rank, which can be handy for generating train/validate/test splits (particularly
-when combined with `shuffle()`, below).
+#### `partition()` and `as.list()`
+
+
+The `partition()` function works as an inverse of `c()`, partitioning a tensor into a list of tensors of relative proportions along the first rank, which may be handy for generating train/validate/test splits (particularly when combined with `shuffle()`, below). 
 
 ```r
 images <- tt(images) %>% 
@@ -556,7 +560,7 @@ labels <- dataset_cifar10()$train$y %>%
 split_images <- images %>% partition(c(0.1, 0.1, 0.8))
 split_labels <- labels %>% partition(c(0.1, 0.1, 0.8))
 
-split_images
+print(split_images)
 ```
 
 ```
@@ -598,7 +602,7 @@ split_images
 ```
 
 ```r
-split_labels
+print(split_labels)
 ```
 
 ```
@@ -621,4 +625,143 @@ split_labels
 |  # ...
 ```
 
+The proportions vector needn't add to `1.0` - the sizes are normalized, such that `c(1, 1, 2)` is equal to `c(0.25, 0.25, 0.5)`.
+
+`as.list()` functions as the inverse of `bind()`, partitioning tensors into lists of sub-tensors.
+
+```r
+images %>%
+  subset(image = 1:3) %>%
+  as.list()
+```
+
+```
+$`image [1, , , ], shape (32, 32, 3)`
+# Rank 3 tensor, shape: (32, 32, 3), ranknames: row, col, channel
+    [59, 62, 63]  [43, 46, 45]   [50, 48, 43]   [68, 54, 42]   [98, 73, 52]  [119, 91, 63]  ... 
+    [16, 20, 20]     [0, 0, 0]     [18, 8, 0]    [51, 27, 8]   [88, 51, 21]  [120, 82, 43]  ... 
+    [25, 24, 21]    [16, 7, 0]    [49, 27, 8]   [83, 50, 23]  [110, 72, 41]  [129, 92, 54]  ... 
+    [33, 25, 17]   [38, 20, 4]   [87, 54, 25]  [106, 63, 28]  [115, 70, 33]  [117, 74, 35]  ... 
+    [50, 32, 21]  [59, 32, 11]  [102, 65, 34]  [127, 79, 39]  [124, 77, 36]  [121, 77, 36]  ... 
+    [71, 48, 29]  [84, 53, 24]  [110, 73, 37]  [129, 82, 38]  [136, 88, 45]  [131, 84, 42]  ... 
+             ...           ...            ...            ...            ...            ...  ... 
+
+$`image [2, , , ], shape (32, 32, 3)`
+# Rank 3 tensor, shape: (32, 32, 3), ranknames: row, col, channel
+    [154, 177, 187]  [126, 137, 136]   [105, 104, 95]   [102, 101, 99]  [125, 131, 139]  [155, 166, 180]  ... 
+    [140, 160, 169]  [145, 153, 154]  [125, 125, 118]  [124, 129, 132]  [150, 161, 173]  [152, 164, 175]  ... 
+    [140, 155, 164]  [139, 146, 149]  [115, 115, 112]  [147, 153, 159]  [138, 150, 162]  [132, 145, 154]  ... 
+    [136, 147, 155]  [137, 142, 146]  [122, 121, 121]  [132, 133, 139]  [151, 157, 167]  [181, 193, 198]  ... 
+    [129, 137, 144]  [141, 146, 152]  [136, 139, 142]  [186, 186, 190]  [215, 220, 227]  [202, 216, 223]  ... 
+    [136, 144, 149]  [136, 149, 165]  [127, 148, 164]  [153, 172, 181]  [138, 160, 173]  [120, 141, 161]  ... 
+                ...              ...              ...              ...              ...              ...  ... 
+
+$`image [3, , , ], shape (32, 32, 3)`
+# Rank 3 tensor, shape: (32, 32, 3), ranknames: row, col, channel
+    [255, 255, 255]  [253, 253, 253]  [253, 253, 253]  [253, 253, 253]  [253, 253, 253]  [253, 253, 253]  ... 
+    [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  ... 
+    [255, 255, 255]  [254, 254, 254]  [254, 254, 254]  [254, 254, 254]  [254, 254, 254]  [254, 254, 254]  ... 
+    [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  ... 
+    [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  ... 
+    [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  [255, 255, 255]  ... 
+                ...              ...              ...              ...              ...              ...  ... 
+```
+
+Note that the result is a named list with entries describing their contents. It's possible to split at ranks lower than the first; in this case all of the sub-tensors at that level become list elements. (This function does take a bit if the resulting list is very large, which is quite possible with large tensors.)
+
+```r
+images %>% 
+  subset(image = 1:3) %>%
+  permute(image, channel, row, col) %>%
+  as.list(rank = channel)
+```
+
+```
+$`channel [1, 1, , ], shape (32, 32)`
+# Rank 2 tensor, shape: (32, 32), ranknames: row, col
+     59   43   50   68   98  119  ... 
+     16    0   18   51   88  120  ... 
+     25   16   49   83  110  129  ... 
+     33   38   87  106  115  117  ... 
+     50   59  102  127  124  121  ... 
+     71   84  110  129  136  131  ... 
+    ...  ...  ...  ...  ...  ...  ... 
+
+$`channel [1, 2, , ], shape (32, 32)`
+# Rank 2 tensor, shape: (32, 32), ranknames: row, col
+     62   46   48   54   73   91  ... 
+     20    0    8   27   51   82  ... 
+     24    7   27   50   72   92  ... 
+     25   20   54   63   70   74  ... 
+     32   32   65   79   77   77  ... 
+     48   53   73   82   88   84  ... 
+    ...  ...  ...  ...  ...  ...  ... 
+
+$`channel [1, 3, , ], shape (32, 32)`
+# Rank 2 tensor, shape: (32, 32), ranknames: row, col
+     63   45   43   42   52   63  ... 
+     20    0    0    8   21   43  ... 
+     21    0    8   23   41   54  ... 
+     17    4   25   28   33   35  ... 
+     21   11   34   39   36   36  ... 
+     29   24   37   38   45   42  ... 
+    ...  ...  ...  ...  ...  ...  ... 
+
+$`channel [2, 1, , ], shape (32, 32)`
+# Rank 2 tensor, shape: (32, 32), ranknames: row, col
+    154  126  105  102  125  155  ... 
+    140  145  125  124  150  152  ... 
+    140  139  115  147  138  132  ... 
+    136  137  122  132  151  181  ... 
+    129  141  136  186  215  202  ... 
+    136  136  127  153  138  120  ... 
+    ...  ...  ...  ...  ...  ...  ... 
+(output truncated)
+```
+
+If `flatten = FALSE`, a nested list is returned (compatible with the marvelous [`data.tree`](https://cran.r-project.org/web/packages/data.tree/vignettes/data.tree.html) package).
+
+```r
+images %>% 
+  subset(image = 1:3) %>%
+  permute(image, channel, row, col) %>%
+  as.list(rank = channel, flatten = FALSE) %>%
+  str(give.attr = FALSE)
+```
+
+```
+List of 3
+ $ image [1, , , ], shape (3, 32, 32):List of 3
+  ..$ channel [1, 1, , ], shape (32, 32): int [1:32, 1:32] 59 16 25 33 50 71 97 115 137 154 ...
+  ..$ channel [1, 2, , ], shape (32, 32): int [1:32, 1:32] 62 20 24 25 32 48 69 82 100 120 ...
+  ..$ channel [1, 3, , ], shape (32, 32): int [1:32, 1:32] 63 20 21 17 21 29 40 49 68 89 ...
+ $ image [2, , , ], shape (3, 32, 32):List of 3
+  ..$ channel [2, 1, , ], shape (32, 32): int [1:32, 1:32] 154 140 140 136 129 136 146 162 127 71 ...
+  ..$ channel [2, 2, , ], shape (32, 32): int [1:32, 1:32] 177 160 155 147 137 144 154 172 137 75 ...
+  ..$ channel [2, 3, , ], shape (32, 32): int [1:32, 1:32] 187 169 164 155 144 149 172 192 138 69 ...
+ $ image [3, , , ], shape (3, 32, 32):List of 3
+  ..$ channel [3, 1, , ], shape (32, 32): int [1:32, 1:32] 255 255 255 255 255 255 255 255 255 255 ...
+  ..$ channel [3, 2, , ], shape (32, 32): int [1:32, 1:32] 255 255 255 255 255 255 255 255 255 255 ...
+  ..$ channel [3, 3, , ], shape (32, 32): int [1:32, 1:32] 255 255 255 255 255 255 255 255 255 255 ...
+```
+
+As a reminder with all this list-of-tensors making, `bind()` and `c()` can each take a list of tensors
+of the appropriate shape as opposed to one-per-parameter.
+
+#### `shuffle()` and `tt_apply()`
+
+
+The `shuffle()` function shuffles the elements along the first rank. Only the first rank is supported, as lower ranks would break the 'set-of-sets' intuition that tidytensor relies on; for example, in a channels-last configurition, shuffling the channels would shuffle them identically for all images in the dataset. This function accepts an optional `seed` argument to pass to `set.seed()` for repeatable randomness, again handy for generated training/testing splits. 
+
+```r
+# shuffle then partition
+split_images <- images %>% 
+  shuffle(seed = 42) %>%
+  partition(c(0.2, 0.8))
+  
+# shuffle similarly then partition
+split_labels <- labels %>% 
+  shuffle(seed = 42) %>%
+  partition(c(0.2, 0.8))
+```
 
