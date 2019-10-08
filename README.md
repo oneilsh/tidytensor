@@ -11,8 +11,8 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
    * [Converting to data.frame and plotting](#converting-to-dataframe-and-plotting)
    * [Manipulation](#manipulation)
      * [`c()` and `bind()`](#c-and-bind)
-     * [`partition()` and `as.list()`](#partition-and-as-list)
-     * [`shuffle()` and `tt_apply()`](#shuff-and-tt-apply)
+     * [`partition()` and `as.list()`](#partition-and-aslist)
+     * [`shuffle()` and `tt_apply()`](#shuff-and-ttapply)
 
 <br />
 <br />
