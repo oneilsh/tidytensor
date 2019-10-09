@@ -798,6 +798,34 @@ images_normalized <- images %>%
 
 Notice that here we've organized the data channel-first so we can do our per-image, per-channel normalization, then permuted back to the original. Even though `tt_apply()` is built on base-R `apply()`, applying can take some time, as a function call is being executed for each entry asked for and there can be *quite* a few in a large tensor. 
 
-The function call results needn't match their input shape: `tt_apply()` just needs returned result to be tensors (vectors, matrices, arrays, or tidytensors) all of the same shape. 
+The function call results needn't match their input shape: `tt_apply()` just needs returned result to be tensors (vectors, matrices, arrays, or tidytensors) all of the same shape. The featuremap example above was difficult to visualize due to the range of map values; we can get an alternative look by scaling to a zero mean, one variance per featuremap. (Or perhaps we should build a model with batch-normalization!)
 
+```r
+images <- dataset_cifar10()$train$x %>%
+  tt() %>% 
+  set_ranknames(image, row, col, channel) %>%
+  set_dimnames_for_rank(channel, R, G, B)
+  
+library(dplyr)   # for filter()
+library(ggplot2)
+  
+images %>% 
+  subset(image = 1:4) %>%
+  compute_featuremaps() %>%
+  tt() %>%
+  set_ranknames(image, row, col, featuremap) %>%
+  permute(image, featuremap, row, col) %>%
+  tt_apply(featuremap, function(t) {
+    (t - mean(t)) / sd(t)
+  }) %>%
+  as.data.frame() %>%
+  filter(featuremap <= 6) %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = value)) +
+    facet_grid(image ~ featuremap) +
+    coord_equal() +
+    scale_y_reverse() +
+    scale_fill_gradient2()
+```
 
+<img src="readme_images/featuremaps_scaled.png" width=750>
