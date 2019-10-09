@@ -37,8 +37,8 @@
 #'
 #' print(head(as.data.frame(t)))
 as.data.frame.tidytensor <- function(tensor, allow_huge = FALSE) {
-  if(length(tensor) * length(dim(tensor)) > 1000000 & !allow_huge) {
-    stop("The data frame you are trying to create from a tensor will have more than 1 million entries (in this case ",
+  if(length(tensor) * length(dim(tensor)) > 10000000 & !allow_huge) {
+    stop("The data frame you are trying to create from a tensor will have more than 10 million entries (in this case ",
          length(tensor),
          " rows and ",
          length(dim(tensor)),

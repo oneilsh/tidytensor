@@ -1,10 +1,10 @@
 # TidyTensor - More Fun with Deep Learning
 
-TidyTensor is an R package for inspecting and manipulating tensors (multidimensional arrays). It provides an improved `print()` function for summarizing structure, named tensors, conversion to data frames, and high-level manipulation functions. Designed to companion the excellent `keras` package, functionality is layered on top of base R types.
+TidyTensor is an R package for inspecting and manipulating tensors (multidimensional arrays). It provides an improved `print()` function for summarizing structure, named tensors, conversion to data frames, and high-level manipulation functions. Designed to complement the excellent `keras` package, functionality is layered on top of base R types.
 
 TidyTensor was inspired by a workshop I taught in deep learning with R, and a desire to explain and explore tensors in a more intuitive way.  
 
-   * [Installation](#installation)
+   * [Installation And Caveats](#installation-and-caveats)
    * [Background](#background)
    * [Printing](#printing)
    * [Named Ranks](#named-ranks)
@@ -21,7 +21,7 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
 
 A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don't have `devtools`, grab it with `install.packages("devtools")`. 
 
-This software is still in development, and its API may change. 
+This software is still in development, and its API may change.
 
 ### Background
 
@@ -140,7 +140,7 @@ simulated %>%
 Here the printout is emphasizing the nested nature of tensors and providing a quick structure summary. 
 
 `as.tidytensor()` simply adds an addtional `tidytensor` class entry, so the array can still be used in all the normal ways. The `print()`
-function can be customized to show more or fewers rows and columns in the "bottom" tensors and to show dimension names there (it's on the TODO list to also incorporate dimesion names for higher ranks). 
+function can be customized to show more or fewers rows and columns in the "bottom" tensors and to show dimension names there (it's on the TODO list to also show dimesion names for higher ranks when printing). 
 
 ```r
 dimnames(simulated)[[3]] <- letters[1:10]
@@ -377,7 +377,7 @@ images %>%
 
 ### Converting to `data.frame` and plotting
 
-Named ranks also work well with conversion to data frame. We'll convert just a few images, because tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). `as.data.frame()` will by default throw an error when more than a million-entry
+Named ranks also work well with conversion to data frame. We'll convert just a few images, because tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). `as.data.frame()` will by default throw an error when more than a 10-million-entry
 data frame would result, unless `allow_huge = TRUE` is set.
 
 ```r
@@ -471,7 +471,7 @@ compute_featuremaps(images[1:4, , ,]) %>%
     geom_tile(aes(x = col, y = row, fill = value)) +
     facet_grid(image ~ featuremap) +
     coord_equal() +
-    scale_y_reverse()
+    scale_y_reverse() 
 ```
 
 <img src="readme_images/feature_maps.png" width=850>
@@ -670,7 +670,7 @@ $`image [3, , , ], shape (32, 32, 3)`
                 ...              ...              ...              ...              ...              ...  ... 
 ```
 
-Note that the result is a named list with entries describing their contents. It's possible to split at ranks lower than the first; in this case all of the sub-tensors at that level become list elements. (This function does take a bit if the resulting list is very large, which is quite possible with large tensors.)
+Note that the result is a named list with entries describing their contents. It's possible to split at ranks lower than the first; in this case all of the sub-tensors at that level become list elements. (This function can take while if the resulting list is very large, which is quite possible with large tensors.)
 
 ```r
 images %>% 
@@ -768,7 +768,9 @@ train_test_labels <- labels %>%
   partition(c(0.2, 0.8))
 ```
 
-Finally we have `tt_apply()`, tidytensor's answer to base-R `apply()`, another area of not-greatness for arrays in R. While `apply()` allows applying over arbitrary ranks with the `MARGIN` parameter, it not only removes metadata, it *deconstructs* each call's return value into a vector, before *prepending* it to the remaining ranks. If `t` has shape `(500, 3, 26, 26)` and `normalize` is a function that returns an array of the same shape as it's input, `apply(t, MARGIN = c(1, 2), normalize)` doesn't return a tensor of the same shape as `t`, but rather shape `c(26 * 26, 500, 3)`. Blech. `tt_apply()` uses `apply()` under the hood, but puts all the pieces back together nicely. In fact, if the called function returns a tidytensor with ranknames, those will be used for the applied ranks.
+#### `tt_apply()`
+
+Finally we have `tt_apply()`, tidytensor's answer to base-R `apply()`, another area of not-greatness for arrays in R. While `apply()` allows applying over arbitrary ranks with the `MARGIN` parameter, it not only removes metadata, it *deconstructs* each call's return value into a vector, before *prepending* it to the remaining ranks. If `t` has shape `(500, 3, 26, 26)` and `normalize` is a function that returns an array of the same shape as it's input, `apply(t, MARGIN = c(1, 2), normalize)` doesn't return a tensor of the same shape as `t`, but rather shape `c(26 * 26, 500, 3)`. Blech. `tt_apply()` uses `apply()` under the hood, but puts all the pieces back together nicely (and is rankname-aware for both function inputs and outputs). 
 
 However, `tt_apply()` is limited compared to `apply()` in one respect, it only applies over the "top" N ranks, to stick with the sets-of-sets metaphor. If `t` has ranknames `c("image", "channel", "row", "col")`, we can `tt_apply()` over every image, or every channel (within each image), or every row (within each channel within each image), and so on. Should a different grouping be desired, `permute()` can help.
 
@@ -785,7 +787,7 @@ normalize <- function(t) {
 
 For pre-processing, rather than scale the entire dataset to a [0,1] range, perhaps we'd like to do 
 so for each channel of each image, maximizing the dynamic range utilized (but perhaps not actually useful
-for model training?).
+for model training!).
 
 ```r
 images_normalized <- images %>%
@@ -794,8 +796,8 @@ images_normalized <- images %>%
   permute(image, row, col, channel)       # permute back if we want
 ```
 
-Notice that here we've organized the data channel-first so we can do our per-image, per-channel normalization, then permuted back to the original. Applying can take some time, as a function call is being executed for each entry asked for, and there can be *quite* a few in a large tensor. 
+Notice that here we've organized the data channel-first so we can do our per-image, per-channel normalization, then permuted back to the original. Even though `tt_apply()` is built on base-R `apply()`, applying can take some time, as a function call is being executed for each entry asked for and there can be *quite* a few in a large tensor. 
 
-The function call results needn't match their input shape: `tt_apply()` just needs all returned result to be tensors (vectors, matrices, arrays, or tidytensors) all of the same shape. 
+The function call results needn't match their input shape: `tt_apply()` just needs returned result to be tensors (vectors, matrices, arrays, or tidytensors) all of the same shape. 
 
 
