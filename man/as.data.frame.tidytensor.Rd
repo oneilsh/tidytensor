@@ -7,7 +7,7 @@
 \method{as.data.frame}{tidytensor}(tensor, allow_huge = FALSE)
 }
 \arguments{
-\item{allow_huge}{whether to allow the creation of a data.frame with more than 1 million entries}
+\item{allow_huge}{whether to allow the creation of a data.frame with more than 10 million entries}
 
 \item{x}{input to convert to a data.frame}
 
@@ -18,12 +18,12 @@ a data.frame
 }
 \description{
 Given a tidytensor, returns a data.frame, with each rank of the tensor being represented by a column.
-Produces an error if the resulting data.frame would have more than 1 million entries; use \code{allow_huge = TRUE} to override.
+Produces an error if the resulting data.frame would have more than 10 million entries; use \code{allow_huge = TRUE} to override.
 }
 \details{
 Note that this produces a row for each value in the tensor, and a column for each rank; data.frames are a much less
 efficient representation, but can be useful for e.g. visualization purposes. This method thus produces an error if
-the resulting data.frame would have more than 1 million entries; but one can set \code{allow_huge = TRUE} to override.
+the resulting data.frame would have more than 10 million entries; but one can set \code{allow_huge = TRUE} to override.
 If dimnames() are set (naming each dimension), then the columns will be factors, rather than integer indices.
 
 If the tidytensor ranks are not named, columns will be named \code{index_1}, \code{index_2}, etc., otherwise they will be
