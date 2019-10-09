@@ -12,7 +12,8 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
    * [Manipulation](#manipulation)
      * [`c()` and `bind()`](#c-and-bind)
      * [`partition()` and `as.list()`](#partition-and-aslist)
-     * [`shuffle()` and `tt_apply()`](#shuff-and-tt_apply)
+     * [`shuffle()` and `tt_apply()`](#shuffle-and-tt_apply)
+   * [Future Work](#future-work) 
 
 <br />
 <br />
@@ -829,3 +830,9 @@ images %>%
 ```
 
 <img src="readme_images/featuremaps_scaled.png" width=750>
+
+### Future Work
+
+Aside from the adjustments I'd like to make to the base functionality (particularly in supporting a tidytensor-aware `[<-`), I think additional functions for 'tensorifying' common data types would be beneficial. For example,
+this package originally included functionality to produce tensor-encoded versions of [fasta files](https://en.wikipedia.org/wiki/FASTA_format) commonly used in bioinformations applications. Because these require dependencies (on e.g. `Rsamtools` and `GenomicRanges`) and field-specific nature, I've pulled those out and hope to eventually make a secondary companion package for such formats. 
+
