@@ -48,7 +48,7 @@ tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
   }
 
   index <- rank_to_index(x, rank)
-  ## TODO: it seems like we should be able to apply a function over single values, though I'm not sure why one would want to...
+  ## it seems like we should be able to apply a function over single values, though I'm not sure why one would want to...
   ## maybe I should dispatch to a separate method for that since it's a special case.
   if(index >= length(dim(x))) {
     stop("Bad rank specified, must be a valid rank index or name, and we cannot apply to each entry in the last rank (individual values).")

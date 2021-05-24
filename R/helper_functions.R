@@ -87,31 +87,21 @@ tt_index.tidytensor <- function(tensor, indices, dimension = 1, drop = TRUE) {
   return(as.tidytensor(res))
 }
 
-# these are surprisingly slow, too slow for a loop
-# derp, we don't even need them, for some reason
-
-#`[<-.tidytensor` <- function(x, ...) {
-#  class(x) <- class(x)[class(x) != "tidytensor"]
-#  x <- `[<-`(x, ...)
-#  #x <- tt(x)
-#  class(x) <- c("tidytensor", class(x))
-#  return(x)
-#}
 
 
+#' @export
+`[.tidytensor` <- function(x, ...) {
+  x <- unclass(x)
+  result <- x[...]
+  return(tt(result))
+}
 
-# `[.tidytensor` <- function(x, ...) {
-#   names <- ranknames(x)
-#   class(x) <- class(x)[class(x) != "tidytensor"] # drop the tidytensor class but keep others
-#   xnew <- tt(x[...]) #`[`(x, ...)
-#
-#   #if(!is.null(names) & length(dim(x)) == length(dim(xnew))) {
-#   #  ranknames(xnew) <- names
-#   #}
-#   # alright, so the bummer is that if what is returned is a vector (1d tensor), it drops the names. (YTHO)
-#   # I'm not really sure what to do about this...
-#   return(xnew)
-# }
+#' @export
+`[<-.tidytensor` <- function(x, ..., value) {
+  x <- unclass(x)
+  x[...] <- value
+  return(tt(x))
+}
 
 
 

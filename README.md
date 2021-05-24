@@ -484,7 +484,7 @@ compute_featuremaps(images[1:4, , ,]) %>%
 
 #### `c()` and `bind()`
 
-A few functions are included for transforming or working with tensors. We've already seen `permute()` which re-orders ranks (and is a rankname-aware wrapper around `base::aperm()`). There are also `c()` and `bind()`. To start with we'll extract three subsets of CIFAR10 images of different sizes; unfortunately `[]` is not yet tidytensor-aware, I was having some trouble making the wrappers operate correctly and efficiently (particularly `[<-`), though `subset()` provides a rankname-aware and `%>%`-friendly alternative.
+A few functions are included for transforming or working with tensors. We've already seen `permute()` which re-orders ranks (and is a rankname-aware wrapper around `base::aperm()`). There are also `c()` and `bind()`. To start with we'll extract three subsets of CIFAR10 images of different sizes; `subset()` provides a  `%>%`-friendly alternative to `[]`.
 
 ```r
 images <- dataset_cifar10()$train$x
@@ -492,10 +492,9 @@ images <- tt(images) %>%
   set_ranknames(image, row, col, channel) %>%
   set_dimnames_for_rank(channel, R, G, B)
 
-# TODO: make [] tidytensor-aware
-#seta <- images[1:4, , ,]
-#setb <- images[5:7, , ,]
-#setc <- images[8:16, , ,]
+seta <- images[1:4, , ,]
+setb <- images[5:7, , ,]
+setc <- images[8:16, , ,]
 
 seta <- images %>% subset(image = 1:4)
 setb <- images %>% subset(image = 5:8)

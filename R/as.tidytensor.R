@@ -78,6 +78,3 @@ as.tidytensor <- function(x, ...) {
 #' print(t)
 tt <- as.tidytensor
 
-
-
-
