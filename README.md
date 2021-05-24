@@ -20,11 +20,14 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
 <br />
 <br />
 
-### Installation and Caveats
+### Installation
 
 A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don't have `devtools`, grab it with `install.packages("devtools")`. 
 
-This software is still in development, and its API may change.
+### Changelog
+
+0.8.1: add [] and [] <- functionality
+0.8: first version on github
 
 ### Background
 
