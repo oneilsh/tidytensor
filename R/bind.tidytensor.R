@@ -1,3 +1,4 @@
+
 #' @export
 #' @title Bind two or more tidytensors to create a new one with a new rank.
 #'
@@ -21,11 +22,11 @@
 #' ranknames(t1) <- c("sample", "row", "col")
 #' ranknames(t2) <- c("sample", "row", "col")
 #' ranknames(t3) <- c("sample", "row", "col")
-
 #' t4 <- bind(t1, t2, t3, new_rank_name = "batch")
 #' print(t4)
 `bind` <- function(..., new_rank_name = NULL) {UseMethod("bind", list(...)[[1]])}
-setGeneric("bind")
+#setGeneric("bind")
+
 
 # I wrote the original to be agnostic over a list of tidytensor or just a bunch of them, so I'll just dispatch list to that
 #' @export
