@@ -70,7 +70,6 @@
 ##  print(ranknames(x))
 ###################################
 
-
 #' @export
 #' @title Get ranknames of a tidytensor.
 #'
@@ -91,12 +90,13 @@
 #' t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(ranknames(t))
-#'
 `ranknames` <- function(x, ...) {
   if(is.null(x)) {return(NULL)}
   UseMethod("ranknames", x)
 }
-setGeneric("ranknames")
+#setGeneric("ranknames")
+
+
 
 # method:
 #' @export
