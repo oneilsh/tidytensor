@@ -39,7 +39,16 @@ test_that("basic tt_apply() works properly, include size-1 ranks", {
     ranknames(t) <- c("sample", "row", "col")
 
     dev_median <- function(t) {
-      return(t - median(t))
+      #res <- t - median(t)
+      # TODO: median() results in non-corformable array error, but mean does not
+      # replicate: tt(array(1, dim = c(1,1))) - median(tt(array(1, dim = c(1,1))))
+      # I think this is because median attempts to preserve class; from help(median): "This is a generic function for which methods can be written. However, the default method makes use of is.na, sort and mean from package base all of which are generic, and so the default method will work for most classes (e.g., "Date") for which a median is a reasonable concept."
+      # the result being that median(t) has class "tidytensor", "array" (which is t's class), and you can't subtract two arrays of different shape
+      # I wonder how many other R functions do this; I'd still like to keep rank-1 tensors as arrays for dim() conveniences but
+      # user's won't expect something like this to not work, especially when most other basic functions appear to return a basic vector. oh, quantial() has this issue too
+      # more weirdly, this only occurs for the edge case of a 1x1 array! anyway switching to mean()
+      res <- t - mean(t)
+      return(res)
     }
 
     t_median <- tt_apply(t, rank = 1, dev_median)
@@ -48,7 +57,7 @@ test_that("basic tt_apply() works properly, include size-1 ranks", {
 
 
     test2 <- tt_apply(t_median, 1, function(s) {
-      return(median(s))
+      return(mean(s))
     }, drop_final_1 = FALSE)
 
     expected_test2 <- as.tidytensor(array(rep(0, dims[1]), dim = c(dims[1], 1)))
