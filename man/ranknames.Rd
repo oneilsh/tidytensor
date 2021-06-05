@@ -29,7 +29,6 @@ package also provides a specialized dimnames() which preserves ranknames when se
 t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
 ranknames(t) <- c("sample", "row", "col")
 print(ranknames(t))
-
 }
 \seealso{
 \code{\link{set_ranknames}}, \code{\link{ranknames<-}}

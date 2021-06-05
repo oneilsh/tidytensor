@@ -4,9 +4,18 @@
 \alias{print.tidytensor}
 \title{Print a tidytensor.}
 \usage{
-\method{print}{tidytensor}(x, show_names = FALSE, max_per_level = 1,
-  bottom = "auto", max_rows = 6, max_cols = 6, max_depth = 3,
-  signif_digits = 3, indent = 0, ...)
+\method{print}{tidytensor}(
+  x,
+  show_names = FALSE,
+  max_per_level = 1,
+  bottom = "auto",
+  max_rows = 6,
+  max_cols = 6,
+  max_depth = 3,
+  signif_digits = 3,
+  indent = 0,
+  ...
+)
 }
 \arguments{
 \item{x}{a tidytensor to summarize.}
