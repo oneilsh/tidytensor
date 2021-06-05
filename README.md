@@ -6,7 +6,7 @@ TidyTensor is an R package for inspecting and manipulating tensors (multidimensi
 
 TidyTensor was inspired by a workshop I taught in deep learning with R, and a desire to explain and explore tensors in a more intuitive way.  
 
-   * [Installation And Caveats](#installation-and-caveats)
+   * [Installation](#installation)
    * [Background](#background)
    * [Printing](#printing)
    * [Named Ranks](#named-ranks)
