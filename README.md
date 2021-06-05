@@ -26,6 +26,7 @@ A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don
 
 ### Changelog
 
+0.8.2: minor bugfixes, new combine_ranks() function
 0.8.1: add [] and [] <- functionality
 0.8: first version on github
 
