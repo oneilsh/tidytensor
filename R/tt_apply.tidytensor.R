@@ -69,6 +69,8 @@ tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
   function_ret_ranknames <- NULL
 
   # we'll wrap the user's function in one that helps out with ranknames etc.
+  # TODO: this doesn't respect dimnames :(
+  # maybe other functions don't either...
   wrapper_func <- function(subarray) {
     # omg it even strips the names... we only try to set them if they were before, since it won't let us assign NULL to ranknames()
     subarray <- as.tidytensor(subarray)
@@ -149,3 +151,4 @@ tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
   }
   return(result)
 }
+
