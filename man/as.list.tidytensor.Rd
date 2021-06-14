@@ -29,7 +29,7 @@ The \code{state} parameter is for internal use, and needn't be set during normal
 }
 \examples{
 # Three tidytensors of the same shape
-t3 <- as.tidytensor(array(100 * 1:(3 * 4 * 5), dim = c(3, 4, 5)))
+t1 <- as.tidytensor(array(100 * 1:(3 * 4 * 5), dim = c(3, 4, 5)))
 ranknames(t1) <- c("sample", "row", "col")
 l1 <- as.list(t1)
 str(l1)

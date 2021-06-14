@@ -4,12 +4,12 @@
 \alias{combine_ranks}
 \title{Combine multiple ranks of a tensor into a single rank}
 \usage{
-combine_ranks(tensor, ...)
+combine_ranks(x, ..., new_rank_name = NULL)
 }
 \arguments{
-\item{...}{ranknames or integers to combine (quoted or unquoted).}
-
 \item{x}{the tidytensor to combine ranks for.}
+
+\item{...}{ranknames or integers to combine (quoted or unquoted).}
 
 \item{.dots}{character or integer vector of ranknames.}
 }

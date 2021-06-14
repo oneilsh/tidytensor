@@ -1,5 +1,5 @@
 #' @export
-partition <- function(tensor, sizes = c(0.5, 0.5)) {UseMethod("partition", tensor)}
+partition <- function(x, sizes = c(0.5, 0.5)) {UseMethod("partition", x)}
 
 
 #' @export

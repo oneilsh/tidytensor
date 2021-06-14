@@ -20,8 +20,10 @@
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(t)
 #'
-#' t2 <- permute(t, c(3, 1, 2))
-#' t3 <- permute(t, c("col", "sample", "row"))
+#' t2 <- permute(t, col, sample, row)
+#' t2 <- permute(t, 3, 1, 2)
+#' t2 <- permute(t, .dots = c(3, 1, 2))
+#' t2 <- permute(t, .dots = c("col", "sample", "row"))
 #'
 permute <- function(tensor, ...) {UseMethod("permute", tensor)}
 

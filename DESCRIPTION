@@ -3,18 +3,16 @@ Type: Package
 Title: TidyTensor
 Version: 0.8.2
 Date: 2018-12-05
-Author: Shawn T. O'neil
+Author: Shawn T. O'Neil
 Maintainer: Shawn T. O'Neil <oneilsh@gmail.com>
 Description: Provides functions for working with tensors (vectors, matrices, 
     or multidimensional arrays) as named hierarchical data structures. 
-License: GPL-2 + file LICENSE
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Suggests:
     testthat,
-    data.tree,
     reticulate,
-    seqinr,
     stringr,
     keras,
     dplyr

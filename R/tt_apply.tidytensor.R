@@ -35,8 +35,8 @@
 #'   return(t - median(t))
 #' }
 #'
-#' median_deviations <- tt_apply(t, dev_median, "sample")
-#' print(median_deviation)
+#' median_deviations <- tt_apply(t, sample, dev_median)
+#' print(median_deviations)
 #'
 tt_apply <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...) {UseMethod("tt_apply", x)}
 

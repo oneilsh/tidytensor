@@ -48,8 +48,8 @@ dev_median <- function(t) {
   return(t - median(t))
 }
 
-median_deviations <- tt_apply(t, dev_median, "sample")
-print(median_deviation)
+median_deviations <- tt_apply(t, sample, dev_median)
+print(median_deviations)
 
 }
 \seealso{

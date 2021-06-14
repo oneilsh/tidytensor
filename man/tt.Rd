@@ -31,6 +31,7 @@ ranknames(t) <- c("sample", "row", "pixel")
 print(t)
 
 # From a matrix (representing e.g. a 26x26 image (26 rows of 26 pixels)) using \%>\%
+library(magrittr)
 t <- matrix(rnorm(26 * 26), nrow = 26, ncol = 26) \%>\% tt()
 ranknames(t) <- c("row", "pixel")
 print(t)

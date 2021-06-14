@@ -42,7 +42,7 @@
 #' # here we see that the second batch, image 3, replicate 2 is indeed the same
 #' print(t[2, "3", "rep2", , ])
 #' print(t2[2, "3_rep2", , ])
-combine_ranks <- function(tensor, ...) {UseMethod("combine_ranks", tensor)}
+combine_ranks <- function(x, ..., new_rank_name = NULL) {UseMethod("combine_ranks", x)}
 
 #' @export
 combine_ranks.tidytensor <- function(x, ..., new_rank_name = NULL) {

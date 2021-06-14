@@ -32,10 +32,11 @@ t2 <- subset(t, row = 1:10, sample = 27, drop = FALSE)
 print(t2)
 
 # same thing, but without named ranks (not a good idea to mixes named subsetting and non-named subsetting)
-t2 <- subset(t, 1:10, 27, drop = FALSE)
+t2 <- subset(t, 27, 1:10, drop = FALSE)
 print(t2)
 
 # equiv of t3[1:20, , , c("G", "R", "B")] # since the last rank has dimnames()
+# note the re-ordering of channel levels
 t3 <- subset(t, sample = 1:20, channel = c("G", "R", "B"), drop = FALSE)
 print(t3)
 
