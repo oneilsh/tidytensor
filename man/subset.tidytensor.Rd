@@ -42,5 +42,5 @@ print(t3)
 
 }
 \seealso{
-\code{\link{shuffle()}}, \code{\link{c.tidytensor}}, \code{\link{permute.tidytensor}}
+\code{\link{shuffle}}, \code{\link{c.tidytensor}}, \code{\link{permute}}
 }

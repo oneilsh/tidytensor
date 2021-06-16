@@ -11,7 +11,7 @@
 #' @param ... ranknames or integers to combine (quoted or unquoted).
 #' @param .dots character or integer vector of ranknames.
 #' @return a new tidytensor.
-#' @seealso \code{\link{permute}}, \code{\link{bind.tidytensor}}
+#' @seealso \code{\link{permute}}, \code{\link{bind}}
 #' @examples
 #' # shape [5, 20, 26, 26] for 5 batches of 20 26x26 "images"
 #' t <- as.tidytensor(array(rnorm(5 * 20 * 26 * 26), dim = c(5, 20, 26, 26)))

@@ -23,7 +23,7 @@
 #' @param drop_final_1 If FUN returns a rank-0 tensor (length-1 vector), should it be collapsed? E.g. if final shape is (10, 10, 1), adjusts shape to (10, 10)
 #' @param ... additional arguments passed to FUN.
 #' @return a new tidytensor.
-#' @seealso \code{\link{index}}, \code{\link{c.tidytensor}}, \code{\link{permute.tidytensor}}
+#' @seealso \code{\link{c.tidytensor}}, \code{\link{permute}}
 #' @examples
 #' # shape [20, 26, 26]
 #' t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
@@ -37,10 +37,8 @@
 #'
 #' median_deviations <- tt_apply(t, sample, dev_median)
 #' print(median_deviations)
-#'
 tt_apply <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...) {UseMethod("tt_apply", x)}
 
-# method
 #' @export
 tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 = TRUE, ...) {
   if(!is.null(ranknames(x))) {
@@ -102,7 +100,7 @@ tt_apply.tidytensor <- function(x, rank = 1, FUN, flatten = FALSE, drop_final_1 
   }
   # then we rotate; do we need to do this differently depending on the case above?
   orig_perm <- 1:length(dim(result))
-  tail_perm <- tail(orig_perm, n = length(margin))
+  tail_perm <- utils::tail(orig_perm, n = length(margin))
   new_perm <- c(tail_perm, orig_perm[!orig_perm %in% tail_perm])
   result <- aperm(result, new_perm)
 

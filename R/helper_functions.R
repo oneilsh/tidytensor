@@ -16,13 +16,11 @@ quovars <- function(..., .dots = NULL) {
 }
 
 
-#' @export
 rank_to_index <- function(tensor, by = TRUE) {UseMethod("rank_to_index", tensor)}
 
 
 # used to convert a rank selector (numeric, character (by rankname), or logical)
 # to an index vector (numeric)
-#' @export
 rank_to_index.tidytensor <- function(tensor, by = TRUE) {
   permute_vec <- seq(1:length(dim(tensor))) # no change by default
   if(mode(by) == "logical") {
@@ -49,14 +47,12 @@ rank_to_index.tidytensor <- function(tensor, by = TRUE) {
 }
 
 
-#' @export
 tt_index <- function(tensor, indices, dimension = 1, drop = TRUE) {UseMethod("tt_index", tensor)}
 
 
 # just subsets a tensor *without* knowing its rank
 # eg suppose we want some_tensor[ , ,1:10 , , ], which is a rank-5 tensor, but we don't know that to begin with,
 # we can use tt_index(some_tensor, 1:10, dimension = 3)
-#' @export
 tt_index.tidytensor <- function(tensor, indices, dimension = 1, drop = TRUE) {
   # here's where it gets tricky: we need to grab the first couple of entries
   # from the first dimenions of the tensor. E.g. if dim(tensor) is c(10, 10, 10, 10), we
