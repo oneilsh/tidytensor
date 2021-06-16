@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/160564655.svg)](https://zenodo.org/badge/latestdoi/160564655)
+
 ![TidyTensor Logo](docs/images/tidytensor_banner.png)
 
 # TidyTensor - More Fun with Deep Learning
