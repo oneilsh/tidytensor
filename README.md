@@ -1,4 +1,8 @@
 [![DOI](https://zenodo.org/badge/160564655.svg)](https://zenodo.org/badge/latestdoi/160564655)
+  <!-- badges: start -->
+  [![R-CMD-check](https://github.com/oneilsh/tidytensor/workflows/R-CMD-check/badge.svg)](https://github.com/oneilsh/tidytensor/actions)
+  <!-- badges: end -->
+
 
 ![TidyTensor Logo](docs/images/tidytensor_banner.png)
 
