@@ -1,5 +1,5 @@
-#' @export
-subset.tidytensor <- function(t, ...) {UseMethod("subset", t)}
+# #' @export
+#subset.tidytensor <- function(t, ...) {UseMethod("subset", t)}
 
 
 #' @export
@@ -15,7 +15,7 @@ subset.tidytensor <- function(t, ...) {UseMethod("subset", t)}
 #' @param t the tidytensor to apply over.
 #' @param ... named or unnamed parameters specifying subsetting criteria (see examples)
 #' @return a tidytensor
-#' @seealso \code{\link{shuffle()}}, \code{\link{c.tidytensor}}, \code{\link{permute.tidytensor}}
+#' @seealso \code{\link{shuffle}}, \code{\link{c.tidytensor}}, \code{\link{permute}}
 #' @examples
 #' # shape [100, 26, 26, 3]
 #' t <- as.tidytensor(array(rnorm(100 * 26 * 26 * 3), dim = c(100, 26, 26, 3)))
@@ -79,4 +79,8 @@ subset.tidytensor <- function(t, ..., drop = TRUE) {
 
   return(result)
 }
+
+
+
+
 

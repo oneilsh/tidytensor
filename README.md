@@ -1,4 +1,4 @@
-![TidyTensor Logo](tidytensor_banner.png)
+![TidyTensor Logo](docs/images/tidytensor_banner.png)
 
 # TidyTensor - More Fun with Deep Learning
 
@@ -425,7 +425,7 @@ images[1:4, , , ] %>%
     coord_equal()
 ```
 
-<img src="readme_images/cifar_multi.png" width=750>
+<img src="docs/images/cifar_multi.png" width=750>
 
 It's a little hard to make out, but these images are upside-down, because image data are typically encoded with an inverted y-axis, so next time we'll add a `scale_y_reverse()` as well. To get fancy, we can use `tidyr::spread()` to create individual `R`, `G`, and
 `B` columns, combined with `rgb()` and `scale_fill_identity()` to merge the channels into color images.
@@ -449,7 +449,7 @@ images[1:4, , , ] %>%
 ```
 
 
-<img src="readme_images/cifar_color.png" width=400>
+<img src="docs/images/cifar_color.png" width=400>
 
 These techniques work nicely for model investigation, for example in plotting internal feature maps produced by deep models. We'll start by importing a predefined model and creating a function that maps input tensors to feature maps using the `keras` API.
 
@@ -481,7 +481,7 @@ compute_featuremaps(images[1:4, , ,]) %>%
     scale_y_reverse() 
 ```
 
-<img src="readme_images/feature_maps.png" width=850>
+<img src="docs/images/feature_maps.png" width=850>
 
 
 ### Manipulation
@@ -834,7 +834,7 @@ images %>%
     scale_fill_gradient2()
 ```
 
-<img src="readme_images/featuremaps_scaled.png" width=750>
+<img src="docs/images/featuremaps_scaled.png" width=750>
 
 ### Future Work
 

@@ -50,8 +50,7 @@ dev_median <- function(t) {
 
 median_deviations <- tt_apply(t, sample, dev_median)
 print(median_deviations)
-
 }
 \seealso{
-\code{\link{index}}, \code{\link{c.tidytensor}}, \code{\link{permute.tidytensor}}
+\code{\link{c.tidytensor}}, \code{\link{permute}}
 }

@@ -55,5 +55,5 @@ print(t[2, "3", "rep2", , ])
 print(t2[2, "3_rep2", , ])
 }
 \seealso{
-\code{\link{permute}}, \code{\link{bind.tidytensor}}
+\code{\link{permute}}, \code{\link{bind}}
 }

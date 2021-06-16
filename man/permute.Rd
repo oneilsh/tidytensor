@@ -37,5 +37,5 @@ t2 <- permute(t, .dots = c("col", "sample", "row"))
 
 }
 \seealso{
-\code{\link{index}}, \code{\link{c.tidytensor}}
+\code{\link{c.tidytensor}}
 }

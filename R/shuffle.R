@@ -1,8 +1,4 @@
 #' @export
-shuffle <- function(t, seed = NULL) {UseMethod("shuffle", t)}
-
-
-#' @export
 #' @title Shuffle a tidytensor in the first rank.
 #'
 #' @description Shuffle's the entries in the first rank of a tensor. For example, if
@@ -14,7 +10,7 @@ shuffle <- function(t, seed = NULL) {UseMethod("shuffle", t)}
 #' @details Since tidytensor consider tensors as representing hierarchical "set of" relationships,
 #' shuffling in any rank other than the first would permute lower entities across set boundaries
 #' in higher ranks. For example, in a set of color images of shape (500, 28, 28, 3), shuffling the last rank
-#' would re-order the channels, but identically for all the images. See \code{\link{tt_apply()}} for applying functions
+#' would re-order the channels, but identically for all the images. See \code{\link{tt_apply}} for applying functions
 #' (such as shuffle) over lower ranks of a tensor.
 #'
 #'
@@ -23,7 +19,7 @@ shuffle <- function(t, seed = NULL) {UseMethod("shuffle", t)}
 #' @param seed random seed to be used for shuffling.
 #' @param ... unused
 #' @return a tidytensor of the same shape.
-#' @seealso \code{\link{tt_apply()}}, \code{\link{c.tidytensor}}, \code{\link{permute.tidytensor}}
+#' @seealso \code{\link{tt_apply}}, \code{\link{c.tidytensor}}, \code{\link{permute}}
 #' @examples
 #' # shape [100, 26, 26]
 #' t <- as.tidytensor(array(rnorm(100 * 26 * 26), dim = c(100, 26, 26)))
@@ -32,6 +28,9 @@ shuffle <- function(t, seed = NULL) {UseMethod("shuffle", t)}
 #'
 #' t <- shuffle(t, seed = 42)
 #'
+shuffle <- function(t, seed = NULL) {UseMethod("shuffle", t)}
+
+#' @export
 shuffle.tidytensor <- function(t, seed = NULL) {
   if(!is.null(seed)) {
     set.seed(seed)

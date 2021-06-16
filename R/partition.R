@@ -1,8 +1,4 @@
 #' @export
-partition <- function(x, sizes = c(0.5, 0.5)) {UseMethod("partition", x)}
-
-
-#' @export
 #' @title Partition a tidytensor into a list of smaller tidytensors of the same rank
 #'
 #' @description Partitions a tensor into pieces of sizes relative to \code{sizes}; e.g. a
@@ -22,7 +18,7 @@ partition <- function(x, sizes = c(0.5, 0.5)) {UseMethod("partition", x)}
 #' @param sizes relative sizes of partitions
 #' @param ... unused
 #' @return a list of tidytensors.
-#' @seealso \code{\link{index}}, \code{\link{c.tidytensor}}, \code{\link{permute.tidytensor}}
+#' @seealso \code{\link{c}}, \code{\link{permute}}
 #' @examples
 #' # shape [100, 26, 26]
 #' t <- as.tidytensor(array(rnorm(100 * 26 * 26), dim = c(100, 26, 26)))
@@ -31,7 +27,10 @@ partition <- function(x, sizes = c(0.5, 0.5)) {UseMethod("partition", x)}
 #'
 #' partitions <- partition(t, c(0.2, 0.8))
 #' print(partitions)
-#'
+partition <- function(x, sizes = c(0.5, 0.5)) {UseMethod("partition", x)}
+
+
+#' @export
 partition.tidytensor <- function(x, sizes = c(0.5, 0.5)) {
   sizes <- sizes / sum(sizes)
   num_entries <- dim(x)[1]
