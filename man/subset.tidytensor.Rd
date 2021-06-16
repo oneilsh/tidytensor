@@ -19,7 +19,7 @@ A functional form of e.g. \code{tensor[1:10, 3, ]}, supporting selecting by rank
 indexing when the rank is unknown.
 }
 \details{
-
+Subsetting a tidytensor with \code{subset()} as opposed to \code{[]} allows for subsetting even when the number of ranks of the input is unknown; see examples.
 }
 \examples{
 # shape [100, 26, 26, 3]
@@ -31,7 +31,8 @@ print(t)
 t2 <- subset(t, row = 1:10, sample = 27, drop = FALSE)
 print(t2)
 
-# same thing, but without named ranks (not a good idea to mixes named subsetting and non-named subsetting)
+# same thing, but without named ranks (not a good idea to mixes named
+# subsetting and non-named subsetting)
 t2 <- subset(t, 27, 1:10, drop = FALSE)
 print(t2)
 

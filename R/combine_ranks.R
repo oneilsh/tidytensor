@@ -25,20 +25,28 @@
 #'               t2 + rnorm(length(t2)), new_rank_name = "replicate")
 #' }
 #'
-#' #augment the original data by replacing each image with a set of noisy replicates
+#' # augment the original data by replacing each image with a set of
+#' # noisy replicates
 #' t <- tt_apply(t, image, make_noisy_images)
-#' # now t is shape (5, 20, 4, 26, 26) with ranknames (batch, image, replicate, row, col)
-#' # let's set some dimension names
-#' t <- set_dimnames_for_rank(t, image, .dots = 1:20)  # "1", "2", "3", ...
-#' t <- set_dimnames_for_rank(t, replicate, original, rep1, rep2, rep3) # "original", "rep1", "rep2", "rep3"
-
 #'
-#' # to make it compatible with the original shape we combine images and replicates
+#' # now t is shape (5, 20, 4, 26, 26)
+#' # with ranknames (batch, image, replicate, row, col)
+#' # let's set some dimension names
+#'
+#' # setting to "1", "2", "3", ...
+#' t <- set_dimnames_for_rank(t, image, .dots = 1:20)
+#'
+#' # setting to "original", "rep1", "rep2", "rep3"
+#' t <- set_dimnames_for_rank(t, replicate, original, rep1, rep2, rep3)
+#'
+#' # to make it compatible with the original shape we
+#' # combine images and replicates
 #' t2 <- combine_ranks(t, image, replicate)
 #'
 #' print(t2)
 #'
-#' # since the combined ranks both have demension names, the newly created rank does as well and we can verify contents
+#' # since the combined ranks both have dimension names, the newly
+#' # created rank does as well and we can verify contents
 #' # here we see that the second batch, image 3, replicate 2 is indeed the same
 #' print(t[2, "3", "rep2", , ])
 #' print(t2[2, "3_rep2", , ])
