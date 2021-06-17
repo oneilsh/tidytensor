@@ -15,7 +15,8 @@ Suggests:
     reticulate,
     stringr,
     keras,
-    dplyr
+    dplyr,
+    covr
 Imports:
     abind,
     purrr,
