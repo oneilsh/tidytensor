@@ -209,7 +209,6 @@ nicemat <- function(m, show_row_names = TRUE, show_col_names = TRUE, row_predims
 
 
 print_1d_bottom <- function(t, end_n = 6, show_names = TRUE, indent = 0, signif_digits = 3, ...) {
-  if(is.null(dim(t))) {stop("print_1d_bottom called on object t without dim(t).")}
   shape <- dim(t)
   t <- signif(t, signif_digits)
   if(length(shape) == 1) {
@@ -236,7 +235,6 @@ print_1d_bottom <- function(t, end_n = 6, show_names = TRUE, indent = 0, signif_
 }
 
 print_2d_bottom <- function(t, max_rows = 6, max_cols = 6, show_names = TRUE, indent = 0, signif_digits = 3, ...) {
-  if(is.null(dim(t))) {stop("print_2d_bottom called on object t without dim(t).")}
   shape <- dim(t)
   t <- signif(t, signif_digits)
   if(length(shape) == 2) {
@@ -264,7 +262,6 @@ print_2d_bottom <- function(t, max_rows = 6, max_cols = 6, show_names = TRUE, in
 
 
 print_3d_bottom <- function(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, indent = 0, signif_digits = 3, ...) {
-  if(is.null(dim(t))) {stop("print_3d_bottom called on object t without dim(t).")}
   shape <- dim(t)
   t <- signif(t, signif_digits)
   if(length(shape) == 3) {
