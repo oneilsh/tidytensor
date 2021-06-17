@@ -1,5 +1,28 @@
 if(FALSE) {
 
+
+  # as.tidytensor.factor(ggplot2::diamonds$cut)
+  # testing - probably need to make an as.tidytensor generic that can dispatch
+  as.tidytensor.factor <- function(xfac) {
+    num_levels <- length(levels(xfac))
+    level_names <- levels(xfac)
+    ints <- as.numeric(xfac)
+    arr <- array(rep(ints, num_levels), dim = c(length(xfac), num_levels))
+    arr <- apply(arr, MARGIN = 1, FUN = function(x) {
+      keep <- x[1]
+      x[T] <- 0
+      x[keep] <- 1
+      x
+    })
+    x <- as.tidytensor(arr)
+    x <- permute(x, 2, 1)
+    ranknames(x) <- c("entry", "label")
+    dimnames(x)$label <- level_names
+    set_dimnames_for_rank(x, "label", .dots = level_names)
+    x
+  }
+
+
 library(tidytensor)
 
 
