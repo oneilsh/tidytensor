@@ -6,6 +6,8 @@
 <br />
 <img src="man/figures/tidytensor_transparent.png" height=200px/>
 
+Ahem.
+
 TidyTensor is an R package for inspecting and manipulating tensors (multidimensional arrays). It provides an improved `print()` function for summarizing structure, named tensors, conversion to data frames, and high-level manipulation functions. Designed to complement the excellent `keras` package, functionality is layered on top of base R types.
 
 TidyTensor was inspired by a workshop I taught in deep learning with R, and a desire to explain and explore tensors in a more intuitive way.  
