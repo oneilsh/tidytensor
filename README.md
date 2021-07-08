@@ -30,6 +30,7 @@ A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don
 
 ### Changelog
 
+* v0.9.0: refactor `bottom` paramter of `print()` to `base_rank`
 * v0.8.2: minor bugfixes, new combine_ranks() function
 * v0.8.1: add [] and [] <- functionality
 * v0.8: first version on github

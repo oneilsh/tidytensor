@@ -3,16 +3,16 @@
 #'
 #' @description Prints a summary of a tidytensor as a nested hierarchy of tensors of lower rank.
 #'
-#' @details The \code{bottom} argument specifies whether the lowest ranks of the tensor should be shown as 2d matrices, 3d matrices, or 1d arrays; \code{"auto"} will
-#' select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image
-#' and a "channels-first" convention) or if there are only two ranks or if the last two ranks are equal, and otherwise will default to "1d".
+#' @details The \code{base_rank} argument specifies whether the lowest ranks of the tensor (displayed as a grid) should be shown as rank 2 tensors, rank 3 tensors, or rank 1 tensors; the default of \code{NULL} will
+#' select 3 if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), 2 if the 3rd-to-last rank is length 3 or 1 (assuming an image
+#' and a "channels-first" convention) or if there are only two ranks or if the last two ranks are equal (assuming an image channel of some kind), and otherwise will default to 1.
 #'
 #' \code{max_per_level} indicates how many replicates
 #'
 #' @param x a tidytensor to summarize.
 #' @param show_names show the dimension names, if present, or dimension indices if not in base-level prints.
 #' @param max_per_level only show this many sub-tensors per level.
-#' @param bottom either "auto", "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.
+#' @param base_rank either NULL, 1, 2, or 3 - specifies whether the inner/bottom-most tensors should be represented as rank 1, 2, or 3 in a grid (NULL for autodetect based on tensor shape, see details).
 #' @param max_rows limit the base-level prints to include this many rows (also applies to 1d prints).
 #' @param max_cols limit the base-level prints to include this many columns.
 #' @param max_depth in 3d representation, limit the base-level prints to include this many entries of the last rank.
@@ -23,39 +23,40 @@
 #' @examples
 #' t <- as.tidytensor(array(1:(2 * 3 * 4 * 5), dim = c(2, 3, 4, 5)))
 #' ranknames(t) <- c("samples", "batches", "rows", "cols")
-#' print(t, bottom = "2d")
+#' print(t, base_rank = 2)
 #'
 #' t <- as.tidytensor(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
 #' ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
-#' print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, bottom = "3d")
+#' print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, base_rank = 3)
 #'
-`print.tidytensor` <- function(x,  show_names = FALSE, max_per_level = 1, bottom = "auto", max_rows = 6, max_cols = 6, max_depth = 3, signif_digits = 3, indent = 0, ...) {
-  if(bottom == "auto") {
-    bottom = "1d"
+`print.tidytensor` <- function(x,  show_names = FALSE, max_per_level = 1, base_rank = NULL, max_rows = 6, max_cols = 6, max_depth = 3, signif_digits = 3, indent = 0, ...) {
+  # TODO: relying on short-circuiting || here which always makes me uncomfortable
+  if(is.null(base_rank) || length(base_rank) != 1 || !base_rank %in% c(1, 2, 3)) {
+    base_rank <- 1
     if(length(dim(x)) > 2) { # could be 3d
       if(dim(x)[length(dim(x))] %in% c(3, 1)) {          # looks like channels-first...
-        bottom = "3d"
+        base_rank <- 3
       } else if(dim(x)[length(dim(x))-2] %in% c(3, 1)) { # looks like channels-first... OR the lst two dimensions are exactly equal
-        bottom = "2d"
+        base_rank <- 2
       }
     }
     if(length(dim(x)) >= 2) {
       if((dim(x)[length(dim(x))] == dim(x)[length(dim(x)) - 1]) & dim(x)[length(dim(x))] > 3) { # if the last two are exactly equal, and greader than 3
-        bottom = "2d"
+        base_rank <- 2
       }
     }
   }
 
   shape <- dim(x)
-  if(bottom == "1d" & length(shape) == 1) {
+  if(base_rank == 1 & length(shape) == 1) {
     print_1d_bottom(x, end_n = max_rows, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
     return(invisible())
   }
-  if(bottom == "2d" & length(shape) == 2) {
+  if(base_rank == 2 & length(shape) == 2) {
     print_2d_bottom(x, max_rows = max_rows, max_cols = max_cols, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
     return(invisible())
   }
-  if(bottom == "3d" & length(shape) == 3) {
+  if(base_rank == 3 & length(shape) == 3) {
     print_3d_bottom(x, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
     return(invisible())
   }
@@ -81,7 +82,7 @@
     subt <- tt_index(x, i, dimension = 1, drop = FALSE) # equiv of t[i, , , ] for a rank-4 tensor, but we don't know the rank hence calling tt_index
     # abind::adrop removes class when only one dim left?
     subt <- tt(abind::adrop(subt, drop = 1)) # ... drop here
-    print(subt, show_names = show_names, max_per_level = max_per_level, bottom = bottom, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, signif_digits = signif_digits, indent = indent + 1, ...)
+    print(subt, show_names = show_names, max_per_level = max_per_level, base_rank = base_rank, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, signif_digits = signif_digits, indent = indent + 1, ...)
   }
   cat_indent(size = indent+1, is.tensor = FALSE)
   #left <- dim(t)[1] - max_per_level

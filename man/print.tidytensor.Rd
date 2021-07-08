@@ -8,7 +8,7 @@
   x,
   show_names = FALSE,
   max_per_level = 1,
-  bottom = "auto",
+  base_rank = NULL,
   max_rows = 6,
   max_cols = 6,
   max_depth = 3,
@@ -24,7 +24,7 @@
 
 \item{max_per_level}{only show this many sub-tensors per level.}
 
-\item{bottom}{either "auto", "1d", "2d", or "3d" - specifies whether the inner-most tensors should be represented as rank 1, 2, or 3.}
+\item{base_rank}{either NULL, 1, 2, or 3 - specifies whether the inner/bottom-most tensors should be represented as rank 1, 2, or 3 in a grid (NULL for autodetect based on tensor shape, see details).}
 
 \item{max_rows}{limit the base-level prints to include this many rows (also applies to 1d prints).}
 
@@ -42,20 +42,20 @@
 Prints a summary of a tidytensor as a nested hierarchy of tensors of lower rank.
 }
 \details{
-The \code{bottom} argument specifies whether the lowest ranks of the tensor should be shown as 2d matrices, 3d matrices, or 1d arrays; \code{"auto"} will
-select "3d" if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), "2d" if the 3rd-to-last rank is length 3 or 1 (assuming an image
-and a "channels-first" convention) or if there are only two ranks or if the last two ranks are equal, and otherwise will default to "1d".
+The \code{base_rank} argument specifies whether the lowest ranks of the tensor (displayed as a grid) should be shown as rank 2 tensors, rank 3 tensors, or rank 1 tensors; the default of \code{NULL} will
+select 3 if the last rank is of size 3 or 1 (assuming an image and a "channels-last" convention), 2 if the 3rd-to-last rank is length 3 or 1 (assuming an image
+and a "channels-first" convention) or if there are only two ranks or if the last two ranks are equal (assuming an image channel of some kind), and otherwise will default to 1.
 
 \code{max_per_level} indicates how many replicates
 }
 \examples{
 t <- as.tidytensor(array(1:(2 * 3 * 4 * 5), dim = c(2, 3, 4, 5)))
 ranknames(t) <- c("samples", "batches", "rows", "cols")
-print(t, bottom = "2d")
+print(t, base_rank = 2)
 
 t <- as.tidytensor(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
 ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
-print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, bottom = "3d")
+print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, base_rank = 3)
 
 }
 \seealso{

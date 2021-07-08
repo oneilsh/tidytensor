@@ -12,12 +12,12 @@ test_that("basic print() works properly", {
   expect_invisible( print(t, show_names = TRUE) )
   expect_invisible( print(t, show_row_names = TRUE) )
   expect_invisible( print(t, show_col_names = TRUE) )
-  expect_invisible( print(t, bottom = "2d") )
-  expect_invisible( print(t, bottom = "1d") )
+  expect_invisible( print(t, base_rank = 2) )
+  expect_invisible( print(t, base_rank = 2) )
 
   t_channels_last <- permute(t, sample, row, col, channel)
   expect_invisible( print(t_channels_last) )
-  expect_invisible( print(t_channels_last, bottom = "3d") )
+  expect_invisible( print(t_channels_last, base_rank = 3) )
 
   expect_invisible( print(t, max_per_level = 2) )
   expect_invisible( print(t, signif_digits = 5) )
