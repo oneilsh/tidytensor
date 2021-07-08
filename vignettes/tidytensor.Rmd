@@ -1,14 +1,10 @@
 ---
 title: "Getting Started"
-output: 
-  html_document:
-    css: style.css
 ---
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-set.seed(42)
 ```
 
 ## Terminology
@@ -92,7 +88,27 @@ samples <- array(runif(10*44100), dim = c(10, 44100)) %>% tt()
 samples
 ```
 
-### Bottom
+Notice that the "base" of this tensor is displayed as a set of rank 1 tensors; in our channels-first representation we saw the base as a rank 2 tensor, and in the channels-last representation we saw rank 3 tensors (each displayed a grid of rank 1 tensors). These can be explicitly chosen with the `base_rank` option, which is possibly better illustrated with a small tensor of shape `(10, 3, 4, 2)`.
+
+```{r}
+data <- array(runif(10*3*4*2), dim = c(10, 3, 4, 2)) %>% tt()
+print(data, base_rank = 1)
+print(data, base_rank = 2)
+print(data, base_rank = 3)
+```
+
+The default for `base_rank` is `NULL`, in which case the base-rank will be determined automatically by the shape of the tensor; if it looks like the tensor contains images in a channels-last configuration (last rank is of size 3 or 1) then `base_rank` will be set to `3`, if it looks like an image in channels-first configuration (3rd-last-rank is of size 3, or the last two ranks are of the same size) it will be set to `2`, otherwise it will be set to `1`.
+
+## Named Ranks
+
+TidyTensors support `ranknames()` in addition to traditional `dimnames()` (implemented as `names(dimnames())`) for meaningful rank annotation. 
+
+```{r}
+library(keras)
+
+images <- dataset_cifar10()$train$x
+images %>% tt()
+```
 
 <!-- <div class="fold o"> -->
 <!-- ```{r} -->

@@ -4,10 +4,9 @@ template:
   bslib:
     code_color: "#cc576b"
 
-#home:
-#  sidebar:
-#    structure: [authors, license, dev]
-
+home:
+  sidebar:
+    structure: [authors, license, dev]
 
 authors:
   "Shawn T. O'Neil":
