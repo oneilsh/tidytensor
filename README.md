@@ -26,7 +26,7 @@ TidyTensor was inspired by a workshop I taught in deep learning with R, and a de
 
 ### Installation
 
-A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don't have `devtools`, grab it with `install.packages("devtools")`. 
+A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don't have `devtools`, grab it with `install.packages("devtools")`.
 
 ### Changelog
 
