@@ -1,0 +1,15 @@
+template:
+  bootstrap: 4
+  bootswatch: yeti
+  bslib:
+    code_color: "#cc576b"
+
+home:
+  sidebar:
+    structure: [authors, license, dev]
+
+
+authors:
+  "Shawn T. O'Neil":
+    href: http://shawntoneil.com
+

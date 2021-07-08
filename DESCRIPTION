@@ -3,8 +3,11 @@ Type: Package
 Title: TidyTensor
 Version: 0.8.2
 Date: 2018-12-05
-Author: Shawn T. O'Neil
-Maintainer: Shawn T. O'Neil <oneilsh@gmail.com>
+Authors@R: c(
+    person("Shawn T.", "O'Neil", middle = NULL, "shawn@tislab.org", role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0001-6220-7080")
+    )
+  )
 Description: Provides functions for working with tensors (vectors, matrices, 
     or multidimensional arrays) as named hierarchical data structures. 
 License: MIT + file LICENSE

@@ -3,9 +3,8 @@
 [![codecov](https://codecov.io/gh/oneilsh/tidytensor/branch/master/graph/badge.svg?token=GWMT57CGDK)](https://codecov.io/gh/oneilsh/tidytensor)  
 
 
-![TidyTensor Logo](docs/images/tidytensor_banner.png)
-
-# TidyTensor - More Fun with Deep Learning
+<br />
+<img src="man/figures/tidytensor_transparent.png" height=200px/>
 
 TidyTensor is an R package for inspecting and manipulating tensors (multidimensional arrays). It provides an improved `print()` function for summarizing structure, named tensors, conversion to data frames, and high-level manipulation functions. Designed to complement the excellent `keras` package, functionality is layered on top of base R types.
 
@@ -31,11 +30,9 @@ A simple `devtools::install_github("oneilsh/tidytensor")` will do it. If you don
 
 ### Changelog
 
-0.8.2: minor bugfixes, new combine_ranks() function
-
-0.8.1: add [] and [] <- functionality
-
-0.8: first version on github
+* v0.8.2: minor bugfixes, new combine_ranks() function
+* v0.8.1: add [] and [] <- functionality
+* v0.8: first version on github
 
 ### Background
 

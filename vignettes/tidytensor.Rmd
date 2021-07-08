@@ -1,0 +1,102 @@
+---
+title: "Getting Started"
+output: 
+  html_document:
+    css: style.css
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+set.seed(42)
+```
+
+## Terminology
+
+*Tensors* as used in machine and deep learning are multi-dimensional array structures. In addition to being space efficient they provide a common framework for [automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation), the engine of deep neural network training. 
+
+Some packages, notably the R interfaces to [tensorflow](https://tensorflow.rstudio.com/) and [keras](https://keras.rstudio.com/), use native R structures for tensor storage, in the form of vectors (for 1-dimentional arrays), matrices (2 dimensions), and higher dimensional arrays. 
+
+Tensors usually represent "set of" relationships. For example, a vector like `point <- c(20.2, 19.1, 24.8)` might represent a 1-dimensional tensor storing a point in space as X, Y, and Z coordinate values. A matrix of the form `points <- matrix(runif(10*3), ncol = 3, nrow = 10)` would represent 10 such points, with `points[6, ]` accessing the sixth. However, tensors are not often referred to by their "dimensionality" to avoid confusing array dimensions with data dimensions; rather, we'd call our point (a 1-d array) a "rank 1 tensor" and our matrix of points (a 2-d array) a "rank 2 tensor". 
+
+On the other hand, it is common to refer to specific "dimensions" of an array as "axes" (Python's `numpy` refers to axes of multidimensional arrays for example). TidyTensor eschews this as well in favor of rank-based nomenclature; rather than referring to the first and second axes of `points` (slicing data by point and spatial coordinate respectively), we'll refer to the first and second ranks. Tensors also have a *shape*, which is conveniently returned by R's `dim()` function. The `point` tensor has shape `(3)` (parentheses are used to denote a shape vector) while `points` has shape `(10, 3)`. 
+
+## Printing to check structure
+
+While simple rank 1, 2, or 3 tensors are easy enough to understand and work with, things become more complex for higher-rank tensors. However, higher-rank tensors often encode "set of" relationships that we can exploit to quickly navigate data. 
+
+Take for example a rank 2 tensor with shape `(28, 28)`, which might represent a small grayscale image. We can generate one with some fake data, and we run the result through `as.tidytensor()` which converts it to an array type (for consistency) and adds the `tidytensor` class to the matrix to provide a custom `print()`:
+
+```{r}
+library(tidytensor)
+library(magrittr)
+
+image <- matrix(runif(28 * 28), nrow = 28, ncol = 28) %>% as.tidytensor()
+image
+```
+
+Three of these stored in a rank 3 tensor of shape `(3, 28, 28)` could represent an image (with R, G, and B channel values). The `tt()` function is a shortcut for `as.tidytensor()`. 
+
+```{r}
+image <- array(runif(3*28*28), dim = c(3, 28, 28)) %>% tt()
+image
+```
+
+The printout above is showing only the first of the 3 channel tensors, with `...` indicating more exist inside the first rank (representing channels); we can see more by calling `print()` explicitly and adding a larger `max_per_level` argument:
+
+```{r}
+print(image, max_per_level = 2)
+```
+
+Similarly, a set of 24 of these might represent one second of a color video clip (24 RGB color images at a rate of 24 frames/second).
+
+```{r}
+video <- array(runif(24*3*28*28), dim = c(24, 3, 28, 28)) %>% tt() 
+print(video, max_per_level = 2)
+```
+
+With `max_per_level = 2`, this printout is showing the first 2 channels of the first 2 frames of the video. 
+
+We can continue in this way: a set of 256 of thesemight represent a training batch of 256 1-second color videos. Here we show a couple of other printing option that might be useful:
+
+```{r}
+videos <- array(runif(256*24*3*28*28), dim = c(256, 24, 3, 28, 28)) %>% tt()
+videos
+```
+
+This view provides a quick summary of the structure of a tensor, much better than R's default print which assumes we're using [column- major ordering](https://www.r-bloggers.com/2013/07/column-major-confusion/) for high-dimensional arrays (output scrolls):
+
+```{r, attr.output='style="max-height: 200px;"'}
+unclass(videos) # remove tidytensor class to convert back to basic R array
+```
+
+The above tensor stores data in a "channels first" representation, where the channels rank comes before the image row and column ranks. It's not uncommon to use a "channels last" representation, in this case the print notices the last rank has a size of 3 and assumes we're printing an image in channels-last configuration:
+
+```{r}
+videos <- array(runif(256*24*28*28*3), dim = c(256, 24, 28, 28, 3)) %>% tt()
+videos
+```
+
+In this structure, each image is represented by a 28x28 matrix of length-3 R,G,B values. Since the above is a little too wide to fit nicely let's adjust some parameters of the printout.
+
+```{r}
+print(videos, max_rows = 4, max_cols = 3, signif_digits = 2, max_per_level = 2)
+```
+
+Now we can more clearly see the data organized in the final "pixel" rank.
+
+Not all tensors store image data, for example a 1 second audio clip sampled at 44.1 kHz might be stored as a rank 1 tensor of shape `(44100)`, ten of these would have shape `(10, 44100)`.
+
+```{r}
+samples <- array(runif(10*44100), dim = c(10, 44100)) %>% tt()
+samples
+```
+
+### Bottom
+
+<!-- <div class="fold o"> -->
+<!-- ```{r} -->
+<!-- samples <- array(runif(10*44100), dim = c(10, 44100)) %>% tt() -->
+<!-- samples -->
+<!-- ``` -->
+<!-- </div> -->
