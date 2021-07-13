@@ -6,7 +6,7 @@ template:
 
 home:
   sidebar:
-    structure: [authors, license, dev]
+    structure: [authors, license, community, dev]
 
 authors:
   "Shawn T. O'Neil":

@@ -15,7 +15,10 @@ Some packages, notably the R interfaces to [tensorflow](https://tensorflow.rstud
 
 Tensors usually represent "set of" relationships. For example, a vector like `point <- c(20.2, 19.1, 24.8)` might represent a 1-dimensional tensor storing a point in space as X, Y, and Z coordinate values. A matrix of the form `points <- matrix(runif(10*3), ncol = 3, nrow = 10)` would represent 10 such points, with `points[6, ]` accessing the sixth. However, tensors are not often referred to by their "dimensionality" to avoid confusing array dimensions with data dimensions; rather, we'd call our point (a 1-d array) a "rank 1 tensor" and our matrix of points (a 2-d array) a "rank 2 tensor". 
 
-On the other hand, it is common to refer to specific "dimensions" of an array as "axes" (Python's `numpy` refers to axes of multidimensional arrays for example). TidyTensor eschews this as well in favor of rank-based nomenclature; rather than referring to the first and second axes of `points` (slicing data by point and spatial coordinate respectively), we'll refer to the first and second ranks. Tensors also have a *shape*, which is conveniently returned by R's `dim()` function. The `point` tensor has shape `(3)` (parentheses are used to denote a shape vector) while `points` has shape `(10, 3)`. 
+On the other hand, it is common to refer to specific "dimensions" of an array as "axes" (Python's `numpy` refers to axes of multidimensional arrays for example). TidyTensor eschews this as well in favor of rank-based nomenclature; rather than referring to the first and second axes of `points` (slicing data by point and spatial coordinate respectively), we'll refer to the first and second ranks. Tensors also have a *shape*, which is conveniently returned by R's `dim()` function. The `point` tensor has shape `(3)` (parentheses are used to denote a shape vector) while `points` has shape `(10, 3)`. Lastly, "margins" is frequently used to refer to individual ranks/axes in R functions such as `apply()`. 
+
+<br />
+<br />
 
 ## Printing to check structure
 
@@ -62,7 +65,7 @@ videos
 
 This view provides a quick summary of the structure of a tensor, much better than R's default print which assumes we're using [column- major ordering](https://www.r-bloggers.com/2013/07/column-major-confusion/) for high-dimensional arrays (output scrolls):
 
-```{r, attr.output='style="max-height: 200px;"'}
+```{r, attr.output='style="max-height: 205px;"'}
 unclass(videos) # remove tidytensor class to convert back to basic R array
 ```
 
@@ -99,16 +102,352 @@ print(data, base_rank = 3)
 
 The default for `base_rank` is `NULL`, in which case the base-rank will be determined automatically by the shape of the tensor; if it looks like the tensor contains images in a channels-last configuration (last rank is of size 3 or 1) then `base_rank` will be set to `3`, if it looks like an image in channels-first configuration (3rd-last-rank is of size 3, or the last two ranks are of the same size) it will be set to `2`, otherwise it will be set to `1`.
 
+<br />
+<br />
+
 ## Named Ranks
 
-TidyTensors support `ranknames()` in addition to traditional `dimnames()` (implemented as `names(dimnames())`) for meaningful rank annotation. 
+TidyTensors support `ranknames()` in addition to traditional `dimnames()` (implemented as `names(dimnames())`) for meaningful rank annotation. Let's consider the CIFAR10 dataset distributed with `keras`:
 
 ```{r}
 library(keras)
 
-images <- dataset_cifar10()$train$x
-images %>% tt()
+cifar10_raw <- dataset_cifar10()$train$x 
+cifar10_raw %>% tt()
 ```
+
+This appears to be a set of 50000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the tidy-friendly `set_ranknames()`, and the `.dots` parameter can be used to provide ranknames as a character vector.
+
+```{r}
+# Base-R style
+images <- tt(cifar10_raw)
+ranknames(images) <- c("image", "row", "col", "channel")
+
+# OR
+images <- cifar10_raw %>% 
+  tt() %>%
+  set_ranknames(image, row, col, channel)
+
+# OR
+# cifar10_raw %>%
+#   tt() %>%
+#   set_ranknames(.dots = c("image", "row", "col", "channel"))
+```
+
+Named ranks make a variety of operations more explicity. For example to set dimension names for single rank we can use `set_dimnames_for_rank()` rather than base-R `dimnames()`.
+
+```{r}
+cifar10_raw %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  set_dimnames_for_rank(row, .dots = paste("row", 1:32)) %>%
+  print(show_dimnames = T, max_cols = 5)
+```
+Dimension names are currently only shown for the last ranks displayed in the grid when using `show_dimnames`, and ranks without dimnames will show index numbers instead. In the above display the value `59` is accessible at index `[1, "row 1", 1, "R"]`.
+
+<br />
+<br />
+
+## Subsetting, Data Frame Conversion
+
+Named ranks are also useful when converting a tensor to a data frame. We’ll convert just the first four images, because tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). Rather than selecting the first four images with `cifar10_raw[1:4, , , ]`, we'll demonstrate the `subset()` function for TidyTensors which supports a variety of syntax (see the help docs):
+
+```{r}
+cifar10_raw %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  set_dimnames_for_rank(row, .dots = paste("row", 1:32)) %>%
+  subset(image = 1:4) %>%
+  as.data.frame() %>%
+  head()
+```
+
+Non-named tensors get generic column names. In the case of ranks with dimnames set as in `channel` and `row` above, factors are created with the level ordering determined by the ordering of the dimension names. This provides a nice interface for visualizing image tensor data with `ggplot2`.
+
+```{r}
+library(ggplot2)
+
+cifar10_raw %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  # set_dimnames_for_rank(row, .dots = paste("row", 1:32)) %>%    # no need for this for plotting
+  subset(image = 1:4) %>%
+  as.data.frame() %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = value)) +
+    facet_grid(channel ~ image) +
+    coord_equal()
+```
+
+It’s a little hard to make out, but these images are upside-down, because image data are typically encoded with an inverted y-axis, so next time we’ll add a `scale_y_reverse()` as well. To get fancy, we can use `tidyr::spread()` to create individual `R`, `G`, and `B` columns, combined with `rgb()` and `scale_fill_identity()` to merge the channels into color images.
+
+```{r}
+library(tidyr)
+
+cifar10_raw %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  subset(image = 1:4) %>%
+  as.data.frame() %>%
+  spread(channel, value) %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = rgb(R, G, B, maxColorValue = 255))) +
+    facet_wrap( ~ image) +
+    coord_equal() +
+    scale_y_reverse() +
+    scale_fill_identity()
+```
+
+These techniques work nicely for model investigation, for example in plotting internal feature maps produced by deep models. For an example, we'll start by importing a predefined model and creating a function that maps input tensors to feature maps using the `keras` API.
+
+```{r}
+vgg_model <- application_vgg16(include_top = FALSE, input_shape = c(32, 32, 3))
+
+input <- vgg_model$input
+output <- get_layer(vgg_model, name = "block1_conv2")$output
+
+# input shape (N, 32, 32, 3)
+# output shape (N, 32, 32, 64) tensor, where last rank are feature maps
+compute_featuremaps <- k_function(input, output)
+```
+
+To visualize the feature maps we generate an output tensor, name it, convert it to data frame, select only the first six featuremaps with `dplyr::filter()` to keep it reasonable, and then plot the values.
+
+```{r}
+library(dplyr)
+
+cifar10_raw %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  set_dimnames_for_rank(channel, R, G, B) %>%
+  subset(image = 1:4) %>%
+  compute_featuremaps() %>% 
+  tt() %>%                           # compute_featuremaps() doesn't return a TidyTensor
+  set_ranknames(image, row, col, featuremap) %>%
+  as.data.frame() %>%
+  filter(featuremap <= 6) %>%
+  ggplot() +
+    geom_tile(aes(x = col, y = row, fill = value)) +
+    facet_grid(image ~ featuremap) +
+    coord_equal() +
+    scale_y_reverse() 
+```
+
+
+<br />
+<br />
+
+## Permuting, Stitching, and Binding
+
+A few functions are included for transforming or working with tensors. First up is `permute()` which allows us to re-order the ranks of a TidyTensor, for example to convert to a channels-first representation.
+
+```{r}
+cifar10 <- cifar10_raw %>%
+  tt() %>%
+  set_ranknames(image, row, col, channel) %>%
+  set_dimnames_for_rank(channel, R, G, B)
+
+cifar10
+
+cifar10 %>% permute(image, channel, row, col)
+```
+The `stitch()` and `bind()` functions help us combine multiple tensors into one. To start with let's use `subset()` to get a few different subsets of our images.
+
+```{r}
+seta <- subset(cifar10, image = 1:4)      # shape (4, 32, 32, 3)
+setb <- subset(cifar10, image = 5:8)      # shape (4, 32, 32, 3)
+setc <- subset(cifar10, image = 9:12)     # shape (4, 32, 32, 3)
+setd <- subset(cifar10, image = 101:200)  # shape (100, 32, 32, 3)
+```
+
+The `stitch()` function concatenates multiple tensors of the same shape *except* for the first rank, into a single tensor representing a concatenated set. (`stitch()` can also take a list of such tensors, which is why it's named `stitch()` and not `c()`.)
+
+```{r}
+merged <- stitch(seta, setb, setc, setd)
+
+print(merged, max_cols = 5)
+```
+`bind()`, on the other hand, collects multiple tensors of the *exact* same shape into a new tensor with one higher rank. 
+
+```{r}
+bound <- bind(seta, setb, setc, new_rank_name = "set")
+bound
+```
+<br />
+<br />
+
+## Partitioning, List Conversion, and Shuffling
+
+The `partition()` function works as an inverse of `stitch()`, partitioning a tensor into a list of tensors of relative proportions along the first rank, which may be handy for generating train/validate/test splits (particularly when combined with `shuffle()`, below). The result is a list of TidyTensors.
+
+```{r}
+split_images <- partition(cifar10, c(0.1, 0.1, 0.8))   # given proportions will be normalized to sum to 1.0
+split_images
+```
+
+Converting to a list with `as.list()` produces a list of *each* tensor from the first rank (with the first rank dropped). Note that the list names indicate the rank name, entry index, and shape of the contained tensor.
+
+```{r}
+cifar10 %>%
+  subset(image = 1:3) %>%
+  as.list() %>% 
+  str()
+```
+
+By default `as.list()` splits along the first rank. It’s possible to split at ranks lower than the first, in which case all of the sub-tensors at that level become list elements. (This function can take while if the resulting list is very large, which is quite possible with large tensors.) In this example we first go to a channels-first representation, and then split out each channel of each list into a list element. 
+
+```{r}
+cifar10 %>%
+  subset(image = 1:3) %>%
+  permute(image, channel, row, col) %>%
+  as.list(rank = channel)
+```
+
+If `flatten = FALSE`, a nested list is returned (compatible with for example the `data.tree` package, note that this output scrolls).
+
+```{r, attr.output='style="max-height: 205px;"'}
+cifar10 %>%
+  subset(image = 1:3) %>%
+  permute(image, channel, row, col) %>%
+  as.list(rank = channel, flatten = FALSE) %>%
+  str()
+```
+
+As a reminder with all this list-of-tensors making, `bind()` and `stitch()` can each take a list of tensors as opposed to one-per-parameter, so they can be used on results of `partition()` and `as.list()`. Here's a more involved example of grabbing every image where the green channel is brightest (from the first 100 to speed things up): we first deconstruct the tensor into a list, then use `purrr::keep()` to filter them, and since each element is also a TidyTensor we can use `subset()` to select by channel dimension and run the resulting tensors though `mean()` before returning `TRUE` or `FALSE`. The resulting filtered list is then run through `bind()` re-specifying the new binding rankname as `"image"` (since `as.list()` strips off the first ranks for the contained tensors). 
+
+
+```{r}
+library(purrr)
+
+cifar10 %>%
+  as.list() %>%
+  keep(function(image_tensor) {
+    mean_green <- image_tensor %>% subset(channel = "G") %>% mean()
+    mean_other <- image_tensor %>% subset(channel = c("R", "B")) %>% mean()
+    mean_green > mean_other
+  }) %>% 
+  bind(new_rank_name = "image")
+```
+Because the tensor is deconstructed into a list and then reconstructed, this isn't a very efficient way to solve this problem. We'll see a faster alternative below using `tt_apply()`. 
+
+The `shuffle()` function simply shuffles a tensor along the first rank, for example `cifar10 %>% shuffle()` would return the same data, in the same shape, but entries in the first rank will be randomly permuted. A `seed` parameter can be used to set the shuffling random seed for repeatbility; in conjunction with `partition()` this can be used to create matched train/test splits. To illustrate this, we'll start by getting the corresponding target values for the `cifar10` images. First we check the structure:
+
+```{r}
+cifar10_targets_raw <- dataset_cifar10()$train$y
+cifar10_targets_raw %>% tt()
+```
+
+Then we'll create a named version:
+
+```{r}
+cifar10_targets <- cifar10_targets_raw %>% tt() %>% set_ranknames(image, target)
+cifar10_targets
+```
+
+Now we can similarly shuffle both datasets before running them through `partition()`. 
+
+```{r}
+cifar10_targets_split <- cifar10_targets %>%
+  shuffle(seed = 42) %>%
+  partition(c(0.2, 0.8))
+  
+print(cifar10_targets_split)
+
+cifar10_split <- cifar10 %>%
+  shuffle(seed = 42) %>%
+  partition(c(0.2, 0.8))
+
+print(cifar10_split, max_cols = 3)
+```
+
+<br />
+<br />
+
+## Applying, Combining Ranks
+
+
+Finally we have `tt_apply()`, TidyTensor’s alternative to base-R `apply()` (we don't override `apply()` since TidyTensors are also native R types). While `apply()` allows applying a function over arbitrary ranks of an array with the `MARGIN` parameter, it not only removes `class` and other attributes from the returned output, it *deconstructs* each call’s return value into a vector, before prepending it to the remaining ranks. If `t` has shape `(500, 3, 26, 26)` and `normalize()` is a function that returns an array of the same shape as its input, `apply(t, MARGIN = c(1, 2), normalize)` doesn’t return a tensor of the same shape as `t`, but rather shape `c(26 * 26, 500, 3)`. The `tt_apply()` function uses `apply()` under the hood, but puts all the pieces back together nicely and is rankname-aware for both function inputs and outputs.
+
+However, `tt_apply()` is limited compared to `apply()` in one respect, it only applies over the first N ranks, to stick with the sets-of-sets metaphor for tensors. If `t` has ranknames `c("video", "image", "channel", "row", "col")`, we can `tt_apply()` over every video, or every image (within each video), or every channel (within each within each image inside of each video), and so on. Should a different grouping be desired, `permute()` can help.
+
+Consider the following `normalize()` function:
+
+```{r}
+# scales to [0, 1]
+normalize <- function(t) {
+  t <- t - min(t)
+  t <- t / max(t)
+  return(t)
+}
+```
+
+For pre-processing, rather than scale the entire dataset to a [0,1] range, perhaps we’d like to do so for each channel of each image, maximizing the dynamic range utilized (that this might not actually be a useful strategy in a deep-learning context). If given a TidyTensor, this function normalizes values to a [0, 1] range and returns it with TidyTensor attributes intact. (Some R functions strip class and other attributes for their output, `apply()` and `scale()` are notable examples. Calling these on a TidyTensor will not result in a TidyTensor being returned.)
+
+```{r}
+images_channel_normalized <- cifar10 %>%
+  permute(image, channel, row, col) %>%       # permute to channels-first represtation
+  tt_apply(channel, normalize) %>%            # apply normalize() to each channel
+  permute(image, row, col, channel)           # permute back to channels-last
+
+print(images_channel_normalized, max_cols = 3, signif_digits = 2)
+```
+Notice that here we’ve organized the data channel-first so we can do our per-image, per-channel normalization, then permuted back to the original. Even though `tt_apply()` is built on base-R `apply()`, applying can take some time as a function call is being executed for each entry asked for and there can be quite a few in a large tensor.
+
+The function call results needn’t match their input shape: `tt_apply()` just needs returned result to be tensors (vectors, matrices, arrays, or TidyTensors) all of the same shape. TidyTensors are usually numeric, but they can also be logical or character; this allows us to use `tt_apply()` to filter to only images with a green channel brighter than user using an indexing strategy.
+
+
+
+```{r}
+selection <- cifar10 %>%
+  tt_apply(image, function(image_tensor) {
+    mean_green <- image_tensor %>% subset(channel = "G") %>% mean()
+    mean_other <- image_tensor %>% subset(channel = c("R", "B")) %>% mean()
+    mean_green > mean_other
+  })
+
+selection
+
+cifar10_normalized <- cifar10 %>% subset(image = selection)
+
+cifar10_normalized
+```
+Applying a function can also be useful for [data augmentation](https://en.wikipedia.org/wiki/Data_augmentation), where we want to generate
+adjusted versions of input examples. Here's a function which duplicates a tensor 3 times adding Gaussian noise to each, returning the result as a new batch of tensors with a `replicate` rank to distinguish them. (This is not a very useful data augmentation method, but just meant to illustrate the technique.)
+
+```{r}
+augment <- function(t) {
+  len <- length(t)             # length() returns number of elements regardless of shape
+  t2 <- t + rnorm(n = len)     # default of 0 mean, 1 variance 
+  t3 <- t + rnorm(n = len)
+  t4 <- t + rnorm(n = len)
+  return(bind(t, t2, t3, t4, new_rank_name = "replicate"))
+}
+
+```
+
+Now we can apply this to each image of our normalized data:
+
+```{r}
+cifar10_augmented <- cifar10 %>% 
+  tt_apply(image, augment)
+
+print(cifar10_augmented, max_cols = 4, max_per_level = 2)
+```
+
+However, we likely don't want to explictly model the `replicate` rank when training on this data; instead of a set of images each each containing a number of replicates, we'd prefer to just consider the replicas as individual images. The `combine_ranks()` function helps to accomplish exactly this, and can only be applied to consecutive ranks (again, `permute()` can be useful to get ranks in the right order).
+
+```{r}
+cifar10_augmented_combined <- cifar10_augmented %>% combine_ranks(image, replicate)
+
+print(cifar10_augmented_combined, max_cols = 4, max_per_level = 2)
+```
+By default, the combined new rank name is built from the existing rank names being combined, we could alternatively specify the new name explicitly with e.g. `combine_ranks(image, replicate, new_rank_name = "image")`.
+
+
 
 <!-- <div class="fold o"> -->
 <!-- ```{r} -->
