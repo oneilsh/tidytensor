@@ -5,7 +5,7 @@ Version: 0.9.0
 Date: 2018-12-05
 Authors@R: c(
     person("Shawn T.", "O'Neil", middle = NULL, "shawn@tislab.org", role = c("aut", "cre"),
-      comment = c(ORCID = "0000-0001-6220-7080")
+      comment = c(ORCID = "0000-0001-6220-7080", Affiliation = "Center for Health AI, University of Colorado Anschutz Medical Campus")
     )
   )
 Description: Provides functions for working with tensors (vectors, matrices, 

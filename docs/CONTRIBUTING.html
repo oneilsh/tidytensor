@@ -44,8 +44,8 @@
 <h2 class="hasAnchor">
 <a href="#specific-needs" class="anchor" aria-hidden="true"></a>Specific Needs</h2>
 <p>Although TidyTensor’s <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> function is the original <em>raison d’être</em> for the package, there is still a lot of room for improvement (up to and including a full reimplementation). We also welcome additional suggestions for inspecting, browsing, or visualizing the structure and content of large tensors, for example via plots or interactive Shiny dashboards.</p>
-<p>Assigning values to TidyTensors is possible (with e.g. <code>t[, , , "R"] &lt;- 0</code> to zero out the red channel in a channels-last image tensor), but the implementation is significantly slower than for base-R arrays where <code>[&lt;-</code> is dispatched to a primitive function.</p>
-<p>Aside from these improvements to base functionality, additional functions for ‘tensorifying’ common data types would be beneficial. For example, this package originally included functionality to produce tensor-encoded versions of <a href="https://en.wikipedia.org/wiki/FASTA_format" class="external-link">fasta files</a> commonly used in bioinformations applications–remnants of these efforts can be found in the source. Because these require dependencies (on e.g. <code>Rsamtools</code> and <code>GenomicRanges</code>) and are field-specific needs, these may be better placed in a separate package with a dependency on TidyTensor.</p>
+<p>Assigning values to TidyTensors is possible (with e.g. <code>t[, , , "R"] &lt;- 0</code> to zero out the red channel in a channels-last image tensor), but the implementation is significantly slower than for base-R arrays where <code>[&lt;-</code> is dispatched to a primitive function. Improvements or suggestions here are welcome.</p>
+<p>Aside from these improvements to base functionality, additional functions for ‘tensorifying’ common data types would be beneficial. For example, early versions of TidyTensor included functionality to produce tensor-encoded versions of <a href="https://en.wikipedia.org/wiki/FASTA_format" class="external-link">fasta files</a> commonly used in bioinformations applications–remnants of these efforts can be found in the source. Because these require dependencies (on e.g. <code>Rsamtools</code> and <code>GenomicRanges</code>) and are field-specific, these may be better placed in a separate package with a dependency on TidyTensor.</p>
 <p><br><br></p>
 </div>
 </div>
@@ -88,7 +88,7 @@
 <div id="enforcement" class="section level2">
 <h2 class="hasAnchor">
 <a href="#enforcement" class="anchor" aria-hidden="true"></a>Enforcement</h2>
-<p>Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at shawn <at> tislab.org. All complaints will be reviewed and investigated promptly and fairly.</at></p>
+<p>Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement via email to <a href="mailto:shawn@tislab.org" class="email">shawn@tislab.org</a>. All complaints will be reviewed and investigated promptly and fairly.</p>
 <p>All community leaders are obligated to respect the privacy and security of the reporter of any incident.</p>
 </div>
 <div id="enforcement-guidelines" class="section level2">

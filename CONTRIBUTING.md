@@ -11,10 +11,9 @@ When contributing to this repository, please first discuss the change you wish t
 
 Although TidyTensor's `print()` function is the original *raison d'être* for the package, there is still a lot of room for improvement (up to and including a full reimplementation). We also welcome additional suggestions for inspecting, browsing, or visualizing the structure and content of large tensors, for example via plots or interactive Shiny dashboards. 
 
-Assigning values to TidyTensors is possible (with e.g. `t[, , , "R"] <- 0` to zero out the red channel in a channels-last image tensor), but the implementation is significantly slower than for base-R arrays where `[<-` is dispatched to a primitive function.
+Assigning values to TidyTensors is possible (with e.g. `t[, , , "R"] <- 0` to zero out the red channel in a channels-last image tensor), but the implementation is significantly slower than for base-R arrays where `[<-` is dispatched to a primitive function. Improvements or suggestions here are welcome.
 
-Aside from these improvements to base functionality, additional functions for 'tensorifying' common data types would be beneficial. For example,
-this package originally included functionality to produce tensor-encoded versions of [fasta files](https://en.wikipedia.org/wiki/FASTA_format) commonly used in bioinformations applications--remnants of these efforts can be found in the source. Because these require dependencies (on e.g. `Rsamtools` and `GenomicRanges`) and are field-specific needs, these may be better placed in a separate package with a dependency on TidyTensor. 
+Aside from these improvements to base functionality, additional functions for 'tensorifying' common data types would be beneficial. For example, early versions of TidyTensor included functionality to produce tensor-encoded versions of [fasta files](https://en.wikipedia.org/wiki/FASTA_format) commonly used in bioinformations applications--remnants of these efforts can be found in the source. Because these require dependencies (on e.g. `Rsamtools` and `GenomicRanges`) and are field-specific, these may be better placed in a separate package with a dependency on TidyTensor. 
 
 <br />
 <br />
@@ -80,8 +79,7 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-shawn <at> tislab.org.
+reported to the community leaders responsible for enforcement via email to shawn@tislab.org.
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
