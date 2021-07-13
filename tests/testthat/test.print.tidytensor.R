@@ -9,7 +9,7 @@ test_that("basic print() works properly", {
   t <- set_dimnames_for_rank(t, col, .dots = tolower(letters))
 
   expect_invisible( print(t) )
-  expect_invisible( print(t, show_names = TRUE) )
+  expect_invisible( print(t, show_dimnames = TRUE) )
   expect_invisible( print(t, show_row_names = TRUE) )
   expect_invisible( print(t, show_col_names = TRUE) )
   expect_invisible( print(t, base_rank = 2) )

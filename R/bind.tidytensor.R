@@ -25,8 +25,6 @@
 #' t4 <- bind(t1, t2, t3, new_rank_name = "batch")
 #' print(t4)
 `bind` <- function(..., new_rank_name = NULL) {UseMethod("bind", list(...)[[1]])}
-#setGeneric("bind")
-
 
 # I wrote the original to be agnostic over a list of tidytensor or just a bunch of them, so I'll just dispatch list to that
 #' @export

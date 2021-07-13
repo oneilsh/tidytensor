@@ -2,12 +2,12 @@
 #' @title Convert a tidytensor to a data.frame representation.
 #'
 #' @description Given a tidytensor, returns a data.frame, with each rank of the tensor being represented by a column.
-#' Produces an error if the resulting data.frame would have more than 10 million entries; use \code{allow_huge = TRUE} to override.
+#' Produces an error if the resulting data.frame would have more than 10 million entries and \code{allow_huge = FALSE}.
 #'
 #' @details Note that this produces a row for each value in the tensor, and a column for each rank; data.frames are a much less
 #' efficient representation, but can be useful for e.g. visualization purposes. This method thus produces an error if
-#' the resulting data.frame would have more than 10 million entries; but one can set \code{allow_huge = TRUE} to override.
-#' If dimnames() are set (naming each dimension), then the columns will be factors, rather than integer indices.
+#' the resulting data.frame would have more than 10 million entries and \code{allow_huge = FALSE} is set (default is \code{TRUE}).
+#' If dimnames() are set (naming each dimension withina rank), then the columns will be factors, rather than integer indices.
 #'
 #' If the tidytensor ranks are not named, columns will be named \code{index_1}, \code{index_2}, etc., otherwise they will be
 #' set to ranknames.
@@ -36,7 +36,7 @@
 #'                     paste("pixel", 1:26, sep = "_"))
 #'
 #' print(head(as.data.frame(t)))
-as.data.frame.tidytensor <- function(tensor, allow_huge = FALSE) {
+as.data.frame.tidytensor <- function(tensor, allow_huge = TRUE) {
   if(length(tensor) * length(dim(tensor)) > 10000000 & !allow_huge) {
     stop("The data frame you are trying to create from a tensor will have more than 10 million entries (in this case ",
          length(tensor),

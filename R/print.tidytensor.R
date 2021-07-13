@@ -10,7 +10,7 @@
 #' \code{max_per_level} indicates how many replicates
 #'
 #' @param x a tidytensor to summarize.
-#' @param show_names show the dimension names, if present, or dimension indices if not in base-level prints.
+#' @param show_dimnames show the dimension names, if present, or dimension indices if not in base-level prints.
 #' @param max_per_level only show this many sub-tensors per level.
 #' @param base_rank either NULL, 1, 2, or 3 - specifies whether the inner/bottom-most tensors should be represented as rank 1, 2, or 3 in a grid (NULL for autodetect based on tensor shape, see details).
 #' @param max_rows limit the base-level prints to include this many rows (also applies to 1d prints).
@@ -27,9 +27,9 @@
 #'
 #' t <- as.tidytensor(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
 #' ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
-#' print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, base_rank = 3)
+#' print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_dimnames = TRUE, base_rank = 3)
 #'
-`print.tidytensor` <- function(x,  show_names = FALSE, max_per_level = 1, base_rank = NULL, max_rows = 6, max_cols = 6, max_depth = 3, signif_digits = 3, indent = 0, ...) {
+`print.tidytensor` <- function(x,  show_dimnames = FALSE, max_per_level = 1, base_rank = NULL, max_rows = 6, max_cols = 6, max_depth = 3, signif_digits = 3, indent = 0, ...) {
   # TODO: relying on short-circuiting || here which always makes me uncomfortable
   if(is.null(base_rank) || length(base_rank) != 1 || !base_rank %in% c(1, 2, 3)) {
     base_rank <- 1
@@ -49,15 +49,15 @@
 
   shape <- dim(x)
   if(base_rank == 1 & length(shape) == 1) {
-    print_1d_bottom(x, end_n = max_rows, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
+    print_1d_bottom(x, end_n = max_rows, show_names = show_dimnames, indent = indent, signif_digits = signif_digits, ...)
     return(invisible())
   }
   if(base_rank == 2 & length(shape) == 2) {
-    print_2d_bottom(x, max_rows = max_rows, max_cols = max_cols, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
+    print_2d_bottom(x, max_rows = max_rows, max_cols = max_cols, show_names = show_dimnames, indent = indent, signif_digits = signif_digits, ...)
     return(invisible())
   }
   if(base_rank == 3 & length(shape) == 3) {
-    print_3d_bottom(x, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, show_names = show_names, indent = indent, signif_digits = signif_digits, ...)
+    print_3d_bottom(x, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, show_names = show_dimnames, indent = indent, signif_digits = signif_digits, ...)
     return(invisible())
   }
 
@@ -82,7 +82,7 @@
     subt <- tt_index(x, i, dimension = 1, drop = FALSE) # equiv of t[i, , , ] for a rank-4 tensor, but we don't know the rank hence calling tt_index
     # abind::adrop removes class when only one dim left?
     subt <- tt(abind::adrop(subt, drop = 1)) # ... drop here
-    print(subt, show_names = show_names, max_per_level = max_per_level, base_rank = base_rank, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, signif_digits = signif_digits, indent = indent + 1, ...)
+    print(subt, show_dimnames = show_dimnames, max_per_level = max_per_level, base_rank = base_rank, max_rows = max_rows, max_cols = max_cols, max_depth = max_depth, signif_digits = signif_digits, indent = indent + 1, ...)
   }
   cat_indent(size = indent+1, is.tensor = FALSE)
   #left <- dim(t)[1] - max_per_level
@@ -211,7 +211,7 @@ nicemat <- function(m, show_row_names = TRUE, show_col_names = TRUE, row_predims
 
 print_1d_bottom <- function(t, end_n = 6, show_names = TRUE, indent = 0, signif_digits = 3, ...) {
   shape <- dim(t)
-  t <- signif(t, signif_digits)
+  if(is.numeric(t)) {t <- signif(t, signif_digits)}
   if(length(shape) == 1) {
     #ct(rep(" ", indent))
     cat_indent(size = indent, is.tensor = TRUE)
@@ -288,7 +288,7 @@ print_3d_bottom <- function(t, max_rows = 6, max_cols = 6, max_depth = 3, show_n
       dimnames(bracketed)[[1]] <- dimnames(t)[[1]]
       dimnames(bracketed)[[2]] <- dimnames(t)[[2]]
       if(show_names & any(!is.na(dimnames(t)[[3]]))) {
-        ct(" (bottom dimnames: ")
+        ct(" (last rank dimnames: ")
         dn <- paste0('"', dimnames(t)[[3]], '"')
         ct(comma(dn))
         ct(")")

@@ -43,7 +43,7 @@
     <pre class="sourceCode r"><code><span class="co"># S3 method for tidytensor</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span>
   <span class="va">x</span>,
-  show_names <span class="op">=</span> <span class="cn">FALSE</span>,
+  show_dimnames <span class="op">=</span> <span class="cn">FALSE</span>,
   max_per_level <span class="op">=</span> <span class="fl">1</span>,
   base_rank <span class="op">=</span> <span class="cn">NULL</span>,
   max_rows <span class="op">=</span> <span class="fl">6</span>,
@@ -58,7 +58,7 @@
     <h2>Arguments</h2>
     <dl class="row" id="ref-arguments"><dt class="col-sm-3 section level2" id="pkg-arg-x">x</dt>
       <dd class="col-sm-9" id="ref-arguments desc"><p>a tidytensor to summarize.</p></dd>
-    <dt class="col-sm-3 section level2" id="pkg-arg-show_names">show_names</dt>
+    <dt class="col-sm-3 section level2" id="pkg-arg-show_dimnames">show_dimnames</dt>
       <dd class="col-sm-9" id="ref-arguments desc"><p>show the dimension names, if present, or dimension indices if not in base-level prints.</p></dd>
     <dt class="col-sm-3 section level2" id="pkg-arg-max_per_level">max_per_level</dt>
       <dd class="col-sm-9" id="ref-arguments desc"><p>only show this many sub-tensors per level.</p></dd>
@@ -106,7 +106,7 @@ and a "channels-first" convention) or if there are only two ranks or if the last
 <span class="r-in"></span>
 <span class="r-in"><span class="va">t</span> <span class="op">&lt;-</span> <span class="fu"><a href="as.tidytensor.html">as.tidytensor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/array.html">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fl">3</span> <span class="op">*</span> <span class="fl">40</span> <span class="op">*</span> <span class="fl">50</span> <span class="op">*</span> <span class="fl">3</span><span class="op">)</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"><span class="fu"><a href="ranknames.html">ranknames</a></span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sample"</span>, <span class="st">"batch"</span>, <span class="st">"row"</span>, <span class="st">"pixel"</span>, <span class="st">"channel"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">t</span>, max_rows <span class="op">=</span> <span class="fl">6</span>, max_cols <span class="op">=</span> <span class="fl">6</span>, max_depth <span class="op">=</span> <span class="fl">3</span>, show_names <span class="op">=</span> <span class="cn">TRUE</span>, base_rank <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">t</span>, max_rows <span class="op">=</span> <span class="fl">6</span>, max_cols <span class="op">=</span> <span class="fl">6</span>, max_depth <span class="op">=</span> <span class="fl">3</span>, show_dimnames <span class="op">=</span> <span class="cn">TRUE</span>, base_rank <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # Rank 5 tensor, shape: (2, 3, 40, 50, 3), ranknames: sample, batch, row, pixel, channel</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |  # Rank 4 tensor, shape: (3, 40, 50, 3)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |  |  # Rank 3 tensor, shape: (40, 50, 3)</span>

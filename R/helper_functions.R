@@ -74,7 +74,7 @@ tt_index.tidytensor <- function(tensor, indices, dimension = 1, drop = TRUE) {
     }
   }
 
-  # we only want the selected entries in the nth dimenion (first is at index 2 of the param list)
+  # we only want the selected entries in the nth dimension (first is at index 2 of the param list)
   args_list[[dimension + 1]] <- indices
   args_list[[length(args_list) + 1]] <- drop
   names(args_list)[length(args_list)] <- "drop"

@@ -4,6 +4,9 @@
     <loc>/404.html</loc>
   </url>
   <url>
+    <loc>/CONTRIBUTING.html</loc>
+  </url>
+  <url>
     <loc>/LICENSE-text.html</loc>
   </url>
   <url>
@@ -32,9 +35,6 @@
   </url>
   <url>
     <loc>/reference/bind.html</loc>
-  </url>
-  <url>
-    <loc>/reference/c.tidytensor.html</loc>
   </url>
   <url>
     <loc>/reference/combine_ranks.html</loc>
@@ -68,6 +68,9 @@
   </url>
   <url>
     <loc>/reference/shuffle.html</loc>
+  </url>
+  <url>
+    <loc>/reference/stitch.html</loc>
   </url>
   <url>
     <loc>/reference/subset.tidytensor.html</loc>

@@ -6,7 +6,7 @@
 \usage{
 \method{print}{tidytensor}(
   x,
-  show_names = FALSE,
+  show_dimnames = FALSE,
   max_per_level = 1,
   base_rank = NULL,
   max_rows = 6,
@@ -20,7 +20,7 @@
 \arguments{
 \item{x}{a tidytensor to summarize.}
 
-\item{show_names}{show the dimension names, if present, or dimension indices if not in base-level prints.}
+\item{show_dimnames}{show the dimension names, if present, or dimension indices if not in base-level prints.}
 
 \item{max_per_level}{only show this many sub-tensors per level.}
 
@@ -55,7 +55,7 @@ print(t, base_rank = 2)
 
 t <- as.tidytensor(array(1:(2 * 3 * 40 * 50 * 3), dim = c(2, 3, 40, 50, 3)))
 ranknames(t) <- c("sample", "batch", "row", "pixel", "channel")
-print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_names = TRUE, base_rank = 3)
+print(t, max_rows = 6, max_cols = 6, max_depth = 3, show_dimnames = TRUE, base_rank = 3)
 
 }
 \seealso{

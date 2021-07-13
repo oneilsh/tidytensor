@@ -24,6 +24,11 @@
     rank <- tidyselect::vars_select(ranknames(tensor), !!rlang::enquo(rank))
   }
 
+  index = rank_to_index(tensor, rank)
+  if(length(index) != 1) {
+    stop("Error in as.list.tidytensor: rank = can only specify a single valid rank.")
+  }
+
   # if this is the top level, just set the state to a bunch of empties
   if(rank == 0) {
     return(list(tensor))
@@ -32,10 +37,6 @@
     state <- rep("", length(dim(tensor)))
   }
 
-  index = rank_to_index(tensor, rank)
-  if(length(index) != 1) {
-    stop("Error in as.list.tidytensor: rank = can only specify a single valid rank.")
-  }
 
   ret_list <- as.list(1:dim(tensor)[1]) # create a list of the right size
 
