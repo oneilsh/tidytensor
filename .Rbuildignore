@@ -6,5 +6,6 @@
 ^pkgdown$
 ^\.github$
 ^codecov\.yml$
-joss
+paper.md
+paper.bib
 CONTRIBUTING.md
