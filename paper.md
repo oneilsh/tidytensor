@@ -1,5 +1,5 @@
 ---
-title: 'TidyTensor: Utilities for named multidimensional arrays as hierarchical structures'
+title: 'TidyTensor: Utilities for multidimensional arrays as named hierarchical structures'
 tags:
   - R
   - deep learning
