@@ -19,7 +19,11 @@ Suggests:
     stringr,
     keras,
     dplyr,
-    covr
+    covr,
+    knitr,
+    markdown,
+    ggplot2,
+    tidyr
 Imports:
     abind,
     purrr,
@@ -28,3 +32,4 @@ Imports:
     rlang,
     tidyselect
 RoxygenNote: 7.1.1
+VignetteBuilder: knitr

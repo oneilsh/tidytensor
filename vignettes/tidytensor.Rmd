@@ -1,5 +1,12 @@
 ---
 title: "Getting Started"
+author: "Shawn T. O'Neil"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Getting Started}
+  %\usepackage[UTF-8]{inputenc}
 ---
 
 
@@ -317,13 +324,14 @@ cifar10 %>%
   str()
 ```
 
-As a reminder with all this list-of-tensors making, `bind()` and `stitch()` can each take a list of tensors as opposed to one-per-parameter, so they can be used on results of `partition()` and `as.list()`. Here's a more involved example of grabbing every image where the green channel is brightest (from the first 100 to speed things up): we first deconstruct the tensor into a list, then use `purrr::keep()` to filter them, and since each element is also a TidyTensor we can use `subset()` to select by channel dimension and run the resulting tensors though `mean()` before returning `TRUE` or `FALSE`. The resulting filtered list is then run through `bind()` re-specifying the new binding rankname as `"image"` (since `as.list()` strips off the first ranks for the contained tensors). 
+As a reminder with all this list-of-tensors making, `bind()` and `stitch()` can each take a list of tensors as opposed to one-per-parameter, so they can be used on results of `partition()` and `as.list()`. Here's a more involved example of grabbing every image where the green channel is brightest (from the first 100 to keep the build time for this vignette small): we first deconstruct the tensor into a list, then use `purrr::keep()` to filter them, and since each element is also a TidyTensor we can use `subset()` to select by channel dimension and run the resulting tensors though `mean()` before returning `TRUE` or `FALSE`. The resulting filtered list is then run through `bind()` re-specifying the new binding rankname as `"image"` (since `as.list()` strips off the first ranks for the contained tensors). 
 
 
 ```{r}
 library(purrr)
 
 cifar10 %>%
+  subset(image = 1:100) %>%
   as.list() %>%
   keep(function(image_tensor) {
     mean_green <- image_tensor %>% subset(channel = "G") %>% mean()
@@ -389,6 +397,7 @@ For pre-processing, rather than scale the entire dataset to a [0,1] range, perha
 
 ```{r}
 images_channel_normalized <- cifar10 %>%
+  subset(image = 1:100) %>%
   permute(image, channel, row, col) %>%       # permute to channels-first represtation
   tt_apply(channel, normalize) %>%            # apply normalize() to each channel
   permute(image, row, col, channel)           # permute back to channels-last
@@ -403,6 +412,7 @@ The function call results needn’t match their input shape: `tt_apply()` just n
 
 ```{r}
 selection <- cifar10 %>%
+  subset(image = 1:100) %>%
   tt_apply(image, function(image_tensor) {
     mean_green <- image_tensor %>% subset(channel = "G") %>% mean()
     mean_other <- image_tensor %>% subset(channel = c("R", "B")) %>% mean()
@@ -433,6 +443,7 @@ Now we can apply this to each image of our normalized data:
 
 ```{r}
 cifar10_augmented <- cifar10 %>% 
+  subset(image = 1:100) %>%
   tt_apply(image, augment)
 
 print(cifar10_augmented, max_cols = 4, max_per_level = 2)
