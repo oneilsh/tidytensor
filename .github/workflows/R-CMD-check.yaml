@@ -24,6 +24,9 @@ jobs:
         run: |
           install.packages(c("remotes", "rcmdcheck"))
           remotes::install_deps(dependencies = TRUE)
+          remotes::install_github("rstudio/reticulate")
+          install.packages("tensorflow")
+          tensorflow::install_tensorflow()
         shell: Rscript {0}
       - name: Check
         run: |
