@@ -36,5 +36,5 @@ t4 <- bind(t1, t2, t3, new_rank_name = "batch")
 print(t4)
 }
 \seealso{
-\code{\link{ranknames}}, \code{\link{c.tidytensor}}
+\code{\link{ranknames}}
 }

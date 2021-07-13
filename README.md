@@ -29,6 +29,7 @@ If you use TidyTensor, let us know in an [issue](https://github.com/oneilsh/tidy
 
 ## Changelog
 
+* v0.9.1: preparation for JOSS submission, many documentation improvements, removing `allow_huge` option from `as.data.frame.tidytensor()`
 * v0.9.0: refactor `bottom` paramter of `print()` to `base_rank`
 * v0.8.2: minor bugfixes, new combine_ranks() function
 * v0.8.1: add [] and [] <- functionality

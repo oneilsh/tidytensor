@@ -14,7 +14,7 @@ Produces an error if the resulting data.frame would have more than 10 million en
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <button type="button" id="version-badge" class="badge badge-default d-none d-lg-block" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Released version">0.9.0</button>
+    <button type="button" id="version-badge" class="badge badge-default d-none d-lg-block" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Released version">0.9.1</button>
 
     <div id="navbar" class="collapse navbar-collapse">
       <ul class="navbar-nav mr-auto ml-3"><li class="nav-item">
@@ -44,14 +44,16 @@ Produces an error if the resulting data.frame would have more than 10 million en
 
     <div id="ref-usage" class="ref-usage section level2 sourceCode">
     <pre class="sourceCode r"><code><span class="co"># S3 method for tidytensor</span>
-<span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">tensor</span>, allow_huge <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre>
+<span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">x</span>, row.names <span class="op">=</span> <span class="cn">NULL</span>, optional <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></code></pre>
     </div>
 
     <h2>Arguments</h2>
-    <dl class="row" id="ref-arguments"><dt class="col-sm-3 section level2" id="pkg-arg-allow_huge">allow_huge</dt>
-      <dd class="col-sm-9" id="ref-arguments desc"><p>whether to allow the creation of a data.frame with more than 10 million entries</p></dd>
-    <dt class="col-sm-3 section level2" id="pkg-arg-x">x</dt>
+    <dl class="row" id="ref-arguments"><dt class="col-sm-3 section level2" id="pkg-arg-x">x</dt>
       <dd class="col-sm-9" id="ref-arguments desc"><p>input to convert to a data.frame</p></dd>
+    <dt class="col-sm-3 section level2" id="pkg-arg-row.names">row.names</dt>
+      <dd class="col-sm-9" id="ref-arguments desc"><p>NULL (default) or character vector giving the new row names for the data frame (included for method compatibility with base <code>as.data.frame</code>).</p></dd>
+    <dt class="col-sm-3 section level2" id="pkg-arg-optional">optional</dt>
+      <dd class="col-sm-9" id="ref-arguments desc"><p>Ignored (included for method compatibility with base <code>as.data.frame</code>)</p></dd>
     <dt class="col-sm-3 section level2" id="pkg-arg-...">...</dt>
       <dd class="col-sm-9" id="ref-arguments desc"><p>additional arguments to be passed to or from methods (ignored).</p></dd>
     </dl><div class="ref-section section level2" id="section-value">

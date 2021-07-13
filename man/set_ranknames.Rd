@@ -4,14 +4,12 @@
 \alias{set_ranknames}
 \title{Assign ranknames to a tidytensor via a standard function call.}
 \usage{
-set_ranknames(x, ...)
+set_ranknames(x, ..., .dots = NULL)
 }
 \arguments{
 \item{x}{input tidytensor to set ranknames on.}
 
 \item{...}{new ranknames to assign (quoted or unquoted).}
-
-\item{newnames}{character vector of new ranknames to assign.}
 
 \item{.dots}{character vector of new ranknames to assign.}
 }

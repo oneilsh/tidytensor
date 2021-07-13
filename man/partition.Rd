@@ -10,8 +10,6 @@ partition(x, sizes = c(0.5, 0.5))
 \item{x}{the tidytensor to apply over.}
 
 \item{sizes}{relative sizes of partitions}
-
-\item{...}{unused}
 }
 \value{
 a list of tidytensors.

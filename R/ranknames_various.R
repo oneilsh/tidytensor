@@ -34,7 +34,6 @@
 # method:
 #' @export
 `ranknames<-.tidytensor` <- function(x, value) {
-  if(is.null(x)) {return(NULL)}
   # we're going to work with the names() of the dimnames(), so we need to have some dimnames there.
   # this just sets them all to NA if there aren't any already
   if(is.null(attr(x, "dimnames"))) {
@@ -91,7 +90,6 @@
 #' ranknames(t) <- c("sample", "row", "col")
 #' print(ranknames(t))
 `ranknames` <- function(x, ...) {
-  if(is.null(x)) {return(NULL)}
   UseMethod("ranknames", x)
 }
 #setGeneric("ranknames")
@@ -101,7 +99,6 @@
 # method:
 #' @export
 `ranknames.tidytensor` <- function(x, ...) {
-    if(is.null(x)) {return(NULL)}
     if(is.null(attr(x, "dimnames"))) {
       return(NULL)
     }
@@ -124,7 +121,6 @@
 #' package also provides a specialized dimnames() which preserves ranknames when setting dimnames().
 #'
 #' @param x input tidytensor to set ranknames on.
-#' @param newnames character vector of new ranknames to assign.
 #' @param ... new ranknames to assign (quoted or unquoted).
 #' @param .dots character vector of new ranknames to assign.
 #' @return a tidytensor with ranknames set.
@@ -134,8 +130,7 @@
 #' t <- set_ranknames(t, sample, row, col)
 #' t <- set_ranknames(t, .dots = c("sample", "row", "col"))
 #' print(t)
-`set_ranknames` <- function(x, ...) {
-  if(is.null(x)) {return(NULL)}
+`set_ranknames` <- function(x, ..., .dots = NULL) {
   UseMethod("set_ranknames", x)
 }
 
@@ -153,8 +148,6 @@
 # just a method, the generic already exists in base R
 #' @export
 `dimnames<-.tidytensor` <- function(x, value) {
-  if(is.null(x)) {return(NULL)}
-
   # setting dimnames() directly erases previous ranknames, because those were stored as names(dimnames())
   # save and restore strategy...
 
@@ -192,14 +185,12 @@
 #' print(t)
 #'
 `set_dimnames` <- function(x, newnames, ...) {
-  if(is.null(x)) {return(NULL)}
   UseMethod("set_dimnames", x)
 }
 
 # method
 #' @export
 `set_dimnames.tidytensor` <- function(x, newnames, ...) {
-  if(is.null(x)) {return(NULL)}
   dimnames(x) <- newnames
   return(x)
 }
@@ -225,8 +216,7 @@
 #' t <- set_dimnames_for_rank(t, 2, valset1, valset2)
 #' t <- set_dimnames_for_rank(t, 2, .dots = c("valset1", "valset2"))
 #' print(t)
-`set_dimnames_for_rank` <- function(x, rank, ...) {
-  if(is.null(x)) {return(NULL)}
+`set_dimnames_for_rank` <- function(x, rank, ..., .dots = NULL) {
   UseMethod("set_dimnames_for_rank", x)
 }
 

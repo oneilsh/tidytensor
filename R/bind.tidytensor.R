@@ -13,7 +13,7 @@
 #' @param ... one or more tidytensors, or a single list of them, to bind
 #' @param new_rank_name a name (length-1 character vector) for the newly created rank.
 #' @return a new tidytensor.
-#' @seealso \code{\link{ranknames}}, \code{\link{c.tidytensor}}
+#' @seealso \code{\link{ranknames}}
 #' @examples
 #' # Three tidytensors of the same shape
 #' t1 <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))

@@ -14,7 +14,8 @@
 #' Tensor values will be in a column named \code{value}.
 #'
 #' @param x input to convert to a data.frame
-#' @param allow_huge whether to allow the creation of a data.frame with more than 10 million entries
+#' @param row.names NULL (default) or character vector giving the new row names for the data frame (included for method compatibility with base \code{as.data.frame}).
+#' @param optional Ignored (included for method compatibility with base \code{as.data.frame})
 #' @param ... additional arguments to be passed to or from methods (ignored).
 #' @return a data.frame
 #' @seealso \code{\link{ranknames}}.
@@ -36,34 +37,25 @@
 #'                     paste("pixel", 1:26, sep = "_"))
 #'
 #' print(head(as.data.frame(t)))
-as.data.frame.tidytensor <- function(tensor, allow_huge = TRUE) {
-  if(length(tensor) * length(dim(tensor)) > 10000000 & !allow_huge) {
-    stop("The data frame you are trying to create from a tensor will have more than 10 million entries (in this case ",
-         length(tensor),
-         " rows and ",
-         length(dim(tensor)),
-         " columns). To retry and allow the creation of this huge data frame, set allow_huge = TRUE."
-    )
-  }
-
-  colnames <- ranknames(tensor)
+as.data.frame.tidytensor <- function(x, row.names = NULL, optional = FALSE, ...) {
+  colnames <- ranknames(x)
   # if there are no ranknames, the column names will be index_1, index_2, etc.
   if(is.null(colnames)) {
-    colnames <- paste("index", seq(1, length(dim(tensor))), sep = "_")
+    colnames <- paste("index", seq(1, length(dim(x))), sep = "_")
   }
 
-  nrows <- length(tensor)
-  dimnames_list <- dimnames(tensor)
+  nrows <- length(x)
+  dimnames_list <- dimnames(x)
   # if there are no dimnames, the "dimnames" will be indices into the ranks
   if(is.null(dimnames_list)) {
-    dimsizes <- dim(tensor)
+    dimsizes <- dim(x)
     dimnames_list <- lapply(dimsizes, function(size) {return(seq(1, size))})
   }
   # there may already be dimnames, but they might be a mess
   for(rank_index in 1:length(dimnames_list)) {
     rank_dimnames <- dimnames_list[[rank_index]]
     # make it not null in case it is, filling with nums
-    if(is.null(rank_dimnames)) { rank_dimnames <- seq(1, dim(tensor)[rank_index]) }
+    if(is.null(rank_dimnames)) { rank_dimnames <- seq(1, dim(x)[rank_index]) }
     if(is.character(rank_dimnames) & !all(is.na(rank_dimnames))) { # if there are any already set (that are not NA), we'll assume its a factor/categorical
       rank_dimnames[is.na(rank_dimnames)] <- seq(1, length(rank_dimnames))[is.na(rank_dimnames)]
       dimnames_list[[rank_index]] <- factor(rank_dimnames, levels = unique(rank_dimnames))
@@ -80,13 +72,13 @@ as.data.frame.tidytensor <- function(tensor, allow_huge = TRUE) {
   # build a data frame from that, set the colnames from the ranknames, and add in the values from the tensor itself
   big_df <- data.frame(dummy_cols)
   colnames(big_df) <- colnames
-  big_df$value <- array(tensor, dim = length(tensor))
+  big_df$value <- array(x, dim = length(x))
 
   # for each rank index, fill it according to R's array deconstructing rules
   subfill <- dimnames_list[[1]]
   big_df[, 1] <- rep_len(subfill, nrows)
-  if(length(dim(tensor)) >= 2) {
-    for(i in seq(2,length(dim(tensor)))) {
+  if(length(dim(x)) >= 2) {
+    for(i in seq(2,length(dim(x)))) {
       dimnames_i <- dimnames_list[[i]]
       last_subfill <- subfill
       subfill <- rep(dimnames_i, each = length(last_subfill))
@@ -94,5 +86,6 @@ as.data.frame.tidytensor <- function(tensor, allow_huge = TRUE) {
     }
   }
 
+  rownames(big_df) <- row.names
   return(big_df)
 }

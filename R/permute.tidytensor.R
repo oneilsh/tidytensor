@@ -9,11 +9,10 @@
 #'
 #'
 #'
-#' @param x the tidytensor permute.
+#' @param tensor the tidytensor permute.
 #' @param ... ranknames or integers to permute by (quoted or unquoted).
 #' @param .dots character or integer vector to permute by.
 #' @return a new tidytensor.
-#' @seealso \code{\link{c.tidytensor}}
 #' @examples
 #' # shape [20, 26, 26]
 #' t <- as.tidytensor(array(rnorm(20 * 26 * 26), dim = c(20, 26, 26)))
@@ -25,7 +24,7 @@
 #' t2 <- permute(t, .dots = c(3, 1, 2))
 #' t2 <- permute(t, .dots = c("col", "sample", "row"))
 #'
-permute <- function(tensor, ...) {UseMethod("permute", tensor)}
+permute <- function(tensor, ..., .dots = NULL) {UseMethod("permute", tensor)}
 
 #' @export
 permute.tidytensor <- function(tensor, ...) {

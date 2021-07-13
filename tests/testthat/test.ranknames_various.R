@@ -11,6 +11,17 @@ test_that("ranknames<- works properly", {
   expect_equal(names(dimnames(t)), c("sample", "row", "col"))
 })
 
+test_that("errors generated appropriately", {
+  t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
+  expect_error(ranknames(t) <- c("just", "two"))
+  expect_error(ranknames(t) <- c("A", "B", "B"))
+})
+
+test_that("setting dimnames on object with no dimnames already", {
+  t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))
+  t2 <- set_dimnames_for_rank(t, 1, .dots = c("A", "B", "C"))
+  expect_equal(dimnames(t2)[[1]], c("A", "B", "C"))
+})
 
 test_that("ranknames() works properly", {
   t <- as.tidytensor(array(1:(3 * 4 * 5), dim = c(3, 4, 5)))

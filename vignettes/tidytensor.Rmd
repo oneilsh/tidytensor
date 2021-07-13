@@ -1,7 +1,5 @@
 ---
 title: "Getting Started"
-author: "Shawn T. O'Neil"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteEngine{knitr::knitr}
@@ -114,16 +112,16 @@ The default for `base_rank` is `NULL`, in which case the base-rank will be deter
 
 ## Named Ranks
 
-TidyTensors support `ranknames()` in addition to traditional `dimnames()` (implemented as `names(dimnames())`) for meaningful rank annotation. Let's consider the CIFAR10 dataset distributed with `keras`:
+TidyTensors support `ranknames()` in addition to traditional `dimnames()` (implemented as `names(dimnames())`) for meaningful rank annotation. Let's consider the CIFAR10 dataset distributed with `keras`. Actually, let's consider a sample of these data distributed directly with TidyTensor:
 
 ```{r}
 library(keras)
-
 cifar10_raw <- dataset_cifar10()$train$x 
+
 cifar10_raw %>% tt()
 ```
 
-This appears to be a set of 50000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the tidy-friendly `set_ranknames()`, and the `.dots` parameter can be used to provide ranknames as a character vector.
+This appears to be a set of 5000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the tidy-friendly `set_ranknames()`, and the `.dots` parameter can be used to provide ranknames as a character vector.
 
 ```{r}
 # Base-R style

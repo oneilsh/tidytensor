@@ -10,8 +10,6 @@ shuffle(t, seed = NULL)
 \item{t}{the tidytensor to apply over.}
 
 \item{seed}{random seed to be used for shuffling.}
-
-\item{...}{unused}
 }
 \value{
 a tidytensor of the same shape.
@@ -39,5 +37,5 @@ t <- shuffle(t, seed = 42)
 
 }
 \seealso{
-\code{\link{tt_apply}}, \code{\link{c.tidytensor}}, \code{\link{permute}}
+\code{\link{tt_apply}}, \code{\link{permute}}
 }

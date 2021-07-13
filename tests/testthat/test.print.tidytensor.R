@@ -12,7 +12,7 @@ test_that("basic print() works properly", {
   expect_invisible( print(t, show_dimnames = TRUE) )
   expect_invisible( print(t, show_row_names = TRUE) )
   expect_invisible( print(t, show_col_names = TRUE) )
-  expect_invisible( print(t, base_rank = 2) )
+  expect_invisible( print(t, base_rank = 1) )
   expect_invisible( print(t, base_rank = 2) )
 
   t_channels_last <- permute(t, sample, row, col, channel)

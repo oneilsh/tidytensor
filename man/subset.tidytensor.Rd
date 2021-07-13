@@ -4,12 +4,14 @@
 \alias{subset.tidytensor}
 \title{Subset dimensions of a tidytensor}
 \usage{
-\method{subset}{tidytensor}(t, ..., drop = TRUE)
+\method{subset}{tidytensor}(x, ..., drop = TRUE)
 }
 \arguments{
-\item{t}{the tidytensor to apply over.}
+\item{x}{the tidytensor to apply over.}
 
 \item{...}{named or unnamed parameters specifying subsetting criteria (see examples)}
+
+\item{drop}{whether to drop ranks with size 1 (similar to \code{x[..., drop = TRUE]})}
 }
 \value{
 a tidytensor
@@ -43,5 +45,5 @@ print(t3)
 
 }
 \seealso{
-\code{\link{shuffle}}, \code{\link{c.tidytensor}}, \code{\link{permute}}
+\code{\link{shuffle}}, \code{\link{permute}}
 }

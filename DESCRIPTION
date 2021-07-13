@@ -1,7 +1,7 @@
 Package: tidytensor
 Type: Package
 Title: TidyTensor
-Version: 0.9.0
+Version: 0.9.1
 Date: 2018-12-05
 Authors@R: c(
     person("Shawn T.", "O'Neil", middle = NULL, "shawn@tislab.org", role = c("aut", "cre"),

@@ -4,12 +4,14 @@
 \alias{as.data.frame.tidytensor}
 \title{Convert a tidytensor to a data.frame representation.}
 \usage{
-\method{as.data.frame}{tidytensor}(tensor, allow_huge = TRUE)
+\method{as.data.frame}{tidytensor}(x, row.names = NULL, optional = FALSE, ...)
 }
 \arguments{
-\item{allow_huge}{whether to allow the creation of a data.frame with more than 10 million entries}
-
 \item{x}{input to convert to a data.frame}
+
+\item{row.names}{NULL (default) or character vector giving the new row names for the data frame (included for method compatibility with base \code{as.data.frame}).}
+
+\item{optional}{Ignored (included for method compatibility with base \code{as.data.frame})}
 
 \item{...}{additional arguments to be passed to or from methods (ignored).}
 }

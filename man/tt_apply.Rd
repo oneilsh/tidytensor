@@ -52,5 +52,5 @@ median_deviations <- tt_apply(t, sample, dev_median)
 print(median_deviations)
 }
 \seealso{
-\code{\link{c.tidytensor}}, \code{\link{permute}}
+\code{\link{permute}}
 }

@@ -4,7 +4,7 @@
 \alias{set_dimnames_for_rank}
 \title{Set dimnames() via a standard function call, for a particular rank.}
 \usage{
-set_dimnames_for_rank(x, rank, ...)
+set_dimnames_for_rank(x, rank, ..., .dots = NULL)
 }
 \arguments{
 \item{x}{input tidytensor to set dimnames on.}

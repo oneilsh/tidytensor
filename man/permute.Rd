@@ -4,12 +4,12 @@
 \alias{permute}
 \title{Permute the ranks of a tensor}
 \usage{
-permute(tensor, ...)
+permute(tensor, ..., .dots = NULL)
 }
 \arguments{
-\item{...}{ranknames or integers to permute by (quoted or unquoted).}
+\item{tensor}{the tidytensor permute.}
 
-\item{x}{the tidytensor permute.}
+\item{...}{ranknames or integers to permute by (quoted or unquoted).}
 
 \item{.dots}{character or integer vector to permute by.}
 }
@@ -35,7 +35,4 @@ t2 <- permute(t, 3, 1, 2)
 t2 <- permute(t, .dots = c(3, 1, 2))
 t2 <- permute(t, .dots = c("col", "sample", "row"))
 
-}
-\seealso{
-\code{\link{c.tidytensor}}
 }

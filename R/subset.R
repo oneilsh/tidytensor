@@ -12,10 +12,11 @@
 #'
 #'
 #'
-#' @param t the tidytensor to apply over.
+#' @param x the tidytensor to apply over.
+#' @param drop whether to drop ranks with size 1 (similar to \code{x[..., drop = TRUE]})
 #' @param ... named or unnamed parameters specifying subsetting criteria (see examples)
 #' @return a tidytensor
-#' @seealso \code{\link{shuffle}}, \code{\link{c.tidytensor}}, \code{\link{permute}}
+#' @seealso \code{\link{shuffle}}, \code{\link{permute}}
 #' @examples
 #' # shape [100, 26, 26, 3]
 #' t <- as.tidytensor(array(rnorm(100 * 26 * 26 * 3), dim = c(100, 26, 26, 3)))
@@ -37,15 +38,15 @@
 #' t3 <- subset(t, sample = 1:20, channel = c("G", "R", "B"), drop = FALSE)
 #' print(t3)
 #'
-subset.tidytensor <- function(t, ..., drop = TRUE) {
+subset.tidytensor <- function(x, ..., drop = TRUE) {
   select_list <- list(...)
-  orig_dimnames <- dimnames(t) # may be NULL
-  orig_ranknames <- ranknames(t) # may be NULL
+  orig_dimnames <- dimnames(x) # may be NULL
+  orig_ranknames <- ranknames(x) # may be NULL
   select_names <- names(select_list) # may be NULL
 
   if(!is.null(select_names) & is.null(orig_ranknames)) {stop("cannot subset by ranknames on a tensor with no ranknames.")}
 
-  shape <- as.list(dim(t))
+  shape <- as.list(dim(x))
   dimselector <- lapply(shape, function(size) {return(1:size)})
 
   if(!is.null(select_names)) {
@@ -65,7 +66,7 @@ subset.tidytensor <- function(t, ..., drop = TRUE) {
   }
 
   args_list <- list(1:(length(dimselector) + 2)) # one for the tensor itself, one for the drop param
-  args_list[[1]] <- t
+  args_list[[1]] <- x
   i <- 2
   for(dimselection in dimselector) {
     args_list[[i]] <- dimselection

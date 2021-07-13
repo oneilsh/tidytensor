@@ -17,9 +17,8 @@
 #'
 #' @param t the tidytensor to apply over.
 #' @param seed random seed to be used for shuffling.
-#' @param ... unused
 #' @return a tidytensor of the same shape.
-#' @seealso \code{\link{tt_apply}}, \code{\link{c.tidytensor}}, \code{\link{permute}}
+#' @seealso \code{\link{tt_apply}}, \code{\link{permute}}
 #' @examples
 #' # shape [100, 26, 26]
 #' t <- as.tidytensor(array(rnorm(100 * 26 * 26), dim = c(100, 26, 26)))

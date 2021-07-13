@@ -16,7 +16,6 @@
 #'
 #' @param x the tidytensor to apply over.
 #' @param sizes relative sizes of partitions
-#' @param ... unused
 #' @return a list of tidytensors.
 #' @seealso \code{\link{c}}, \code{\link{permute}}
 #' @examples

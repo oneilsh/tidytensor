@@ -6,3 +6,5 @@
 ^pkgdown$
 ^\.github$
 ^codecov\.yml$
+joss
+CONTRIBUTING.md
