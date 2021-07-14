@@ -112,7 +112,7 @@ The default for `base_rank` is `NULL`, in which case the base-rank will be deter
 
 ## Named Ranks
 
-TidyTensors support `ranknames()` in addition to traditional `dimnames()` (implemented as `names(dimnames())`) for meaningful rank annotation. Let's consider the CIFAR10 dataset distributed with `keras`. Actually, let's consider a sample of these data distributed directly with TidyTensor:
+TidyTensors support `ranknames()` in addition to traditional `dimnames()` (implemented as `names(dimnames())`) for meaningful rank annotation. Let's consider the CIFAR10 dataset distributed with `keras`. 
 
 ```{r}
 library(keras)
@@ -121,7 +121,7 @@ cifar10_raw <- dataset_cifar10()$train$x
 cifar10_raw %>% tt()
 ```
 
-This appears to be a set of 5000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the tidy-friendly `set_ranknames()`, and the `.dots` parameter can be used to provide ranknames as a character vector.
+This appears to be a set of 50000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the tidy-friendly `set_ranknames()`, and the `.dots` parameter (accepted by most TidyTensor functions) can be used to provide ranknames as a character vector.
 
 ```{r}
 # Base-R style
@@ -139,7 +139,7 @@ images <- cifar10_raw %>%
 #   set_ranknames(.dots = c("image", "row", "col", "channel"))
 ```
 
-Named ranks make a variety of operations more explicity. For example to set dimension names for single rank we can use `set_dimnames_for_rank()` rather than base-R `dimnames()`.
+Named ranks make a variety of operations more explicit. For example to set dimension names for a single rank we can use `set_dimnames_for_rank()` rather than base-R `dimnames()`.
 
 ```{r}
 cifar10_raw %>%
@@ -156,7 +156,7 @@ Dimension names are currently only shown for the last ranks displayed in the gri
 
 ## Subsetting, Data Frame Conversion
 
-Named ranks are also useful when converting a tensor to a data frame. We’ll convert just the first four images, because tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). Rather than selecting the first four images with `cifar10_raw[1:4, , , ]`, we'll demonstrate the `subset()` function for TidyTensors which supports a variety of syntax (see the help docs):
+Named ranks are also useful when converting a tensor to a data frame. We’ll convert just the first four images, because tensors in data frame representation are significantly larger (approximately number-of-ranks times as large). Rather than selecting the first four images with `cifar10_raw[1:4, , , ]`, we'll demonstrate the `subset()` function for TidyTensors which supports a variety of syntax (see the `subset.tidytensor()` help doc examples):
 
 ```{r}
 cifar10_raw %>%
@@ -220,12 +220,10 @@ output <- get_layer(vgg_model, name = "block1_conv2")$output
 compute_featuremaps <- k_function(input, output)
 ```
 
-To visualize the feature maps we generate an output tensor, name it, convert it to data frame, select only the first six featuremaps with `dplyr::filter()` to keep it reasonable, and then plot the values.
+To visualize the feature maps we generate an output tensor, name it, convert it to data frame, select only the first six featuremaps with `subset()` to keep it reasonable, and then plot the values. Since this model assumes input data are in a 0-1 range but these image values are in a 0-255 range, we'll first divide the dataset by 255 (see the section on Applying below for examples of other normalization strategies).
 
 ```{r}
-library(dplyr)
-
-cifar10_raw %>%
+(cifar10_raw / 255) %>%
   tt() %>%
   set_ranknames(image, row, col, channel) %>%
   set_dimnames_for_rank(channel, R, G, B) %>%
@@ -233,8 +231,8 @@ cifar10_raw %>%
   compute_featuremaps() %>% 
   tt() %>%                           # compute_featuremaps() doesn't return a TidyTensor
   set_ranknames(image, row, col, featuremap) %>%
+  subset(featuremap = 1:6) %>%
   as.data.frame() %>%
-  filter(featuremap <= 6) %>%
   ggplot() +
     geom_tile(aes(x = col, y = row, fill = value)) +
     facet_grid(image ~ featuremap) +
