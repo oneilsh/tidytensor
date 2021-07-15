@@ -1,6 +1,7 @@
 [![DOI](https://zenodo.org/badge/160564655.svg)](https://zenodo.org/badge/latestdoi/160564655)
+[![status](https://joss.theoj.org/papers/07ef2e53d083c0eea30c0d08eef0f1cb/status.svg)](https://joss.theoj.org/papers/07ef2e53d083c0eea30c0d08eef0f1cb)
 [![R-CMD-check](https://github.com/oneilsh/tidytensor/workflows/R-CMD-check/badge.svg)](https://github.com/oneilsh/tidytensor/actions)
-[![codecov](https://codecov.io/gh/oneilsh/tidytensor/branch/master/graph/badge.svg?token=GWMT57CGDK)](https://codecov.io/gh/oneilsh/tidytensor)  
+[![codecov](https://codecov.io/gh/oneilsh/tidytensor/branch/master/graph/badge.svg?token=GWMT57CGDK)](https://codecov.io/gh/oneilsh/tidytensor) 
 
 
 <br />
