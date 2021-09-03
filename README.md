@@ -28,6 +28,14 @@ If you use TidyTensor, let us know in an [issue](https://github.com/oneilsh/tidy
 <br />
 <br />
 
+## Contributing
+
+Pull requests welcome! Please see the [`CONTRIBUTING.md`](https://github.com/oneilsh/tidytensor/blob/master/CONTRIBUTING.md) file for details. 
+We are especially interested in additional methods for visualizing or summarizing the structure and content of TidyTensors. 
+
+<br />
+<br />
+
 ## Changelog
 
 * v0.9.1: preparation for JOSS submission, many documentation improvements, removing `allow_huge` option from `as.data.frame.tidytensor()`
