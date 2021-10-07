@@ -29,7 +29,7 @@ On the other hand, it is common to refer to specific "dimensions" of an array as
 
 While simple rank 1, 2, or 3 tensors are easy enough to understand and work with, things become more complex for higher-rank tensors. However, higher-rank tensors often encode "set of" relationships that we can exploit to quickly navigate data. 
 
-Take for example a rank 2 tensor with shape `(28, 28)`, which might represent a small grayscale image. We can generate one with some fake data, and we run the result through `as.tidytensor()` which converts it to an array type (for consistency) and adds the `tidytensor` class to the matrix to provide a custom `print()`:
+Take for example a rank 2 tensor with shape `(28, 28)`, which might represent a small grayscale image. We can generate one with some fake data, and we run the result through `as.tidytensor()` which converts it to an array type (for consistency) and adds the `tidytensor` class to provide a custom printout:
 
 ```{r}
 library(tidytensor)
@@ -39,14 +39,14 @@ image <- matrix(runif(28 * 28), nrow = 28, ncol = 28) %>% as.tidytensor()
 image
 ```
 
-Three of these stored in a rank 3 tensor of shape `(3, 28, 28)` could represent an image (with R, G, and B channel values). The `tt()` function is a shortcut for `as.tidytensor()`. 
+Three of these stored in a rank 3 tensor of shape `(3, 28, 28)` (as an R `array()`) could represent an image with R, G, and B channel values. The `tt()` function is a shortcut for `as.tidytensor()`. 
 
 ```{r}
 image <- array(runif(3*28*28), dim = c(3, 28, 28)) %>% tt()
 image
 ```
 
-The printout above is showing only the first of the 3 channel tensors, with `...` indicating more exist inside the first rank (representing channels); we can see more by calling `print()` explicitly and adding a larger `max_per_level` argument:
+The printout above is showing only the first of the 3 channel tensors, with `# ...` on the last line indicating more exist inside the first rank; we can see more by calling `print()` explicitly and adding a larger `max_per_level` argument:
 
 ```{r}
 print(image, max_per_level = 2)
@@ -61,33 +61,27 @@ print(video, max_per_level = 2)
 
 With `max_per_level = 2`, this printout is showing the first 2 channels of the first 2 frames of the video. 
 
-We can continue in this way: a set of 256 of thesemight represent a training batch of 256 1-second color videos. Here we show a couple of other printing option that might be useful:
+We can continue in this way: a set of 256 of these might represent a training batch of 256 one-second color videos. 
 
 ```{r}
 videos <- array(runif(256*24*3*28*28), dim = c(256, 24, 3, 28, 28)) %>% tt()
 videos
 ```
 
-This view provides a quick summary of the structure of a tensor, much better than R's default print which assumes we're using [column- major ordering](https://www.r-bloggers.com/2013/07/column-major-confusion/) for high-dimensional arrays (output scrolls):
+This view provides a quick summary of the structure of a tensor, much better than R's default which assumes we're using [column-major ordering](https://www.r-bloggers.com/2013/07/column-major-confusion/) for high-dimensional arrays (output scrolls):
 
 ```{r, attr.output='style="max-height: 205px;"'}
 unclass(videos) # remove tidytensor class to convert back to basic R array
 ```
 
-The above tensor stores data in a "channels first" representation, where the channels rank comes before the image row and column ranks. It's not uncommon to use a "channels last" representation, in this case the print notices the last rank has a size of 3 and assumes we're printing an image in channels-last configuration:
+The above tensor stores data in a "channels first" representation, where the channels rank comes before the image row and column ranks. It's not uncommon to use a "channels last" representation, in this case `print()` will notice the last rank has a size of 3 and assume we're printing an image in channels-last configuration. 
+
+To help make the printout fit nicely we supply some extra parameters to `print()`. In the result, we can quickly see that each image is represented by a 28x28 matrix of length-3 R,G,B values (as opposed to three 28x28 matrices as above). 
 
 ```{r}
 videos <- array(runif(256*24*28*28*3), dim = c(256, 24, 28, 28, 3)) %>% tt()
-videos
-```
-
-In this structure, each image is represented by a 28x28 matrix of length-3 R,G,B values. Since the above is a little too wide to fit nicely let's adjust some parameters of the printout.
-
-```{r}
 print(videos, max_rows = 4, max_cols = 3, signif_digits = 2, max_per_level = 2)
 ```
-
-Now we can more clearly see the data organized in the final "pixel" rank.
 
 Not all tensors store image data, for example a 1 second audio clip sampled at 44.1 kHz might be stored as a rank 1 tensor of shape `(44100)`, ten of these would have shape `(10, 44100)`.
 
@@ -121,7 +115,7 @@ cifar10_raw <- dataset_cifar10()$train$x
 cifar10_raw %>% tt()
 ```
 
-This appears to be a set of 50000 32x32 RGB images, in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the tidy-friendly `set_ranknames()`, and the `.dots` parameter (accepted by most TidyTensor functions) can be used to provide ranknames as a character vector.
+This appears to be a set of 50000 32x32 RGB images in a channels-last organization. We can set ranknames with either `ranknames(t) <-` syntax or the tidy-friendly `set_ranknames()`, and the `.dots` parameter (accepted by most TidyTensor functions) can be used to provide ranknames as a character vector.
 
 ```{r}
 # Base-R style
@@ -134,9 +128,9 @@ images <- cifar10_raw %>%
   set_ranknames(image, row, col, channel)
 
 # OR
-# cifar10_raw %>%
-#   tt() %>%
-#   set_ranknames(.dots = c("image", "row", "col", "channel"))
+images <- cifar10_raw %>%
+  tt() %>%
+  set_ranknames(.dots = c("image", "row", "col", "channel"))
 ```
 
 Named ranks make a variety of operations more explicit. For example to set dimension names for a single rank we can use `set_dimnames_for_rank()` rather than base-R `dimnames()`.
@@ -417,9 +411,9 @@ selection <- cifar10 %>%
 
 selection
 
-cifar10_normalized <- cifar10 %>% subset(image = selection)
-
-cifar10_normalized
+cifar10 %>% 
+  subset(image = 1:100) %>%
+  subset(image = selection)
 ```
 Applying a function can also be useful for [data augmentation](https://en.wikipedia.org/wiki/Data_augmentation), where we want to generate
 adjusted versions of input examples. Here's a function which duplicates a tensor 3 times adding Gaussian noise to each, returning the result as a new batch of tensors with a `replicate` rank to distinguish them. (This is not a very useful data augmentation method, but just meant to illustrate the technique.)
